@@ -7,14 +7,14 @@
   <meta name="description" content="Minimal install page for pi-web" />
   <style>
     :root {
-      --bg: #0a0b0c;
-      --panel: #15171a;
-      --panel-hover: #191b1f;
-      --button: #202329;
-      --button-hover: #272b31;
+      --bg: #090a0b;
+      --panel: #14161a;
+      --panel-hover: #181b1f;
+      --button: #20242a;
+      --button-hover: #282d34;
       --text: #b5b9bf;
-      --muted: #828892;
-      --command: #e1e5ea;
+      --muted: #7f868f;
+      --command: #e3e6ea;
       --border: rgba(255,255,255,0.05);
     }
 
@@ -58,10 +58,17 @@
     }
 
     .lead {
-      margin: 0 0 20px;
+      margin: 0 0 14px;
       max-width: 700px;
       font-size: 15px;
       line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .meta {
+      margin: 0 0 20px;
+      font-size: 13px;
+      line-height: 1.6;
       color: var(--muted);
     }
 
@@ -171,18 +178,16 @@
     }
 
     .small-note {
-      margin-top: 6px;
+      margin-top: 8px;
       font-size: 13px;
+      line-height: 1.6;
       color: var(--muted);
+      max-width: 780px;
     }
 
     .info {
-      margin-top: 64px;
+      margin-top: 56px;
       max-width: 760px;
-    }
-
-    .info-section {
-      margin-top: 34px;
     }
 
     .info h2 {
@@ -249,7 +254,9 @@
       }
 
       .info p,
-      .info li {
+      .info li,
+      .small-note,
+      .meta {
         font-size: 14px;
       }
     }
@@ -262,6 +269,9 @@
     <h1>Install pi-web in one command.</h1>
     <p class="lead">
       Minimal install options for a browser-based web agent.
+    </p>
+    <p class="meta">
+      npm package: <span class="code-inline">@dimko33/pi-web</span> · current published version: <span class="code-inline">0.1.3</span>
     </p>
 
     <div class="links">
@@ -276,7 +286,9 @@
         <div class="cmd-text" id="cmd1">npm install -g @dimko33/pi-web</div>
         <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
       </div>
-      <div class="small-note">The shortest install path.</div>
+      <div class="small-note">
+        During setup, the installer asks for <span class="code-inline">Public host/IP</span> and then key prompts for OpenRouter, GROQ, Gemini, Anthropic, OpenAI, and Kimi. If you do not have a key for a provider, just press <span class="code-inline">Enter</span>.
+      </div>
     </section>
 
     <section class="section">
@@ -302,47 +314,19 @@
     </section>
 
     <section class="info">
-      <div class="info-section">
-        <h2>What happens during install</h2>
-        <p>
-          The installer will ask for your server address and API keys.
-          Right now the supported providers are <span class="code-inline">OpenRouter</span>,
-          <span class="code-inline">GROQ</span>, and <span class="code-inline">Kimi</span>.
-        </p>
-      </div>
-
-      <div class="info-section">
-        <h2>Entering API keys</h2>
-        <p>
-          API key input is hidden. This means nothing will appear on screen while you type or paste.
-          That is expected.
-        </p>
-        <ul>
-          <li>Copy the key</li>
-          <li>Paste it with <span class="code-inline">Cmd+V</span> or <span class="code-inline">Ctrl+V</span></li>
-          <li>Press <span class="code-inline">Enter</span></li>
-        </ul>
-      </div>
-
-      <div class="info-section">
-        <h2>After install</h2>
-        <p>
-          At the end, the installer prints the links you need:
-          the main web address, the admin-related address, and the client session links.
-        </p>
-        <p>
-          After setup, you usually do not need to keep working in the terminal.
-          The main idea of pi-web is to control the agent through the web interface.
-        </p>
-      </div>
-
-      <div class="info-section">
-        <h2>Why this exists</h2>
-        <p>
-          Terminal-based agents feel great on desktop, but mobile terminal apps are often inconvenient.
-          pi-web was made to give the same kind of workflow through a browser, especially on phones.
-        </p>
-      </div>
+      <h2>Setup notes</h2>
+      <p>
+        Current built-in providers in the app: <span class="code-inline">OpenRouter</span>, <span class="code-inline">GROQ</span>, and <span class="code-inline">Kimi</span>.
+      </p>
+      <p>
+        Extra keys can also be stored during setup now: <span class="code-inline">Gemini</span>, <span class="code-inline">Anthropic</span>, and <span class="code-inline">OpenAI</span>.
+      </p>
+      <ul>
+        <li>If you do not have a key for a provider, just press <span class="code-inline">Enter</span>.</li>
+        <li>To complete install, you need at least one currently supported key: <span class="code-inline">OpenRouter</span>, <span class="code-inline">GROQ</span>, or <span class="code-inline">Kimi</span>.</li>
+        <li>At the end of install, the terminal prints the web links you need.</li>
+        <li>After setup, most interaction happens through the web interface, not the terminal.</li>
+      </ul>
     </section>
 
     <div class="footer">
