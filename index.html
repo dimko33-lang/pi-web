@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>pi-web</title>
-  <meta name="description" content="Minimal installer page for pi-web" />
+  <meta name="description" content="Minimal install page for pi-web" />
   <style>
     :root {
-      --bg: #0a0a0a;
-      --panel: #111111;
-      --panel-2: #151515;
-      --text: #f2f2f2;
-      --muted: #9a9a9a;
-      --line: #262626;
-      --line-2: #333333;
-      --hover: #1b1b1b;
+      --bg: #0b0b0b;
+      --text: #d9d9d9;
+      --muted: #8a8a8a;
+      --line: #242424;
+      --panel: #101010;
+      --panel-2: #141414;
+      --btn: #171717;
+      --btn-hover: #1d1d1d;
     }
 
     * {
@@ -30,45 +30,45 @@
     }
 
     body {
-      padding: 40px 18px 80px;
+      padding: 36px 16px 72px;
     }
 
     .wrap {
-      width: 100%;
       max-width: 760px;
       margin: 0 auto;
     }
 
     .brand {
-      color: var(--muted);
       font-size: 12px;
+      color: var(--muted);
       letter-spacing: 0.08em;
       text-transform: uppercase;
       margin-bottom: 18px;
     }
 
     h1 {
-      margin: 0 0 12px;
-      font-size: clamp(34px, 6vw, 56px);
-      line-height: 1;
-      letter-spacing: -0.045em;
+      margin: 0 0 10px;
+      font-size: clamp(26px, 4vw, 38px);
       font-weight: 600;
+      line-height: 1.06;
+      letter-spacing: -0.04em;
+      color: #eeeeee;
     }
 
     .lead {
       margin: 0;
       color: var(--muted);
-      font-size: 16px;
-      line-height: 1.6;
+      font-size: 15px;
+      line-height: 1.65;
       max-width: 620px;
     }
 
     .links {
       display: flex;
-      gap: 16px;
+      gap: 14px;
       flex-wrap: wrap;
-      margin-top: 18px;
-      margin-bottom: 40px;
+      margin-top: 16px;
+      margin-bottom: 34px;
     }
 
     .links a {
@@ -83,91 +83,102 @@
     }
 
     .section {
-      margin-top: 26px;
-      padding-top: 18px;
+      padding: 18px 0 20px;
       border-top: 1px solid var(--line);
     }
 
     .eyebrow {
-      color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-bottom: 10px;
+      color: var(--muted);
+      margin-bottom: 8px;
     }
 
-    h2 {
-      margin: 0 0 8px;
-      font-size: 23px;
+    .title {
+      margin: 0 0 6px;
+      font-size: 19px;
       font-weight: 600;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.02em;
+      color: #ebebeb;
     }
 
     .desc {
-      margin: 0 0 14px;
+      margin: 0 0 12px;
       color: var(--muted);
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.6;
     }
 
-    .command-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: stretch;
+    .command-wrap {
+      position: relative;
     }
 
     .command {
-      background: var(--panel);
+      width: 100%;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
       border: 1px solid var(--line);
-      border-radius: 4px;
-      padding: 14px 16px;
+      border-radius: 3px;
+      padding: 14px 86px 14px 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #dcdcdc;
       overflow-x: auto;
       white-space: nowrap;
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--text);
     }
 
-    button {
-      border: 1px solid var(--line-2);
-      background: transparent;
-      color: var(--text);
-      border-radius: 4px;
-      padding: 0 14px;
-      font-size: 13px;
+    .copy-btn {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      border: 1px solid #2f2f2f;
+      background: var(--btn);
+      color: #cfcfcf;
+      border-radius: 3px;
+      height: 34px;
+      padding: 0 12px;
+      font-size: 12px;
       font-weight: 500;
       cursor: pointer;
-      min-height: 48px;
     }
 
-    button:hover {
-      background: var(--hover);
+    .copy-btn:hover {
+      background: var(--btn-hover);
     }
 
     .hint {
-      margin-top: 8px;
       min-height: 18px;
+      margin-top: 6px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .footer {
-      margin-top: 44px;
+      margin-top: 22px;
       padding-top: 18px;
       border-top: 1px solid var(--line);
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.7;
     }
 
-    @media (max-width: 640px) {
-      .command-row {
-        grid-template-columns: 1fr;
+    @media (max-width: 520px) {
+      body {
+        padding: 28px 12px 56px;
       }
 
-      button {
-        width: 100%;
+      .command {
+        padding-right: 84px;
+        font-size: 12px;
+      }
+
+      .copy-btn {
+        right: 6px;
+        height: 32px;
+        padding: 0 10px;
+        font-size: 12px;
       }
     }
   </style>
@@ -176,9 +187,9 @@
   <main class="wrap">
     <div class="brand">pi-web</div>
 
-    <h1>Minimal web agent.</h1>
+    <h1>Install pi-web in one command.</h1>
     <p class="lead">
-      Install in one command. Run on a server. Open in the browser.
+      Minimal install options for a browser-based web agent.
     </p>
 
     <div class="links">
@@ -189,64 +200,61 @@
 
     <section class="section">
       <div class="eyebrow">Recommended</div>
-      <h2>Shell install</h2>
-      <p class="desc">
-        Best option for a clean Linux server. No Node.js required.
-      </p>
+      <h2 class="title">Shell install</h2>
+      <p class="desc">Best option for a clean Linux server. No Node.js required.</p>
 
-      <div class="command-row">
+      <div class="command-wrap">
         <div class="command" id="cmd1">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
-        <button onclick="copyCmd('cmd1','msg1')">Copy</button>
+        <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
       </div>
       <div class="hint" id="msg1"></div>
     </section>
 
     <section class="section">
       <div class="eyebrow">Minimal</div>
-      <h2>npm install</h2>
-      <p class="desc">
-        Use this if Node.js and npm are already installed.
-      </p>
+      <h2 class="title">npm install</h2>
+      <p class="desc">Use this if Node.js and npm are already installed.</p>
 
-      <div class="command-row">
+      <div class="command-wrap">
         <div class="command" id="cmd2">npm install -g @dimko33/pi-web</div>
-        <button onclick="copyCmd('cmd2','msg2')">Copy</button>
+        <button class="copy-btn" onclick="copyCmd('cmd2', this)">Copy</button>
       </div>
       <div class="hint" id="msg2"></div>
     </section>
 
     <section class="section">
       <div class="eyebrow">Ubuntu / Debian</div>
-      <h2>One-liner</h2>
-      <p class="desc">
-        Installs Node.js first, then installs pi-web globally.
-      </p>
+      <h2 class="title">One-liner</h2>
+      <p class="desc">Installs Node.js first, then installs pi-web globally.</p>
 
-      <div class="command-row">
+      <div class="command-wrap">
         <div class="command" id="cmd3">curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &amp;&amp; apt-get install -y nodejs &amp;&amp; npm install -g @dimko33/pi-web</div>
-        <button onclick="copyCmd('cmd3','msg3')">Copy</button>
+        <button class="copy-btn" onclick="copyCmd('cmd3', this)">Copy</button>
       </div>
       <div class="hint" id="msg3"></div>
     </section>
 
     <div class="footer">
-      Simple tools. Minimal setup. No extra noise.
+      A small install page for testing and daily use.
     </div>
   </main>
 
   <script>
-    async function copyCmd(codeId, msgId) {
-      const text = document.getElementById(codeId).innerText;
-      const msg = document.getElementById(msgId);
+    async function copyCmd(id, btn) {
+      const text = document.getElementById(id).innerText;
+      const original = btn.textContent;
 
       try {
         await navigator.clipboard.writeText(text);
-        msg.textContent = "Copied.";
+        btn.textContent = "Copied";
         setTimeout(() => {
-          msg.textContent = "";
-        }, 1200);
+          btn.textContent = original;
+        }, 1000);
       } catch (e) {
-        msg.textContent = "Copy failed.";
+        btn.textContent = "Error";
+        setTimeout(() => {
+          btn.textContent = original;
+        }, 1000);
       }
     }
   </script>
