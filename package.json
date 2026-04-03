@@ -1,1 +1,23 @@
 
+{
+  "name": "@dimko33/pi-web",
+  "version": "0.1.0",
+  "description": "Minimal installer for PI Web Agent",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "pi-web": "bin/pi-web.js"
+  },
+  "scripts": {
+    "postinstall": "node bin/pi-web.js --postinstall"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "bin"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
