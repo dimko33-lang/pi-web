@@ -7,14 +7,15 @@
   <meta name="description" content="Minimal install page for pi-web" />
   <style>
     :root {
-      --bg: #000000;
-      --panel: #111111;
-      --panel-2: #141414;
-      --text: #d8d8d8;
-      --muted: #7f7f7f;
-      --line: #1f1f1f;
-      --btn: #181818;
-      --btn-hover: #202020;
+      --bg: #111213;
+      --panel: #191a1c;
+      --panel-hover: #1d1f21;
+      --button: #232528;
+      --button-hover: #2a2d31;
+      --text: #b9bcc1;
+      --muted: #8e9399;
+      --command: #e4e6ea;
+      --border: rgba(255,255,255,0.06);
     }
 
     * {
@@ -30,108 +31,117 @@
     }
 
     body {
-      padding: 32px 14px 60px;
+      padding: 36px 18px 64px;
     }
 
     .wrap {
       width: 100%;
-      max-width: 760px;
+      max-width: 860px;
       margin: 0 auto;
     }
 
     .brand {
       font-size: 12px;
-      color: var(--muted);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      color: var(--muted);
+      margin-bottom: 18px;
     }
 
     h1 {
       margin: 0 0 10px;
       font-size: clamp(24px, 4vw, 34px);
-      line-height: 1.08;
+      line-height: 1.12;
       font-weight: 600;
       letter-spacing: -0.03em;
-      color: #eeeeee;
+      color: var(--text);
     }
 
     .lead {
       margin: 0 0 18px;
+      max-width: 680px;
+      font-size: 15px;
+      line-height: 1.65;
       color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-      max-width: 620px;
     }
 
     .links {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 26px;
+      margin-bottom: 30px;
     }
 
     .links a {
       color: var(--text);
       text-decoration: none;
       font-size: 14px;
-      opacity: 0.88;
+      opacity: 0.9;
     }
 
     .links a:hover {
       opacity: 1;
     }
 
-    .block {
-      margin-top: 22px;
+    .main-install {
+      margin-bottom: 34px;
+    }
+
+    .section {
+      margin-top: 26px;
     }
 
     .label {
+      margin-bottom: 8px;
       font-size: 11px;
-      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-bottom: 8px;
+      color: var(--muted);
     }
 
     .title {
       margin: 0 0 6px;
       font-size: 18px;
-      line-height: 1.2;
+      line-height: 1.25;
       font-weight: 600;
-      color: #ebebeb;
+      color: var(--text);
     }
 
     .desc {
-      margin: 0 0 10px;
-      color: var(--muted);
+      margin: 0 0 12px;
       font-size: 14px;
       line-height: 1.6;
+      color: var(--muted);
+      max-width: 720px;
     }
 
     .cmd {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       width: 100%;
+      padding: 10px;
       background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 2px;
-      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .cmd:hover {
+      background: var(--panel-hover);
     }
 
     .cmd-text {
-      flex: 1;
       min-width: 0;
       overflow-x: auto;
       white-space: nowrap;
-      color: #dcdcdc;
+      color: var(--command);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
       line-height: 1.5;
       padding: 4px 6px;
       scrollbar-width: thin;
-      scrollbar-color: #2b2b2b transparent;
+      scrollbar-color: #3a3d42 transparent;
     }
 
     .cmd-text::-webkit-scrollbar {
@@ -139,45 +149,45 @@
     }
 
     .cmd-text::-webkit-scrollbar-thumb {
-      background: #2b2b2b;
+      background: #3a3d42;
+      border-radius: 999px;
     }
 
     .copy-btn {
       flex: 0 0 auto;
-      height: 32px;
-      padding: 0 12px;
-      border: 1px solid #2a2a2a;
-      background: var(--btn);
-      color: #cfcfcf;
-      border-radius: 2px;
+      height: 34px;
+      padding: 0 13px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      background: var(--button);
+      color: var(--text);
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
     }
 
     .copy-btn:hover {
-      background: var(--btn-hover);
+      background: var(--button-hover);
     }
 
-    .sub {
-      margin-top: 30px;
-      color: var(--muted);
+    .other {
+      margin-top: 10px;
       font-size: 13px;
-      line-height: 1.6;
+      color: var(--muted);
     }
 
-    .small-gap {
-      margin-top: 16px;
-    }
-
-    @media (max-width: 560px) {
+    @media (max-width: 640px) {
       body {
-        padding: 24px 10px 48px;
+        padding: 26px 12px 48px;
+      }
+
+      .wrap {
+        max-width: 100%;
       }
 
       .cmd {
-        padding: 6px;
-        gap: 6px;
+        gap: 8px;
+        padding: 8px;
       }
 
       .cmd-text {
@@ -186,9 +196,9 @@
       }
 
       .copy-btn {
-        height: 30px;
-        padding: 0 10px;
-        font-size: 12px;
+        height: 32px;
+        padding: 0 11px;
+        border-radius: 8px;
       }
     }
   </style>
@@ -208,20 +218,17 @@
       <a href="https://github.com/dimko33-lang/pi-web" target="_blank" rel="noreferrer">website source</a>
     </div>
 
-    <section class="block">
+    <section class="main-install">
       <div class="label">Recommended</div>
-      <h2 class="title">Shell install</h2>
-      <p class="desc">Best option for a clean Linux server. No Node.js required.</p>
-
       <div class="cmd">
         <div class="cmd-text" id="cmd1">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
         <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
       </div>
     </section>
 
-    <div class="sub">Other install options.</div>
+    <div class="other">Other install options.</div>
 
-    <section class="block small-gap">
+    <section class="section">
       <div class="label">If Node.js is already installed</div>
       <h2 class="title">npm install</h2>
       <p class="desc">Shortest option if the server already has Node.js and npm.</p>
@@ -232,7 +239,7 @@
       </div>
     </section>
 
-    <section class="block small-gap">
+    <section class="section">
       <div class="label">If Node.js is not installed</div>
       <h2 class="title">Ubuntu / Debian one-liner</h2>
       <p class="desc">Installs Node.js first, then installs pi-web globally.</p>
