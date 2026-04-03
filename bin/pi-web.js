@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 
 const fs = require('node:fs');
@@ -10,6 +9,27 @@ const { spawnSync } = require('node:child_process');
 const BOOTSTRAP_URL =
   process.env.PI_BOOTSTRAP_URL ||
   'https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh';
+
+function hasInteractiveTty() {
+  if (process.stdin.isTTY) return true;
+  try {
+    fs.accessSync('/dev/tty', fs.constants.R_OK | fs.constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function hasAnyInstallerKey() {
+  return Boolean(
+    process.env.OPENROUTER_API_KEY ||
+    process.env.GROQ_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.ANTHROPIC_API_KEY ||
+    process.env.OPENAI_API_KEY ||
+    process.env.KIMI_API_KEY
+  );
+}
 
 function download(url, dest) {
   return new Promise((resolve, reject) => {
@@ -39,14 +59,25 @@ function download(url, dest) {
 async function main() {
   const isPostinstall = process.argv.includes('--postinstall');
 
-  // Если postinstall сработал не при global install — просто выходим
+  if (isPostinstall && process.env.PI_WEB_SKIP_POSTINSTALL === '1') {
+    process.exit(0);
+  }
+
   if (isPostinstall && process.env.npm_config_global !== 'true') {
     process.exit(0);
   }
 
   if (process.platform !== 'linux') {
+    if (isPostinstall) process.exit(0);
     console.error('This installer is for Linux servers.');
     process.exit(1);
+  }
+
+  if (isPostinstall && !hasInteractiveTty() && !hasAnyInstallerKey()) {
+    console.log('==> Package installed.');
+    console.log('==> No interactive terminal detected during postinstall.');
+    console.log('==> Run "pi-web" manually to start setup.');
+    process.exit(0);
   }
 
   const tmpFile = path.join(
