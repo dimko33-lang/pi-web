@@ -58,17 +58,10 @@
     }
 
     .lead {
-      margin: 0 0 14px;
+      margin: 0 0 20px;
       max-width: 700px;
       font-size: 15px;
       line-height: 1.65;
-      color: var(--muted);
-    }
-
-    .meta {
-      margin: 0 0 20px;
-      font-size: 13px;
-      line-height: 1.6;
       color: var(--muted);
     }
 
@@ -178,43 +171,28 @@
     }
 
     .small-note {
-      margin-top: 8px;
+      margin-top: 6px;
       font-size: 13px;
-      line-height: 1.6;
       color: var(--muted);
-      max-width: 780px;
     }
 
-    .info {
+    .notes {
       margin-top: 56px;
       max-width: 760px;
     }
 
-    .info h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      line-height: 1.25;
+    .notes-title {
+      margin: 0 0 12px;
+      font-size: 16px;
       font-weight: 600;
       color: var(--text);
     }
 
-    .info p {
-      margin: 0 0 12px;
-      font-size: 15px;
+    .notes p {
+      margin: 0 0 10px;
+      font-size: 14px;
       line-height: 1.7;
       color: var(--muted);
-    }
-
-    .info ul {
-      margin: 0;
-      padding-left: 18px;
-      color: var(--muted);
-    }
-
-    .info li {
-      margin: 0 0 8px;
-      font-size: 15px;
-      line-height: 1.7;
     }
 
     .code-inline {
@@ -224,8 +202,8 @@
     }
 
     .footer {
-      margin-top: 54px;
-      font-size: 13px;
+      margin-top: 40px;
+      font-size: 12px;
       color: var(--muted);
     }
 
@@ -253,10 +231,7 @@
         padding: 0 12px;
       }
 
-      .info p,
-      .info li,
-      .small-note,
-      .meta {
+      .notes p {
         font-size: 14px;
       }
     }
@@ -269,9 +244,6 @@
     <h1>Install pi-web in one command.</h1>
     <p class="lead">
       Minimal install options for a browser-based web agent.
-    </p>
-    <p class="meta">
-      npm package: <span class="code-inline">@dimko33/pi-web</span> · current published version: <span class="code-inline">0.1.3</span>
     </p>
 
     <div class="links">
@@ -286,9 +258,7 @@
         <div class="cmd-text" id="cmd1">npm install -g @dimko33/pi-web</div>
         <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
       </div>
-      <div class="small-note">
-        During setup, the installer asks for <span class="code-inline">Public host/IP</span> and then key prompts for OpenRouter, GROQ, Gemini, Anthropic, OpenAI, and Kimi. If you do not have a key for a provider, just press <span class="code-inline">Enter</span>.
-      </div>
+      <div class="small-note">The shortest install path.</div>
     </section>
 
     <section class="section">
@@ -313,25 +283,29 @@
       </div>
     </section>
 
-    <section class="info">
-      <h2>Setup notes</h2>
+    <section class="notes">
+      <h2 class="notes-title">Key prompts</h2>
       <p>
-        Current built-in providers in the app: <span class="code-inline">OpenRouter</span>, <span class="code-inline">GROQ</span>, and <span class="code-inline">Kimi</span>.
+        During setup, the installer asks for keys for
+        <span class="code-inline">OpenRouter</span>,
+        <span class="code-inline">GROQ</span>,
+        <span class="code-inline">Gemini</span>,
+        <span class="code-inline">Anthropic</span>,
+        <span class="code-inline">OpenAI</span>,
+        and <span class="code-inline">Kimi</span>.
       </p>
       <p>
-        Extra keys can also be stored during setup now: <span class="code-inline">Gemini</span>, <span class="code-inline">Anthropic</span>, and <span class="code-inline">OpenAI</span>.
+        If you do not have a key for a provider, just press <span class="code-inline">Enter</span>.
       </p>
-      <ul>
-        <li>If you do not have a key for a provider, just press <span class="code-inline">Enter</span>.</li>
-        <li>To complete install, you need at least one currently supported key: <span class="code-inline">OpenRouter</span>, <span class="code-inline">GROQ</span>, or <span class="code-inline">Kimi</span>.</li>
-        <li>At the end of install, the terminal prints the web links you need.</li>
-        <li>After setup, most interaction happens through the web interface, not the terminal.</li>
-      </ul>
+      <p>
+        To complete install, you currently need at least one working key from
+        <span class="code-inline">OpenRouter</span>,
+        <span class="code-inline">GROQ</span>,
+        or <span class="code-inline">Kimi</span>.
+      </p>
     </section>
 
-    <div class="footer">
-      Early version. Minimal, practical, and built for real use first.
-    </div>
+    <div class="footer">v0.1.3</div>
   </main>
 
   <script>
