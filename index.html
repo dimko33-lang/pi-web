@@ -7,15 +7,15 @@
   <meta name="description" content="Minimal install page for pi-web" />
   <style>
     :root {
-      --bg: #111213;
-      --panel: #191a1c;
-      --panel-hover: #1d1f21;
-      --button: #232528;
-      --button-hover: #2a2d31;
-      --text: #b9bcc1;
-      --muted: #8e9399;
-      --command: #e4e6ea;
-      --border: rgba(255,255,255,0.06);
+      --bg: #0d0e10;
+      --panel: #17181b;
+      --panel-hover: #1b1d20;
+      --button: #222429;
+      --button-hover: #2a2d33;
+      --text: #b5b8bd;
+      --muted: #848991;
+      --command: #e2e5e9;
+      --border: rgba(255,255,255,0.05);
     }
 
     * {
@@ -31,12 +31,12 @@
     }
 
     body {
-      padding: 36px 18px 64px;
+      padding: 40px 18px 64px;
     }
 
     .wrap {
       width: 100%;
-      max-width: 860px;
+      max-width: 920px;
       margin: 0 auto;
     }
 
@@ -58,8 +58,8 @@
     }
 
     .lead {
-      margin: 0 0 18px;
-      max-width: 680px;
+      margin: 0 0 20px;
+      max-width: 700px;
       font-size: 15px;
       line-height: 1.65;
       color: var(--muted);
@@ -69,7 +69,7 @@
       display: flex;
       gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 30px;
+      margin-bottom: 34px;
     }
 
     .links a {
@@ -84,11 +84,11 @@
     }
 
     .main-install {
-      margin-bottom: 34px;
+      margin-bottom: 38px;
     }
 
     .section {
-      margin-top: 26px;
+      margin-top: 30px;
     }
 
     .label {
@@ -112,7 +112,7 @@
       font-size: 14px;
       line-height: 1.6;
       color: var(--muted);
-      max-width: 720px;
+      max-width: 760px;
     }
 
     .cmd {
@@ -121,10 +121,10 @@
       align-items: center;
       gap: 10px;
       width: 100%;
-      padding: 10px;
+      padding: 11px;
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 12px;
     }
 
     .cmd:hover {
@@ -139,9 +139,9 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
       line-height: 1.5;
-      padding: 4px 6px;
+      padding: 6px 8px;
       scrollbar-width: thin;
-      scrollbar-color: #3a3d42 transparent;
+      scrollbar-color: #3a3e45 transparent;
     }
 
     .cmd-text::-webkit-scrollbar {
@@ -149,16 +149,16 @@
     }
 
     .cmd-text::-webkit-scrollbar-thumb {
-      background: #3a3d42;
+      background: #3a3e45;
       border-radius: 999px;
     }
 
     .copy-btn {
       flex: 0 0 auto;
-      height: 34px;
-      padding: 0 13px;
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 8px;
+      height: 36px;
+      padding: 0 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 9px;
       background: var(--button);
       color: var(--text);
       font-size: 12px;
@@ -170,15 +170,15 @@
       background: var(--button-hover);
     }
 
-    .other {
-      margin-top: 10px;
+    .small-note {
+      margin-top: 6px;
       font-size: 13px;
       color: var(--muted);
     }
 
     @media (max-width: 640px) {
       body {
-        padding: 26px 12px 48px;
+        padding: 28px 12px 48px;
       }
 
       .wrap {
@@ -192,13 +192,12 @@
 
       .cmd-text {
         font-size: 12px;
-        padding: 4px;
+        padding: 4px 6px;
       }
 
       .copy-btn {
-        height: 32px;
-        padding: 0 11px;
-        border-radius: 8px;
+        height: 34px;
+        padding: 0 12px;
       }
     }
   </style>
@@ -219,24 +218,12 @@
     </div>
 
     <section class="main-install">
-      <div class="label">Recommended</div>
+      <div class="label">Main command</div>
       <div class="cmd">
-        <div class="cmd-text" id="cmd1">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
+        <div class="cmd-text" id="cmd1">npm install -g @dimko33/pi-web</div>
         <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
       </div>
-    </section>
-
-    <div class="other">Other install options.</div>
-
-    <section class="section">
-      <div class="label">If Node.js is already installed</div>
-      <h2 class="title">npm install</h2>
-      <p class="desc">Shortest option if the server already has Node.js and npm.</p>
-
-      <div class="cmd">
-        <div class="cmd-text" id="cmd2">npm install -g @dimko33/pi-web</div>
-        <button class="copy-btn" onclick="copyCmd('cmd2', this)">Copy</button>
-      </div>
+      <div class="small-note">The shortest install path.</div>
     </section>
 
     <section class="section">
@@ -245,7 +232,18 @@
       <p class="desc">Installs Node.js first, then installs pi-web globally.</p>
 
       <div class="cmd">
-        <div class="cmd-text" id="cmd3">curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &amp;&amp; apt-get install -y nodejs &amp;&amp; npm install -g @dimko33/pi-web</div>
+        <div class="cmd-text" id="cmd2">curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &amp;&amp; apt-get install -y nodejs &amp;&amp; npm install -g @dimko33/pi-web</div>
+        <button class="copy-btn" onclick="copyCmd('cmd2', this)">Copy</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="label">Direct shell install</div>
+      <h2 class="title">No npm required</h2>
+      <p class="desc">Use this if you want to install directly from the bootstrap script.</p>
+
+      <div class="cmd">
+        <div class="cmd-text" id="cmd3">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
         <button class="copy-btn" onclick="copyCmd('cmd3', this)">Copy</button>
       </div>
     </section>
