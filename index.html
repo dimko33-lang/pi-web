@@ -118,7 +118,7 @@
     .cmd {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
+      align-items: start;
       gap: 10px;
       width: 100%;
       padding: 11px;
@@ -134,7 +134,6 @@
     .cmd-text {
       min-width: 0;
       overflow-x: auto;
-      white-space: nowrap;
       color: var(--command);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
@@ -142,6 +141,8 @@
       padding: 6px 8px;
       scrollbar-width: thin;
       scrollbar-color: #353941 transparent;
+      white-space: pre-wrap;
+      word-break: break-all;
     }
 
     .cmd-text::-webkit-scrollbar {
@@ -317,6 +318,21 @@
         <div class="cmd-text" id="cmd3">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
         <button class="copy-btn" onclick="copyCmd('cmd3', this)">Копировать</button>
       </div>
+    </section>
+
+    <!-- НОВЫЙ БЛОК: ручной запуск из терминала -->
+    <section class="section">
+      <div class="label">Ручной запуск (терминал)</div>
+      <div class="desc">
+        Если вы установили агента вручную, запустите его этими командами. После запуска можно сразу общаться с моделью или ввести <span class="code-inline">help</span> для полных инструкций.
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="cmd-manual">cd /opt/my-agent
+source /opt/my-agent/.venv/bin/activate
+python3 cli.py</div>
+        <button class="copy-btn" onclick="copyCmd('cmd-manual', this)">Копировать</button>
+      </div>
+      <div class="small-note">Интерфейс терминала пока в разработке, но основные команды работают.</div>
     </section>
 
     <section class="info">
