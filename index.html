@@ -136,9 +136,9 @@
       overflow-x: auto;
       color: var(--command);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 16px;           /* увеличенный шрифт команд */
+      font-size: 16px;
       line-height: 1.5;
-      padding: 8px 8px;          /* чуть больше воздуха */
+      padding: 8px 8px;
       scrollbar-width: thin;
       scrollbar-color: #353941 transparent;
       white-space: pre-wrap;
@@ -156,9 +156,9 @@
 
     .copy-btn, .demo-btn {
       flex: 0 0 auto;
-      height: 38px;              /* чуть выше */
+      height: 38px;
       padding: 0 16px;
-      border: 1px solid rgba(255,255,255,0.2);  /* заметная светло-серая каёмочка */
+      border: 1px solid rgba(255,255,255,0.2);
       border-radius: 9px;
       background: var(--button);
       color: var(--text);
@@ -237,26 +237,21 @@
       body {
         padding: 28px 12px 48px;
       }
-
       .wrap {
         max-width: 100%;
       }
-
       .cmd {
         gap: 8px;
         padding: 8px;
       }
-
       .cmd-text {
-        font-size: 14px;         /* на мобильных чуть меньше, но всё равно крупнее */
+        font-size: 14px;
         padding: 6px 6px;
       }
-
       .copy-btn, .demo-btn {
         height: 34px;
         padding: 0 12px;
       }
-
       .info p,
       .info li {
         font-size: 14px;
@@ -304,7 +299,6 @@
       <div class="label">If Node.js is not installed</div>
       <h2 class="title">Ubuntu / Debian one-liner</h2>
       <p class="desc">Installs Node.js first, then installs pi-web globally.</p>
-
       <div class="cmd">
         <div class="cmd-text" id="cmd2">curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &amp;&amp; apt-get install -y nodejs &amp;&amp; npm install -g @dimko33/pi-web</div>
         <button class="copy-btn" onclick="copyCmd('cmd2', this)">Copy</button>
@@ -315,7 +309,6 @@
       <div class="label">Direct shell install</div>
       <h2 class="title">No npm required</h2>
       <p class="desc">Alternative – install directly from the bootstrap script.</p>
-
       <div class="cmd">
         <div class="cmd-text" id="cmd3">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
         <button class="copy-btn" onclick="copyCmd('cmd3', this)">Copy</button>
@@ -392,6 +385,11 @@ python3 cli.py</div>
       <div style="margin-top: 18px; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px;">
         Thanks to <a href="https://pi.dev/" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">Mario Zechner (pi.dev)</a> for the philosophy and inspiration.<br>
         This project is my own web implementation of a similar idea.
+      </div>
+      <!-- Contacts: email + Telegram chat (fixed link) -->
+      <div style="margin-top: 18px; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px;">
+        📧 <a href="mailto:dimko33@gmail.com" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">dimko33@gmail.com</a> &nbsp;|&nbsp;
+        💬 <a href="https://t.me/pi_web_chat" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">Telegram chat (@pi_web_chat)</a>
       </div>
     </div>
   </main>
