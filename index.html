@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>pi-web</title>
-  <meta name="description" content="Минимальная установка для pi-web, клиентская панель веб-агента" />
+  <meta name="description" content="Minimal install page for pi-web, client‑side web agent panel" />
   <style>
     :root {
       --bg: #0a0b0c;
@@ -266,81 +266,81 @@
   <main class="wrap">
     <div class="brand">pi-web</div>
 
-    <h1>Установка pi-web одной командой</h1>
+    <h1>Install pi-web in one command.</h1>
     <p class="lead">
-      Минимальная установка веб-агента прямо в браузере.
+      Minimal install options for a browser-based web agent.
     </p>
 
     <div class="links">
       <a href="https://github.com/dimko33-lang/pi-web-agent" target="_blank" rel="noreferrer">GitHub</a>
       <a href="https://www.npmjs.com/package/@dimko33/pi-web" target="_blank" rel="noreferrer">npm</a>
-      <a href="https://github.com/dimko33-lang/pi-web" target="_blank" rel="noreferrer">исходники сайта</a>
+      <a href="https://github.com/dimko33-lang/pi-web" target="_blank" rel="noreferrer">website source</a>
     </div>
 
     <section class="main-install">
-      <div class="label">Основная команда</div>
+      <div class="label">Main command</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd1">npm install -g @dimko33/pi-web</div>
-        <button class="copy-btn" onclick="copyCmd('cmd1', this)">Копировать</button>
+        <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
       </div>
-      <div class="small-note">Самый короткий путь установки.</div>
+      <div class="small-note">The shortest install path.</div>
     </section>
 
-    <!-- Демо-блок на русском, строгий стиль -->
+    <!-- Demo block: client panel -->
     <section class="section">
-      <div class="label">Демо: клиентская панель</div>
+      <div class="label">Demo: client‑side panel</div>
       <div class="desc">
-        Только интерфейс агента. Никаких настроек сервера, выбора моделей или админ-функций.
+        Client‑only view – no admin controls, no model selection. Just the agent interface.
       </div>
       <div class="cmd">
         <div class="cmd-text" id="demoUrl">http://78.17.36.139/?-projects-pi-ru</div>
-        <a href="http://78.17.36.139/?-projects-pi-ru" target="_blank" rel="noopener noreferrer" class="demo-btn">Открыть демо</a>
+        <a href="http://78.17.36.139/?-projects-pi-ru" target="_blank" rel="noopener noreferrer" class="demo-btn">Open demo</a>
       </div>
     </section>
 
     <section class="section">
-      <div class="label">Если Node.js не установлен</div>
-      <h2 class="title">Ubuntu / Debian одной строкой</h2>
-      <p class="desc">Устанавливает Node.js, затем глобально ставит pi-web.</p>
+      <div class="label">If Node.js is not installed</div>
+      <h2 class="title">Ubuntu / Debian one-liner</h2>
+      <p class="desc">Installs Node.js first, then installs pi-web globally.</p>
 
       <div class="cmd">
         <div class="cmd-text" id="cmd2">curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &amp;&amp; apt-get install -y nodejs &amp;&amp; npm install -g @dimko33/pi-web</div>
-        <button class="copy-btn" onclick="copyCmd('cmd2', this)">Копировать</button>
+        <button class="copy-btn" onclick="copyCmd('cmd2', this)">Copy</button>
       </div>
     </section>
 
     <section class="section">
-      <div class="label">Прямая установка через shell</div>
-      <h2 class="title">Без npm</h2>
-      <p class="desc">Альтернативный способ — установка напрямую из bootstrap-скрипта.</p>
+      <div class="label">Direct shell install</div>
+      <h2 class="title">No npm required</h2>
+      <p class="desc">Alternative – install directly from the bootstrap script.</p>
 
       <div class="cmd">
         <div class="cmd-text" id="cmd3">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
-        <button class="copy-btn" onclick="copyCmd('cmd3', this)">Копировать</button>
+        <button class="copy-btn" onclick="copyCmd('cmd3', this)">Copy</button>
       </div>
     </section>
 
-    <!-- НОВЫЙ БЛОК: ручной запуск из терминала -->
+    <!-- Manual terminal launch (with /help) -->
     <section class="section">
-      <div class="label">Ручной запуск (терминал)</div>
+      <div class="label">Manual terminal launch</div>
       <div class="desc">
-        Если вы установили агента вручную, запустите его этими командами. После запуска можно сразу общаться с моделью или ввести <span class="code-inline">help</span> для полных инструкций.
+        If you installed the agent manually, run these commands. After launch you can chat with the model or type <span class="code-inline">/help</span> for full instructions.
       </div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-manual">cd /opt/my-agent
 source /opt/my-agent/.venv/bin/activate
 python3 cli.py</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-manual', this)">Копировать</button>
+        <button class="copy-btn" onclick="copyCmd('cmd-manual', this)">Copy</button>
       </div>
-      <div class="small-note">Интерфейс терминала пока в разработке, но основные команды работают.</div>
+      <div class="small-note">Terminal UI is still in development, but basic commands work.</div>
     </section>
 
     <section class="info">
       <div class="info-section">
-        <h2>Что происходит при установке</h2>
+        <h2>What happens during install</h2>
         <p>
-          Установщик спросит адрес вашего сервера, а затем — API-ключи.
-          Поддерживаемые провайдеры (Enter — пропустить): <span class="code-inline">OpenRouter</span>,
+          The installer will ask for your server address and then for API keys.
+          Supported providers (press Enter to skip any): <span class="code-inline">OpenRouter</span>,
           <span class="code-inline">GROQ</span>, <span class="code-inline">Gemini</span>,
           <span class="code-inline">Anthropic</span>, <span class="code-inline">OpenAI</span>,
           <span class="code-inline">Kimi</span>.
@@ -348,33 +348,35 @@ python3 cli.py</div>
       </div>
 
       <div class="info-section">
-        <h2>Ввод API-ключей</h2>
+        <h2>Entering API keys</h2>
         <p>
-          Когда появится запрос — просто вставьте ключ (он будет виден, чтобы вы видели, что вводите).
-          Если у вас нет ключа для конкретного провайдера, нажмите <span class="code-inline">Enter</span>.
+          When prompted, just paste your key (it will be visible, so you can see what you type).
+          If you do not have a key for a certain provider, press <span class="code-inline">Enter</span> to skip it.
         </p>
         <ul>
-          <li>Скопируйте ключ из личного кабинета провайдера</li>
-          <li>Вставьте его через <span class="code-inline">Cmd+V</span> или <span class="code-inline">Ctrl+V</span></li>
-          <li>Нажмите <span class="code-inline">Enter</span></li>
+          <li>Copy the key from your provider dashboard</li>
+          <li>Paste it with <span class="code-inline">Cmd+V</span> or <span class="code-inline">Ctrl+V</span></li>
+          <li>Press <span class="code-inline">Enter</span></li>
         </ul>
       </div>
 
       <div class="info-section">
-        <h2>После установки</h2>
+        <h2>After install</h2>
         <p>
-          В конце установщик выведет нужные ссылки: основной веб-адрес, адрес для администратора и клиентские ссылки.
+          At the end, the installer prints the links you need:
+          the main web address, the admin‑related address, and the client session links.
         </p>
         <p>
-          После настройки вам обычно не нужно оставаться в терминале. Главная идея pi-web — управлять агентом через веб-интерфейс.
+          After setup, you usually do not need to keep working in the terminal.
+          The main idea of pi-web is to control the agent through the web interface.
         </p>
       </div>
 
       <div class="info-section">
-        <h2>Зачем это нужно</h2>
+        <h2>Why this exists</h2>
         <p>
-          Терминальные агенты удобны на десктопе, но на телефоне мобильные терминалы часто неудобны.
-          pi-web создан, чтобы дать тот же рабочий процесс через браузер, особенно на телефонах.
+          Terminal-based agents feel great on desktop, but mobile terminal apps are often inconvenient.
+          pi-web was made to give the same kind of workflow through a browser, especially on phones.
         </p>
       </div>
     </section>
@@ -386,8 +388,8 @@ python3 cli.py</div>
         <a href="https://www.npmjs.com/package/@dimko33/pi-web" style="color: var(--muted); text-decoration: none;">npm</a>
       </div>
       <div style="margin-top: 18px; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px;">
-        Благодарю <a href="https://pi.dev/" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">Mario Zechner (pi.dev)</a> за философию и вдохновение.  
-        Этот проект — моя веб‑реализация близкой мне идеи.
+        Thanks to <a href="https://pi.dev/" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">Mario Zechner (pi.dev)</a> for the philosophy and inspiration.<br>
+        This project is my own web implementation of a similar idea.
       </div>
     </div>
   </main>
@@ -399,12 +401,12 @@ python3 cli.py</div>
 
       try {
         await navigator.clipboard.writeText(text);
-        btn.textContent = "Скопировано";
+        btn.textContent = "Copied";
         setTimeout(() => {
           btn.textContent = original;
         }, 900);
       } catch (e) {
-        btn.textContent = "Ошибка";
+        btn.textContent = "Error";
         setTimeout(() => {
           btn.textContent = original;
         }, 900);
