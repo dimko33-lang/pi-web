@@ -10,8 +10,8 @@
       --bg: #0a0b0c;
       --panel: #15171a;
       --panel-hover: #191b1f;
-      --button: #202329;
-      --button-hover: #272b31;
+      --button: #0d0f11;
+      --button-hover: #131519;
       --text: #b5b9bf;
       --muted: #828892;
       --command: #e1e5ea;
@@ -136,9 +136,9 @@
       overflow-x: auto;
       color: var(--command);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13px;
+      font-size: 16px;           /* увеличенный шрифт команд */
       line-height: 1.5;
-      padding: 6px 8px;
+      padding: 8px 8px;          /* чуть больше воздуха */
       scrollbar-width: thin;
       scrollbar-color: #353941 transparent;
       white-space: pre-wrap;
@@ -156,9 +156,9 @@
 
     .copy-btn, .demo-btn {
       flex: 0 0 auto;
-      height: 36px;
-      padding: 0 14px;
-      border: 1px solid rgba(255,255,255,0.05);
+      height: 38px;              /* чуть выше */
+      padding: 0 16px;
+      border: 1px solid rgba(255,255,255,0.2);  /* заметная светло-серая каёмочка */
       border-radius: 9px;
       background: var(--button);
       color: var(--text);
@@ -168,10 +168,12 @@
       text-decoration: none;
       display: inline-flex;
       align-items: center;
+      transition: 0.2s;
     }
 
     .copy-btn:hover, .demo-btn:hover {
       background: var(--button-hover);
+      border-color: rgba(255,255,255,0.3);
     }
 
     .small-note {
@@ -246,8 +248,8 @@
       }
 
       .cmd-text {
-        font-size: 12px;
-        padding: 4px 6px;
+        font-size: 14px;         /* на мобильных чуть меньше, но всё равно крупнее */
+        padding: 6px 6px;
       }
 
       .copy-btn, .demo-btn {
