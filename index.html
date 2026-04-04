@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>pi-web</title>
-  <meta name="description" content="Minimal install page for pi-web" />
+  <meta name="description" content="Минимальная установка для pi-web, клиентская панель веб-агента" />
   <style>
     :root {
       --bg: #0a0b0c;
@@ -222,9 +222,12 @@
     }
 
     .footer {
-      margin-top: 54px;
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.05);
       font-size: 13px;
       color: var(--muted);
+      text-align: left;
     }
 
     @media (max-width: 640px) {
@@ -262,64 +265,66 @@
   <main class="wrap">
     <div class="brand">pi-web</div>
 
-    <h1>Install pi-web in one command.</h1>
+    <h1>Установка pi-web одной командой</h1>
     <p class="lead">
-      Minimal install options for a browser-based web agent.
+      Минимальная установка веб-агента прямо в браузере.
     </p>
 
     <div class="links">
       <a href="https://github.com/dimko33-lang/pi-web-agent" target="_blank" rel="noreferrer">GitHub</a>
       <a href="https://www.npmjs.com/package/@dimko33/pi-web" target="_blank" rel="noreferrer">npm</a>
-      <a href="https://github.com/dimko33-lang/pi-web" target="_blank" rel="noreferrer">website source</a>
+      <a href="https://github.com/dimko33-lang/pi-web" target="_blank" rel="noreferrer">исходники сайта</a>
     </div>
 
     <section class="main-install">
-      <div class="label">Main command</div>
+      <div class="label">Основная команда</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd1">npm install -g @dimko33/pi-web</div>
-        <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
+        <button class="copy-btn" onclick="copyCmd('cmd1', this)">Копировать</button>
       </div>
-      <div class="small-note">The shortest install path.</div>
+      <div class="small-note">Самый короткий путь установки.</div>
     </section>
 
-    <!-- Демо-блок в строгом стиле, без иконок и "попсы" -->
+    <!-- Демо-блок на русском, строгий стиль -->
     <section class="section">
-      <div class="label">Demo: live web‑terminal</div>
-      <div class="desc">Try the interactive terminal directly in your browser – no install required.</div>
+      <div class="label">Демо: клиентская панель</div>
+      <div class="desc">
+        Только интерфейс агента. Никаких настроек сервера, выбора моделей или админ-функций.
+      </div>
       <div class="cmd">
         <div class="cmd-text" id="demoUrl">http://78.17.36.139/?-projects-pi-ru</div>
-        <a href="http://78.17.36.139/?-projects-pi-ru" target="_blank" rel="noopener noreferrer" class="demo-btn">Open demo</a>
+        <a href="http://78.17.36.139/?-projects-pi-ru" target="_blank" rel="noopener noreferrer" class="demo-btn">Открыть демо</a>
       </div>
     </section>
 
     <section class="section">
-      <div class="label">If Node.js is not installed</div>
-      <h2 class="title">Ubuntu / Debian one-liner</h2>
-      <p class="desc">Installs Node.js first, then installs pi-web globally.</p>
+      <div class="label">Если Node.js не установлен</div>
+      <h2 class="title">Ubuntu / Debian одной строкой</h2>
+      <p class="desc">Устанавливает Node.js, затем глобально ставит pi-web.</p>
 
       <div class="cmd">
         <div class="cmd-text" id="cmd2">curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &amp;&amp; apt-get install -y nodejs &amp;&amp; npm install -g @dimko33/pi-web</div>
-        <button class="copy-btn" onclick="copyCmd('cmd2', this)">Copy</button>
+        <button class="copy-btn" onclick="copyCmd('cmd2', this)">Копировать</button>
       </div>
     </section>
 
     <section class="section">
-      <div class="label">Direct shell install</div>
-      <h2 class="title">No npm required</h2>
-      <p class="desc">Use this if you want to install directly from the bootstrap script.</p>
+      <div class="label">Прямая установка через shell</div>
+      <h2 class="title">Без npm</h2>
+      <p class="desc">Альтернативный способ — установка напрямую из bootstrap-скрипта.</p>
 
       <div class="cmd">
         <div class="cmd-text" id="cmd3">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
-        <button class="copy-btn" onclick="copyCmd('cmd3', this)">Copy</button>
+        <button class="copy-btn" onclick="copyCmd('cmd3', this)">Копировать</button>
       </div>
     </section>
 
     <section class="info">
       <div class="info-section">
-        <h2>What happens during install</h2>
+        <h2>Что происходит при установке</h2>
         <p>
-          The installer will ask for your server address and then for API keys.
-          Supported providers (press Enter to skip any): <span class="code-inline">OpenRouter</span>,
+          Установщик спросит адрес вашего сервера, а затем — API-ключи.
+          Поддерживаемые провайдеры (Enter — пропустить): <span class="code-inline">OpenRouter</span>,
           <span class="code-inline">GROQ</span>, <span class="code-inline">Gemini</span>,
           <span class="code-inline">Anthropic</span>, <span class="code-inline">OpenAI</span>,
           <span class="code-inline">Kimi</span>.
@@ -327,41 +332,43 @@
       </div>
 
       <div class="info-section">
-        <h2>Entering API keys</h2>
+        <h2>Ввод API-ключей</h2>
         <p>
-          When prompted, just paste your key (it will be visible, so you can see what you typed).
-          If you do not have a key for a certain provider, press <span class="code-inline">Enter</span> to skip it.
+          Когда появится запрос — просто вставьте ключ (он будет виден, чтобы вы видели, что вводите).
+          Если у вас нет ключа для конкретного провайдера, нажмите <span class="code-inline">Enter</span>.
         </p>
         <ul>
-          <li>Copy the key from your provider dashboard</li>
-          <li>Paste it with <span class="code-inline">Cmd+V</span> or <span class="code-inline">Ctrl+V</span></li>
-          <li>Press <span class="code-inline">Enter</span></li>
+          <li>Скопируйте ключ из личного кабинета провайдера</li>
+          <li>Вставьте его через <span class="code-inline">Cmd+V</span> или <span class="code-inline">Ctrl+V</span></li>
+          <li>Нажмите <span class="code-inline">Enter</span></li>
         </ul>
       </div>
 
       <div class="info-section">
-        <h2>After install</h2>
+        <h2>После установки</h2>
         <p>
-          At the end, the installer prints the links you need:
-          the main web address, the admin‑related address, and the client session links.
+          В конце установщик выведет нужные ссылки: основной веб-адрес, адрес для администратора и клиентские ссылки.
         </p>
         <p>
-          After setup, you usually do not need to keep working in the terminal.
-          The main idea of pi-web is to control the agent through the web interface.
+          После настройки вам обычно не нужно оставаться в терминале. Главная идея pi-web — управлять агентом через веб-интерфейс.
         </p>
       </div>
 
       <div class="info-section">
-        <h2>Why this exists</h2>
+        <h2>Зачем это нужно</h2>
         <p>
-          Terminal-based agents feel great on desktop, but mobile terminal apps are often inconvenient.
-          pi-web was made to give the same kind of workflow through a browser, especially on phones.
+          Терминальные агенты удобны на десктопе, но на телефоне мобильные терминалы часто неудобны.
+          pi-web создан, чтобы дать тот же рабочий процесс через браузер, особенно на телефонах.
         </p>
       </div>
     </section>
 
     <div class="footer">
-      Early version. Minimal, practical, and built for real use first.
+      <div>© 2026 dimko33-lang · MIT License</div>
+      <div style="margin-top: 8px;">
+        <a href="https://github.com/dimko33-lang/pi-web" style="color: var(--muted); text-decoration: none;" target="_blank">GitHub</a> · 
+        <a href="https://www.npmjs.com/package/@dimko33/pi-web" style="color: var(--muted); text-decoration: none;" target="_blank">npm</a>
+      </div>
     </div>
   </main>
 
@@ -372,12 +379,12 @@
 
       try {
         await navigator.clipboard.writeText(text);
-        btn.textContent = "Copied";
+        btn.textContent = "Скопировано";
         setTimeout(() => {
           btn.textContent = original;
         }, 900);
       } catch (e) {
-        btn.textContent = "Error";
+        btn.textContent = "Ошибка";
         setTimeout(() => {
           btn.textContent = original;
         }, 900);
