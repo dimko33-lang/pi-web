@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>pi-web</title>
-  <meta name="description" content="Minimal install page for pi-web, client‑side web agent panel" />
+  <meta name="description" content="Minimal install for pi-web, browser-based agent" />
   <style>
     :root {
       --bg: #0a0b0c;
@@ -99,22 +99,6 @@
       color: var(--muted);
     }
 
-    .title {
-      margin: 0 0 6px;
-      font-size: 18px;
-      line-height: 1.25;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .desc {
-      margin: 0 0 12px;
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--muted);
-      max-width: 760px;
-    }
-
     .cmd {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -176,52 +160,59 @@
       border-color: rgba(255,255,255,0.3);
     }
 
-    .small-note {
-      margin-top: 6px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .info {
-      margin-top: 64px;
-      max-width: 760px;
-    }
-
     .info-section {
-      margin-top: 34px;
+      margin-top: 48px;
+      border-top: 1px solid var(--border);
+      padding-top: 32px;
     }
-
-    .info h2 {
-      margin: 0 0 10px;
+    .info-section:first-of-type {
+      margin-top: 48px;
+    }
+    .info-section h2 {
       font-size: 18px;
-      line-height: 1.25;
       font-weight: 600;
+      margin: 0 0 12px;
       color: var(--text);
     }
-
-    .info p {
-      margin: 0 0 12px;
+    .info-section p {
       font-size: 15px;
       line-height: 1.7;
       color: var(--muted);
+      margin-bottom: 16px;
     }
-
-    .info ul {
-      margin: 0;
-      padding-left: 18px;
+    .info-section ul {
+      margin: 0 0 16px;
+      padding-left: 20px;
       color: var(--muted);
     }
-
-    .info li {
-      margin: 0 0 8px;
+    .info-section li {
       font-size: 15px;
       line-height: 1.7;
+      margin-bottom: 6px;
     }
-
     .code-inline {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      color: var(--command);
+    }
+    .client-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0;
+    }
+    .client-list li {
+      margin-bottom: 8px;
+    }
+    .client-list a {
       color: var(--command);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.95em;
+      font-size: 14px;
+      text-decoration: none;
+      border-bottom: 1px dotted var(--muted);
+    }
+    .client-list a:hover {
+      color: var(--text);
+      border-bottom-color: var(--text);
     }
 
     .footer {
@@ -252,9 +243,8 @@
         height: 34px;
         padding: 0 12px;
       }
-      .info p,
-      .info li {
-        font-size: 14px;
+      .client-list a {
+        font-size: 12px;
       }
     }
   </style>
@@ -265,7 +255,7 @@
 
     <h1>Install pi-web in one command.</h1>
     <p class="lead">
-      Minimal install options for a browser-based web agent.
+      Minimal install for a browser-based web agent.
     </p>
 
     <div class="links">
@@ -274,127 +264,109 @@
       <a href="https://github.com/dimko33-lang/pi-web" target="_blank" rel="noreferrer">website source</a>
     </div>
 
+    <!-- Main command -->
     <section class="main-install">
       <div class="label">Main command</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd1">npm install -g @dimko33/pi-web</div>
         <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
       </div>
-      <div class="small-note">The shortest install path.</div>
     </section>
 
-    <!-- Admin panel demo (short button "Open") -->
+    <!-- Admin demo -->
     <section class="section">
-      <div class="label">Demo: admin panel (full access)</div>
-      <div class="desc">
-        Complete control – model selection, API keys, server settings. This is the main admin interface.
-      </div>
+      <div class="label">Admin panel demo (full access)</div>
       <div class="cmd">
         <div class="cmd-text" id="demoUrl">http://89.125.62.58/?-projects-pi-ru-admin-5315c94b89f3</div>
         <a href="http://89.125.62.58/?-projects-pi-ru-admin-5315c94b89f3" target="_blank" rel="noopener noreferrer" class="demo-btn">Open</a>
       </div>
     </section>
 
+    <!-- If Node.js missing -->
     <section class="section">
       <div class="label">If Node.js is not installed</div>
-      <h2 class="title">Ubuntu / Debian one-liner</h2>
-      <p class="desc">Installs Node.js first, then installs pi-web globally.</p>
       <div class="cmd">
         <div class="cmd-text" id="cmd2">curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &amp;&amp; apt-get install -y nodejs &amp;&amp; npm install -g @dimko33/pi-web</div>
         <button class="copy-btn" onclick="copyCmd('cmd2', this)">Copy</button>
       </div>
     </section>
 
+    <!-- Direct shell install -->
     <section class="section">
-      <div class="label">Direct shell install</div>
-      <h2 class="title">No npm required</h2>
-      <p class="desc">Install directly from the bootstrap script – no dependencies needed.</p>
+      <div class="label">Direct install (no npm)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd3">curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh | bash</div>
         <button class="copy-btn" onclick="copyCmd('cmd3', this)">Copy</button>
       </div>
-      <div class="small-note">This one command downloads and runs the installer. Everything else is automatic.</div>
     </section>
 
-    <!-- Manual terminal launch (exactly as requested) -->
+    <!-- Manual terminal launch -->
     <section class="section">
       <div class="label">Manual terminal launch</div>
-      <div class="desc">
-        If you installed the agent manually, run these commands. After launch you can chat with the model or type <span class="code-inline">/help</span> for full instructions.
-      </div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-manual">cd /opt/my-agent
 source /opt/my-agent/.venv/bin/activate
 python3 cli.py</div>
         <button class="copy-btn" onclick="copyCmd('cmd-manual', this)">Copy</button>
       </div>
-      <div class="small-note">Terminal UI is still in development, but basic commands work.</div>
     </section>
 
-    <section class="info">
-      <div class="info-section">
-        <h2>What happens during install</h2>
-        <p>
-          The installer will ask for your server address and then for API keys.
-          Supported providers (press Enter to skip any): <span class="code-inline">OpenRouter</span>,
-          <span class="code-inline">GROQ</span>, <span class="code-inline">Gemini</span>,
-          <span class="code-inline">Anthropic</span>, <span class="code-inline">OpenAI</span>,
-          <span class="code-inline">Kimi</span>.
-        </p>
-      </div>
+    <!-- Info sections (restored) -->
+    <div class="info-section">
+      <h2>What happens during install</h2>
+      <p>
+        The installer will ask for your server address and then for API keys.
+        Supported providers (press Enter to skip any): <span class="code-inline">OpenRouter</span>,
+        <span class="code-inline">GROQ</span>, <span class="code-inline">Gemini</span>,
+        <span class="code-inline">Anthropic</span>, <span class="code-inline">OpenAI</span>,
+        <span class="code-inline">Kimi</span>.
+      </p>
+    </div>
 
-      <div class="info-section">
-        <h2>Entering API keys</h2>
-        <p>
-          When prompted, just paste your key (it will be visible, so you can see what you type).
-          If you do not have a key for a certain provider, press <span class="code-inline">Enter</span> to skip it.
-        </p>
-        <ul>
-          <li>Copy the key from your provider dashboard</li>
-          <li>Paste it with <span class="code-inline">Cmd+V</span> or <span class="code-inline">Ctrl+V</span></li>
-          <li>Press <span class="code-inline">Enter</span></li>
-        </ul>
-      </div>
-
-      <div class="info-section">
-        <h2>After install</h2>
-        <p>
-          At the end, the installer prints the links you need:
-          the main web address, the admin‑related address, and the client session links.
-        </p>
-        <p>
-          After setup, you usually do not need to keep working in the terminal.
-          The main idea of pi-web is to control the agent through the web interface.
-        </p>
-      </div>
-
-      <div class="info-section">
-        <h2>Why this exists</h2>
-        <p>
-          Terminal-based agents feel great on desktop, but mobile terminal apps are often inconvenient.
-          pi-web was made to give the same kind of workflow through a browser, especially on phones.
-        </p>
-      </div>
-    </section>
-
-    <!-- Client panels info (no fake commands) -->
-    <section class="section">
-      <div class="label">Client panels (after install)</div>
-      <div class="desc">
-        Once the installation finishes, the terminal will show several client panel links:
-      </div>
-      <ul style="margin-top: 0; color: var(--muted); font-size: 14px; line-height: 1.6;">
-        <li><span class="code-inline">http://89.125.62.58/?-projects-pi-ru</span> – main public panel</li>
-        <li><span class="code-inline">http://89.125.62.58/?-projects-pi-ru/1</span> – backup panel #1</li>
-        <li><span class="code-inline">http://89.125.62.58/?-projects-pi-ru/2</span>, <span class="code-inline">/3</span>, etc. – up to 5–6 different client sessions</li>
+    <div class="info-section">
+      <h2>Entering API keys</h2>
+      <p>
+        When prompted, just paste your key (it will be visible, so you can see what you type).
+        If you do not have a key for a certain provider, press <span class="code-inline">Enter</span> to skip it.
+      </p>
+      <ul>
+        <li>Copy the key from your provider dashboard</li>
+        <li>Paste it (the usual paste shortcut works)</li>
+        <li>Press <span class="code-inline">Enter</span></li>
       </ul>
-      <div class="desc">
-        These links give end‑users access to the agent <strong>without admin rights</strong>. You can share them with different people – each session is independent. Just copy the desired link from the terminal output and open it in a browser.
-      </div>
-      <div class="small-note" style="margin-top: 8px;">
+    </div>
+
+    <div class="info-section">
+      <h2>After install</h2>
+      <p>
+        At the end, the installer prints the links you need: the main web address, the admin‑related address, and the client session links.
+        After setup, you usually do not need to keep working in the terminal. The main idea of pi-web is to control the agent through the web interface.
+      </p>
+    </div>
+
+    <div class="info-section">
+      <h2>Client panels (after install)</h2>
+      <p>
+        Once the installation finishes, the terminal will show several client panel links:
+      </p>
+      <ul class="client-list">
+        <li><a href="http://89.125.62.58/?-projects-pi-ru" target="_blank">http://89.125.62.58/?-projects-pi-ru</a> – main public panel</li>
+        <li><a href="http://89.125.62.58/?-projects-pi-ru/1" target="_blank">http://89.125.62.58/?-projects-pi-ru/1</a> – backup panel #1</li>
+        <li><a href="http://89.125.62.58/?-projects-pi-ru/2" target="_blank">http://89.125.62.58/?-projects-pi-ru/2</a>, <a href="http://89.125.62.58/?-projects-pi-ru/3" target="_blank">/3</a> … up to 5–6 independent client sessions</li>
+      </ul>
+      <p>
+        These links give end‑users access to the agent <strong>without admin rights</strong>. You can share them with different people – each session is independent. Just copy the desired link from the terminal output and open it in a browser.<br>
         The admin alias (with <span class="code-inline">-admin-...</span>) is separate and should be kept private.
-      </div>
-    </section>
+      </p>
+    </div>
+
+    <div class="info-section">
+      <h2>Why this exists</h2>
+      <p>
+        Terminal-based agents feel great on desktop, but mobile terminal apps are often inconvenient.
+        pi-web was made to give the same kind of workflow through a browser, especially on phones.
+      </p>
+    </div>
 
     <div class="footer">
       <div>© 2026 dimko33-lang · MIT License</div>
