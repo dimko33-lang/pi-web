@@ -283,7 +283,7 @@
       <div class="small-note">The shortest install path.</div>
     </section>
 
-    <!-- Admin panel demo -->
+    <!-- Admin panel demo (short button "Open") -->
     <section class="section">
       <div class="label">Demo: admin panel (full access)</div>
       <div class="desc">
@@ -308,14 +308,15 @@
     <section class="section">
       <div class="label">Direct shell install</div>
       <h2 class="title">No npm required</h2>
-      <p class="desc">Alternative – install directly from the bootstrap script.</p>
+      <p class="desc">Install directly from the bootstrap script – no dependencies needed.</p>
       <div class="cmd">
-        <div class="cmd-text" id="cmd3">bash &lt;(curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh)</div>
+        <div class="cmd-text" id="cmd3">curl -fsSL https://raw.githubusercontent.com/dimko33-lang/pi-web-agent/main/bootstrap.sh | bash</div>
         <button class="copy-btn" onclick="copyCmd('cmd3', this)">Copy</button>
       </div>
+      <div class="small-note">This one command downloads and runs the installer. Everything else is automatic.</div>
     </section>
 
-    <!-- Manual terminal launch (with /help) -->
+    <!-- Manual terminal launch (exactly as requested) -->
     <section class="section">
       <div class="label">Manual terminal launch</div>
       <div class="desc">
@@ -376,7 +377,7 @@ python3 cli.py</div>
       </div>
     </section>
 
-    <!-- Client panels info (just explanation, no copy buttons) -->
+    <!-- Client panels info (no fake commands) -->
     <section class="section">
       <div class="label">Client panels (after install)</div>
       <div class="desc">
