@@ -49,6 +49,7 @@
     <h1>Useful commands</h1>
     <p class="lead">Run these on your server (as root or sudo).</p>
 
+    <!-- Reset page -->
     <div class="section">
       <div class="label">Reset page to default (fix broken UI)</div>
       <div class="cmd">
@@ -58,6 +59,7 @@
       <div class="note">Resets HTML to default, restores all buttons and interface.</div>
     </div>
 
+    <!-- Restart agent -->
     <div class="section">
       <div class="label">Restart agent service</div>
       <div class="cmd">
@@ -70,6 +72,7 @@
       </div>
     </div>
 
+    <!-- Increase tokens -->
     <div class="section">
       <div class="label">Increase answer length (max_tokens = 16384)</div>
       <div class="cmd">
@@ -78,6 +81,7 @@
       </div>
     </div>
 
+    <!-- Temperature -->
     <div class="section">
       <div class="label">Adjust creativity (temperature)</div>
       <div class="cmd">
@@ -91,6 +95,7 @@
       <div class="note">Higher = more creative/chaotic, lower = more predictable/focused.</div>
     </div>
 
+    <!-- Change model -->
     <div class="section">
       <div class="label">Change AI model (Groq)</div>
       <div class="cmd">
@@ -100,6 +105,7 @@
       <div class="note">Available models: llama-3.1-8b-instant, llama-3.3-70b-versatile, mixtral-8x7b-32768, kimi-k2, etc.</div>
     </div>
 
+    <!-- Update keys -->
     <div class="section">
       <div class="label">Update API keys (GROQ, OpenRouter, Kimi)</div>
       <div class="cmd">
@@ -113,6 +119,7 @@
       <div class="note">After editing keys, restart the service.</div>
     </div>
 
+    <!-- Full reinstall -->
     <div class="section">
       <div class="label">Full reinstall (keeps server)</div>
       <div class="cmd">
@@ -121,6 +128,7 @@
       </div>
     </div>
 
+    <!-- Logs -->
     <div class="section">
       <div class="label">View logs (errors)</div>
       <div class="cmd">
@@ -129,6 +137,7 @@
       </div>
     </div>
 
+    <!-- Backup HTML -->
     <div class="section">
       <div class="label">Backup current HTML (before changes)</div>
       <div class="cmd">
@@ -137,9 +146,9 @@
       </div>
     </div>
 
-    <!-- Root access & shell commands (no icons, just text) -->
+    <!-- !shell commands (existing) -->
     <div class="section">
-      <div class="label">Full root access (shell commands)</div>
+      <div class="label">Full root access (!shell prefix)</div>
       <p class="note">Use <span class="code-inline">!shell &lt;command&gt;</span> in the agent chat to execute any system command as root. Examples:</p>
       <div class="cmd">
         <div class="cmd-text" id="cmd-shell1">!shell apt update &amp;&amp; apt upgrade -y</div>
@@ -158,6 +167,104 @@
         <button class="copy-btn" onclick="copyCmd('cmd-shell4', this)">Copy</button>
       </div>
       <div class="note">⚠️ These commands run as root – be careful!</div>
+    </div>
+
+    <!-- NEW: Full root access without prefix (auto-detect) – added at the bottom -->
+    <div class="section">
+      <div class="label">Full root access without prefix (auto-detect)</div>
+      <p class="note">On your own risk: you can enable the agent to execute any system command without typing <span class="code-inline">!shell</span>. Just run these terminal commands once, then you can speak or type commands directly.</p>
+      <!-- Terminal setup commands -->
+      <div class="cmd">
+        <div class="cmd-text" id="term1">cat >> /opt/my-agent/agent.py << 'EOF'</div>
+        <button class="copy-btn" onclick="copyCmd('term1', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="term2">
+    def _is_shell_command(self, text: str) -> bool:
+        text = text.lower().strip()
+        triggers = ["выполни", "сделай", "запусти", "apt ", "systemctl ", "ls ", "cd ", "cat ", "echo ", "rm ", "mkdir ", "chmod ", "chown ", "grep ", "find ", "kill ", "nano ", "vim ", "curl ", "wget ", "git clone", "python3 ", "pip "]
+        for t in triggers:
+            if text.startswith(t):
+                return True
+        return False
+
+    def _run_command(self, cmd: str) -> str:
+        import subprocess
+        try:
+            out = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=60)
+            return (out.stdout + out.stderr).strip() or "OK"
+        except Exception as e:
+            return f"Ошибка: {e}"
+EOF</div>
+        <button class="copy-btn" onclick="copyCmd('term2', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="term3">python3 << 'PY'
+import re
+with open('/opt/my-agent/agent.py', 'r') as f:
+    c = f.read()
+new_chat = '''
+    def chat(self, session_name: str, message: str, provider=None, model=None):
+        session_name = session_name or "default"
+        message = (message or "").strip()
+        if not message:
+            return {"success": False, "error": "Пустое сообщение"}
+        if self._is_shell_command(message):
+            out = self._run_command(message)
+            return {"success": True, "response": out}
+        session = get_or_create_session(session_name)
+        provider = provider or session["provider"] or "groq"
+        model = model or session["model"] or "llama-3.1-8b-instant"
+        add_message(session["id"], "user", message, None, None)
+        current_html = read_session_html(session["id"])
+        messages = [
+            {"role": "system", "content": self._system_prompt()},
+            {"role": "user", "content": f"Текущий HTML:\\n{current_html}\\n\\nЗапрос пользователя: {message}"}
+        ]
+        raw = self._call_provider(provider, model, messages)
+        try:
+            data = json.loads(raw)
+        except:
+            data = {"mode": "chat", "assistant": raw, "html": ""}
+        mode = data.get("mode", "chat")
+        assistant = data.get("assistant", raw)
+        html = data.get("html", "")
+        changed = False
+        if mode == "edit" and html:
+            if "<!DOCTYPE" in html[:500].upper() or "<HTML" in html[:500].upper():
+                save_session_html(session["id"], html)
+                changed = True
+        add_message(session["id"], "assistant", assistant, provider, model)
+        return {"success": True, "reply": assistant, "changed": changed}
+'''
+c = re.sub(r'(    def chat\(self, session_name: str, message: str, provider=None, model=None\):.*?)(?=\n    def [a-z]|\Z)', new_chat, c, flags=re.DOTALL)
+with open('/opt/my-agent/agent.py', 'w') as f:
+    f.write(c)
+PY</div>
+        <button class="copy-btn" onclick="copyCmd('term3', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="term4">systemctl restart my-agent</div>
+        <button class="copy-btn" onclick="copyCmd('term4', this)">Copy</button>
+      </div>
+      <p class="note">After this setup, you can just type or say commands directly in the agent chat (without !shell). Examples:</p>
+      <div class="cmd">
+        <div class="cmd-text" id="chat-auto1">whoami</div>
+        <button class="copy-btn" onclick="copyCmd('chat-auto1', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="chat-auto2">ls -la /opt/my-agent</div>
+        <button class="copy-btn" onclick="copyCmd('chat-auto2', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="chat-auto3">apt update</div>
+        <button class="copy-btn" onclick="copyCmd('chat-auto3', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="chat-auto4">systemctl restart my-agent</div>
+        <button class="copy-btn" onclick="copyCmd('chat-auto4', this)">Copy</button>
+      </div>
+      <div class="note">These commands run as root. Use at your own risk – you can always reinstall the server quickly.</div>
     </div>
 
     <div class="footer">
