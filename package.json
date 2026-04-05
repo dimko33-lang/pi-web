@@ -1,14 +1,11 @@
 {
   "name": "@dimko33/pi-web",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Minimal one-command installer for pi-web",
   "license": "MIT",
   "type": "commonjs",
   "bin": {
     "pi-web": "bin/pi-web.js"
-  },
-  "scripts": {
-    "postinstall": "node bin/pi-web.js --postinstall"
   },
   "publishConfig": {
     "access": "public"
