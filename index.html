@@ -6,7 +6,6 @@
   <title>pi-web</title>
   <meta name="description" content="Minimal install for pi-web, browser-based agent" />
   <style>
-    /* (твой существующий стиль, без изменений) */
     :root {
       --bg: #0a0b0c;
       --panel: #15171a;
@@ -49,8 +48,6 @@
     .client-list a { color: var(--command); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; text-decoration: none; border-bottom: 1px dotted var(--muted); }
     .client-list a:hover { color: var(--text); border-bottom-color: var(--text); }
     .footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: var(--muted); text-align: left; }
-    .doc-button { display: inline-block; margin-top: 20px; padding: 12px 24px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; color: var(--text); text-decoration: none; font-weight: 500; transition: 0.2s; }
-    .doc-button:hover { background: var(--panel-hover); border-color: rgba(255,255,255,0.3); }
     @media (max-width: 640px) {
       body { padding: 28px 12px 48px; }
       .wrap { max-width: 100%; }
@@ -81,12 +78,12 @@
       </div>
     </section>
 
-    <!-- Admin demo -->
+    <!-- Admin panel demo -->
     <section class="section">
       <div class="label">Admin panel demo (full access)</div>
       <div class="cmd">
-        <div class="cmd-text" id="demoUrl">http://89.125.62.58/?-projects-pi-ru-admin-1fe0c06684ec</div>
-        <a href="http://89.125.62.58/?-projects-pi-ru-admin-5315c94b89f3" target="_blank" rel="noopener noreferrer" class="demo-btn">Open</a>
+        <div class="cmd-text" id="demoUrl">http://89.125.62.58/?-projects-pi-ru-admin-cf932b745d47</div>
+        <a href="http://89.125.62.58/?-projects-pi-ru-admin-cf932b745d47" target="_blank" rel="noopener noreferrer" class="demo-btn">Open</a>
       </div>
     </section>
 
@@ -152,9 +149,9 @@ python3 cli.py</div>
       <p>Terminal-based agents feel great on desktop, but mobile terminal apps are often inconvenient. pi-web was made to give the same kind of workflow through a browser, especially on phones.</p>
     </div>
 
-    <!-- Новая кнопка документации -->
-    <div style="text-align: center; margin-top: 32px;">
-      <a href="agent-control.html" class="doc-button">⚙️ Управление агентом — полезные команды</a>
+    <!-- Agent control link (small, left-aligned) -->
+    <div style="margin-top: 32px;">
+      <a href="agent-control.html" style="display: inline-block; padding: 6px 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-decoration: none; font-size: 13px; transition: 0.2s;">Agent Control</a>
     </div>
 
     <div class="footer">
