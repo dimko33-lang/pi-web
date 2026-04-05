@@ -44,13 +44,13 @@
 </head>
 <body>
   <main class="wrap">
-    <div class="brand">⚙️ pi-web — agent control</div>
+    <div class="brand">pi-web — agent control</div>
     <a href="/" class="back-link">← Back to main page</a>
     <h1>Useful commands</h1>
     <p class="lead">Run these on your server (as root or sudo).</p>
 
     <div class="section">
-      <div class="label">🔄 Full reset (restore original page)</div>
+      <div class="label">Reset page to default (fix broken UI)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-reset">sqlite3 /opt/my-agent/agent.db "DELETE FROM session_html;" && systemctl restart my-agent</div>
         <button class="copy-btn" onclick="copyCmd('cmd-reset', this)">Copy</button>
@@ -59,7 +59,7 @@
     </div>
 
     <div class="section">
-      <div class="label">🔄 Restart agent service</div>
+      <div class="label">Restart agent service</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-restart">systemctl restart my-agent</div>
         <button class="copy-btn" onclick="copyCmd('cmd-restart', this)">Copy</button>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="section">
-      <div class="label">📈 Increase answer length (max_tokens = 16384)</div>
+      <div class="label">Increase answer length (max_tokens = 16384)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-maxtokens">sed -i 's/"max_tokens": [0-9]*/"max_tokens": 16384/' /opt/my-agent/agent.py && systemctl restart my-agent</div>
         <button class="copy-btn" onclick="copyCmd('cmd-maxtokens', this)">Copy</button>
@@ -79,7 +79,7 @@
     </div>
 
     <div class="section">
-      <div class="label">🌡️ Adjust creativity (temperature)</div>
+      <div class="label">Adjust creativity (temperature)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-temp-high">sed -i 's/"temperature": [0-9.]*/"temperature": 1.5/' /opt/my-agent/agent.py && systemctl restart my-agent</div>
         <button class="copy-btn" onclick="copyCmd('cmd-temp-high', this)">Copy</button>
@@ -92,16 +92,16 @@
     </div>
 
     <div class="section">
-      <div class="label">🔄 Change AI model (Groq)</div>
+      <div class="label">Change AI model (Groq)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-model">echo '{"provider": "groq", "model": "llama-3.3-70b-versatile"}' > /opt/my-agent/global_model.json && systemctl restart my-agent</div>
         <button class="copy-btn" onclick="copyCmd('cmd-model', this)">Copy</button>
       </div>
-      <div class="note">Available models: llama-3.1-8b-instant, llama-3.3-70b-versatile, mixtral-8x7b-32768, kimi-k2</div>
+      <div class="note">Available models: llama-3.1-8b-instant, llama-3.3-70b-versatile, mixtral-8x7b-32768, kimi-k2, etc.</div>
     </div>
 
     <div class="section">
-      <div class="label">🔑 Update API keys (GROQ, OpenRouter, Kimi)</div>
+      <div class="label">Update API keys (GROQ, OpenRouter, Kimi)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-keys">nano /etc/my-agent.env</div>
         <button class="copy-btn" onclick="copyCmd('cmd-keys', this)">Copy</button>
@@ -114,7 +114,7 @@
     </div>
 
     <div class="section">
-      <div class="label">📦 Full reinstall (keeps server)</div>
+      <div class="label">Full reinstall (keeps server)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-reinstall">systemctl stop my-agent; rm -rf /opt/my-agent /root/pi-web-agent-src; cd /root; git clone https://github.com/dimko33-lang/pi-web-agent.git /root/pi-web-agent-src; cd /root/pi-web-agent-src; bash install.sh</div>
         <button class="copy-btn" onclick="copyCmd('cmd-reinstall', this)">Copy</button>
@@ -122,7 +122,7 @@
     </div>
 
     <div class="section">
-      <div class="label">📋 View logs (errors)</div>
+      <div class="label">View logs (errors)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-logs">journalctl -u my-agent -n 50 --no-pager</div>
         <button class="copy-btn" onclick="copyCmd('cmd-logs', this)">Copy</button>
@@ -130,11 +130,34 @@
     </div>
 
     <div class="section">
-      <div class="label">💾 Backup current HTML (before changes)</div>
+      <div class="label">Backup current HTML (before changes)</div>
       <div class="cmd">
         <div class="cmd-text" id="cmd-backup">sqlite3 /opt/my-agent/agent.db "SELECT html FROM session_html WHERE session_id=1;" > /root/page_backup.html</div>
         <button class="copy-btn" onclick="copyCmd('cmd-backup', this)">Copy</button>
       </div>
+    </div>
+
+    <!-- Root access & shell commands (no icons, just text) -->
+    <div class="section">
+      <div class="label">Full root access (shell commands)</div>
+      <p class="note">Use <span class="code-inline">!shell &lt;command&gt;</span> in the agent chat to execute any system command as root. Examples:</p>
+      <div class="cmd">
+        <div class="cmd-text" id="cmd-shell1">!shell apt update &amp;&amp; apt upgrade -y</div>
+        <button class="copy-btn" onclick="copyCmd('cmd-shell1', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="cmd-shell2">!shell systemctl restart my-agent</div>
+        <button class="copy-btn" onclick="copyCmd('cmd-shell2', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="cmd-shell3">!shell ls -la /opt/my-agent</div>
+        <button class="copy-btn" onclick="copyCmd('cmd-shell3', this)">Copy</button>
+      </div>
+      <div class="cmd">
+        <div class="cmd-text" id="cmd-shell4">!shell cat /etc/my-agent.env</div>
+        <button class="copy-btn" onclick="copyCmd('cmd-shell4', this)">Copy</button>
+      </div>
+      <div class="note">⚠️ These commands run as root – be careful!</div>
     </div>
 
     <div class="footer">
