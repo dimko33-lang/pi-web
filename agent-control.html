@@ -17,278 +17,212 @@
       --border: rgba(255,255,255,0.05);
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: Inter, sans-serif; }
     body { padding: 40px 18px 64px; }
-    .wrap { width: 100%; max-width: 920px; margin: 0 auto; }
+    .wrap { max-width: 920px; margin: 0 auto; }
     .brand { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
-    h1 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 34px); line-height: 1.12; font-weight: 600; letter-spacing: -0.03em; color: var(--text); }
-    .lead { margin: 0 0 20px; max-width: 700px; font-size: 15px; line-height: 1.65; color: var(--muted); }
+    h1 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 34px); font-weight: 600; }
+    .lead { margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: var(--muted); }
     .back-link { display: inline-block; margin-bottom: 30px; color: var(--muted); text-decoration: none; font-size: 14px; }
     .back-link:hover { color: var(--text); }
     .section { margin-top: 30px; border-top: 1px solid var(--border); padding-top: 24px; }
-    .section:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    .section:first-of-type { border-top: none; padding-top: 0; }
     .label { margin-bottom: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-    .cmd { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 10px; width: 100%; padding: 11px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; }
-    .cmd:hover { background: var(--panel-hover); }
-    .cmd-text { min-width: 0; overflow-x: auto; color: var(--command); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; line-height: 1.5; padding: 8px 8px; white-space: pre-wrap; word-break: break-all; }
-    .copy-btn { flex: 0 0 auto; height: 38px; padding: 0 16px; border: 1px solid rgba(255,255,255,0.2); border-radius: 9px; background: var(--button); color: var(--text); font-size: 12px; font-weight: 500; cursor: pointer; transition: 0.2s; }
-    .copy-btn:hover { background: var(--button-hover); border-color: rgba(255,255,255,0.3); }
-    .note { font-size: 13px; color: var(--muted); margin-top: 8px; padding-left: 8px; border-left: 2px solid var(--muted); }
-    .footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: var(--muted); text-align: left; }
+    .cmd { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; padding: 8px 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; }
+    .cmd-text { flex: 1; overflow-x: auto; font-family: monospace; font-size: 13px; line-height: 1.4; padding: 4px 0; white-space: pre-wrap; word-break: break-all; }
+    .copy-btn { flex-shrink: 0; height: 32px; padding: 0 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 9px; background: var(--button); color: var(--text); font-size: 12px; cursor: pointer; }
+    .copy-btn:hover { background: var(--button-hover); }
+    .note { font-size: 12px; color: var(--muted); margin-top: 6px; padding-left: 10px; border-left: 2px solid var(--muted); }
+    .footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+    pre.cmd-multi {
+      margin: 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-x: auto;
+    }
+    .cmd-wrapper {
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .copy-btn-multi {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 9px;
+      background: var(--button);
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .copy-btn-multi:hover { background: var(--button-hover); }
     @media (max-width: 640px) {
       body { padding: 28px 12px 48px; }
-      .cmd-text { font-size: 12px; }
-      .copy-btn { height: 34px; padding: 0 12px; }
+      .cmd-text { font-size: 11px; }
     }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="brand">pi-web — agent control</div>
-    <a href="/" class="back-link">← Back to main page</a>
-    <h1>Useful commands</h1>
-    <p class="lead">Run these on your server (as root or sudo).</p>
+<div class="wrap">
+  <div class="brand">pi-web — agent control</div>
+  <a href="/" class="back-link">← Back to main page</a>
+  <h1>Useful commands</h1>
+  <p class="lead">Run these on your server (as root).</p>
 
-    <!-- Reset page -->
-    <div class="section">
-      <div class="label">Reset page to default (fix broken UI)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-reset">sqlite3 /opt/my-agent/agent.db "DELETE FROM session_html;" && systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-reset', this)">Copy</button>
-      </div>
-      <div class="note">Resets HTML to default, restores all buttons and interface.</div>
-    </div>
+  <!-- Reset -->
+  <div class="section">
+    <div class="label">Reset page to default (fix broken UI)</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-reset">sqlite3 /opt/my-agent/agent.db "DELETE FROM session_html;" && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-reset', this)">Copy</button></div>
+  </div>
 
-    <!-- Restart agent -->
-    <div class="section">
-      <div class="label">Restart agent service</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-restart">systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-restart', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-status">systemctl status my-agent --no-pager</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-status', this)">Copy</button>
-      </div>
-    </div>
+  <!-- Restart -->
+  <div class="section">
+    <div class="label">Restart agent service</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-restart">systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-restart', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-status">systemctl status my-agent --no-pager</div><button class="copy-btn" onclick="copyCmd('cmd-status', this)">Copy</button></div>
+  </div>
 
-    <!-- Increase tokens -->
-    <div class="section">
-      <div class="label">Increase answer length (max_tokens = 16384)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-maxtokens">sed -i 's/"max_tokens": [0-9]*/"max_tokens": 16384/' /opt/my-agent/agent.py && systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-maxtokens', this)">Copy</button>
-      </div>
-    </div>
+  <!-- Increase tokens -->
+  <div class="section">
+    <div class="label">Increase answer length (max_tokens = 16384)</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-maxtokens">sed -i 's/"max_tokens": [0-9]*/"max_tokens": 16384/' /opt/my-agent/agent.py && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-maxtokens', this)">Copy</button></div>
+  </div>
 
-    <!-- Temperature -->
-    <div class="section">
-      <div class="label">Adjust creativity (temperature)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-temp-high">sed -i 's/"temperature": [0-9.]*/"temperature": 1.5/' /opt/my-agent/agent.py && systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-temp-high', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-temp-low">sed -i 's/"temperature": [0-9.]*/"temperature": 0.5/' /opt/my-agent/agent.py && systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-temp-low', this)">Copy</button>
-      </div>
-      <div class="note">Higher = more creative/chaotic, lower = more predictable/focused.</div>
-    </div>
+  <!-- Temperature -->
+  <div class="section">
+    <div class="label">Adjust creativity (temperature)</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-temp-high">sed -i 's/"temperature": [0-9.]*/"temperature": 1.5/' /opt/my-agent/agent.py && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-temp-high', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-temp-low">sed -i 's/"temperature": [0-9.]*/"temperature": 0.5/' /opt/my-agent/agent.py && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-temp-low', this)">Copy</button></div>
+  </div>
 
-    <!-- Change model -->
-    <div class="section">
-      <div class="label">Change AI model (Groq)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-model">echo '{"provider": "groq", "model": "llama-3.3-70b-versatile"}' > /opt/my-agent/global_model.json && systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-model', this)">Copy</button>
-      </div>
-      <div class="note">Available models: llama-3.1-8b-instant, llama-3.3-70b-versatile, mixtral-8x7b-32768, kimi-k2, etc.</div>
-    </div>
+  <!-- Change model -->
+  <div class="section">
+    <div class="label">Change AI model (Groq)</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-model">echo '{"provider": "groq", "model": "llama-3.3-70b-versatile"}' > /opt/my-agent/global_model.json && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-model', this)">Copy</button></div>
+  </div>
 
-    <!-- Update keys -->
-    <div class="section">
-      <div class="label">Update API keys (GROQ, OpenRouter, Kimi)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-keys">nano /etc/my-agent.env</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-keys', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-keys-restart">systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-keys-restart', this)">Copy</button>
-      </div>
-      <div class="note">After editing keys, restart the service.</div>
-    </div>
+  <!-- Update keys -->
+  <div class="section">
+    <div class="label">Update API keys</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-keys">nano /etc/my-agent.env</div><button class="copy-btn" onclick="copyCmd('cmd-keys', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-keys-restart">systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-keys-restart', this)">Copy</button></div>
+  </div>
 
-    <!-- Full reinstall -->
-    <div class="section">
-      <div class="label">Full reinstall (keeps server)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-reinstall">systemctl stop my-agent; rm -rf /opt/my-agent /root/pi-web-agent-src; cd /root; git clone https://github.com/dimko33-lang/pi-web-agent.git /root/pi-web-agent-src; cd /root/pi-web-agent-src; bash install.sh</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-reinstall', this)">Copy</button>
-      </div>
-    </div>
+  <!-- Full reinstall -->
+  <div class="section">
+    <div class="label">Full reinstall (keeps server)</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-reinstall">systemctl stop my-agent; rm -rf /opt/my-agent /root/pi-web-agent-src; cd /root; git clone https://github.com/dimko33-lang/pi-web-agent.git /root/pi-web-agent-src; cd /root/pi-web-agent-src; bash install.sh</div><button class="copy-btn" onclick="copyCmd('cmd-reinstall', this)">Copy</button></div>
+  </div>
 
-    <!-- Logs -->
-    <div class="section">
-      <div class="label">View logs (errors)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-logs">journalctl -u my-agent -n 50 --no-pager</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-logs', this)">Copy</button>
-      </div>
-    </div>
+  <!-- Logs -->
+  <div class="section">
+    <div class="label">View logs (errors)</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-logs">journalctl -u my-agent -n 50 --no-pager</div><button class="copy-btn" onclick="copyCmd('cmd-logs', this)">Copy</button></div>
+  </div>
 
-    <!-- Backup HTML -->
-    <div class="section">
-      <div class="label">Backup current HTML (before changes)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-backup">sqlite3 /opt/my-agent/agent.db "SELECT html FROM session_html WHERE session_id=1;" > /root/page_backup.html</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-backup', this)">Copy</button>
-      </div>
-    </div>
+  <!-- Backup -->
+  <div class="section">
+    <div class="label">Backup current HTML</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-backup">sqlite3 /opt/my-agent/agent.db "SELECT html FROM session_html WHERE session_id=1;" > /root/page_backup.html</div><button class="copy-btn" onclick="copyCmd('cmd-backup', this)">Copy</button></div>
+  </div>
 
-    <!-- !shell commands (existing) -->
-    <div class="section">
-      <div class="label">Full root access (!shell prefix)</div>
-      <p class="note">Use <span class="code-inline">!shell &lt;command&gt;</span> in the agent chat to execute any system command as root. Examples:</p>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-shell1">!shell apt update &amp;&amp; apt upgrade -y</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-shell1', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-shell2">!shell systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-shell2', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-shell3">!shell ls -la /opt/my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-shell3', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-shell4">!shell cat /etc/my-agent.env</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-shell4', this)">Copy</button>
-      </div>
-      <div class="note">⚠️ These commands run as root – be careful!</div>
-    </div>
+  <!-- !shell commands -->
+  <div class="section">
+    <div class="label">Full root access (with !shell prefix)</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-shell1">!shell apt update &amp;&amp; apt upgrade -y</div><button class="copy-btn" onclick="copyCmd('cmd-shell1', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-shell2">!shell systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-shell2', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-shell3">!shell ls -la /opt/my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-shell3', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-shell4">!shell cat /etc/my-agent.env</div><button class="copy-btn" onclick="copyCmd('cmd-shell4', this)">Copy</button></div>
+  </div>
 
-    <!-- NEW: Full root access without prefix (auto-detect) – added at the bottom -->
-    <div class="section">
-      <div class="label">Full root access without prefix (auto-detect)</div>
-      <p class="note">On your own risk: you can enable the agent to execute any system command without typing <span class="code-inline">!shell</span>. Just run these terminal commands once, then you can speak or type commands directly.</p>
-      <!-- Terminal setup commands -->
-      <div class="cmd">
-        <div class="cmd-text" id="term1">cat >> /opt/my-agent/agent.py << 'EOF'</div>
-        <button class="copy-btn" onclick="copyCmd('term1', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="term2">
+  <!-- Full root without prefix – one multiline command block (fixed layout) -->
+  <div class="section">
+    <div class="label">Full root access without prefix (auto-detect)</div>
+    <p class="note">On your own risk: copy and paste the entire block below into your server terminal (as root). After this, you can just type or say commands directly in chat (no !shell).</p>
+    <div class="cmd-wrapper">
+      <pre id="root-auto" class="cmd-multi">cat >> /opt/my-agent/agent.py << 'EOF'
     def _is_shell_command(self, text: str) -> bool:
-        text = text.lower().strip()
-        triggers = ["выполни", "сделай", "запусти", "apt ", "systemctl ", "ls ", "cd ", "cat ", "echo ", "rm ", "mkdir ", "chmod ", "chown ", "grep ", "find ", "kill ", "nano ", "vim ", "curl ", "wget ", "git clone", "python3 ", "pip "]
+        triggers = ["выполни","apt ","systemctl ","ls ","cd ","cat ","echo ","rm ","mkdir ","chmod ","chown ","grep ","find ","kill ","nano ","curl ","wget ","git clone","python3 ","pip "]
         for t in triggers:
-            if text.startswith(t):
-                return True
+            if text.lower().startswith(t): return True
         return False
-
     def _run_command(self, cmd: str) -> str:
         import subprocess
         try:
             out = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=60)
-            return (out.stdout + out.stderr).strip() or "OK"
+            return (out.stdout+out.stderr).strip() or "OK"
         except Exception as e:
             return f"Ошибка: {e}"
-EOF</div>
-        <button class="copy-btn" onclick="copyCmd('term2', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="term3">python3 << 'PY'
+EOF
+
+python3 << 'PY'
 import re
-with open('/opt/my-agent/agent.py', 'r') as f:
-    c = f.read()
+with open('/opt/my-agent/agent.py','r') as f: c = f.read()
 new_chat = '''
     def chat(self, session_name: str, message: str, provider=None, model=None):
-        session_name = session_name or "default"
-        message = (message or "").strip()
-        if not message:
-            return {"success": False, "error": "Пустое сообщение"}
+        if not message.strip(): return {"success": False, "error": "Empty"}
         if self._is_shell_command(message):
-            out = self._run_command(message)
-            return {"success": True, "response": out}
-        session = get_or_create_session(session_name)
+            return {"success": True, "response": self._run_command(message)}
+        session = get_or_create_session(session_name or "default")
         provider = provider or session["provider"] or "groq"
         model = model or session["model"] or "llama-3.1-8b-instant"
         add_message(session["id"], "user", message, None, None)
         current_html = read_session_html(session["id"])
-        messages = [
-            {"role": "system", "content": self._system_prompt()},
-            {"role": "user", "content": f"Текущий HTML:\\n{current_html}\\n\\nЗапрос пользователя: {message}"}
-        ]
+        messages = [{"role":"system","content":self._system_prompt()}, {"role":"user","content":f"HTML:\n{current_html}\n\nUser: {message}"}]
         raw = self._call_provider(provider, model, messages)
-        try:
-            data = json.loads(raw)
-        except:
-            data = {"mode": "chat", "assistant": raw, "html": ""}
-        mode = data.get("mode", "chat")
-        assistant = data.get("assistant", raw)
-        html = data.get("html", "")
+        try: data = json.loads(raw)
+        except: data = {"mode":"chat","assistant":raw,"html":""}
+        mode = data.get("mode","chat")
+        assistant = data.get("assistant",raw)
+        html = data.get("html","")
         changed = False
-        if mode == "edit" and html:
-            if "<!DOCTYPE" in html[:500].upper() or "<HTML" in html[:500].upper():
-                save_session_html(session["id"], html)
-                changed = True
+        if mode=="edit" and html and ("<!DOCTYPE" in html[:500].upper() or "<HTML" in html[:500].upper()):
+            save_session_html(session["id"], html); changed=True
         add_message(session["id"], "assistant", assistant, provider, model)
         return {"success": True, "reply": assistant, "changed": changed}
 '''
 c = re.sub(r'(    def chat\(self, session_name: str, message: str, provider=None, model=None\):.*?)(?=\n    def [a-z]|\Z)', new_chat, c, flags=re.DOTALL)
-with open('/opt/my-agent/agent.py', 'w') as f:
-    f.write(c)
-PY</div>
-        <button class="copy-btn" onclick="copyCmd('term3', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="term4">systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('term4', this)">Copy</button>
-      </div>
-      <p class="note">After this setup, you can just type or say commands directly in the agent chat (without !shell). Examples:</p>
-      <div class="cmd">
-        <div class="cmd-text" id="chat-auto1">whoami</div>
-        <button class="copy-btn" onclick="copyCmd('chat-auto1', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="chat-auto2">ls -la /opt/my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('chat-auto2', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="chat-auto3">apt update</div>
-        <button class="copy-btn" onclick="copyCmd('chat-auto3', this)">Copy</button>
-      </div>
-      <div class="cmd">
-        <div class="cmd-text" id="chat-auto4">systemctl restart my-agent</div>
-        <button class="copy-btn" onclick="copyCmd('chat-auto4', this)">Copy</button>
-      </div>
-      <div class="note">These commands run as root. Use at your own risk – you can always reinstall the server quickly.</div>
-    </div>
+with open('/opt/my-agent/agent.py','w') as f: f.write(c)
+PY
 
-    <div class="footer">
-      <div>© 2026 dimko33-lang · MIT License</div>
-      <div style="margin-top: 8px;">
-        <a href="https://github.com/dimko33-lang/pi-web-agent" style="color: var(--muted); text-decoration: none;">GitHub</a> · 
-        <a href="https://github.com/dimko33-lang/pi-web" style="color: var(--muted); text-decoration: none;">Website source</a>
-      </div>
+systemctl restart my-agent</pre>
+      <button class="copy-btn-multi" onclick="copyCmd('root-auto', this)">Copy</button>
     </div>
-  </main>
+    <p class="note">After setup, try: whoami, ls -la /opt/my-agent, apt update, systemctl restart my-agent. Use at your own risk – you can always reinstall the server quickly.</p>
+  </div>
 
-  <script>
-    async function copyCmd(id, btn) {
-      const text = document.getElementById(id).innerText;
-      const original = btn.textContent;
-      try {
-        await navigator.clipboard.writeText(text);
-        btn.textContent = "Copied";
-        setTimeout(() => { btn.textContent = original; }, 900);
-      } catch (e) {
-        btn.textContent = "Error";
-        setTimeout(() => { btn.textContent = original; }, 900);
-      }
+  <div class="footer">
+    <div>© 2026 dimko33-lang · MIT License</div>
+    <div><a href="https://github.com/dimko33-lang/pi-web-agent" style="color: var(--muted);">GitHub</a> · <a href="https://github.com/dimko33-lang/pi-web" style="color: var(--muted);">Website source</a></div>
+  </div>
+</div>
+<script>
+  async function copyCmd(id, btn) {
+    let text;
+    if (id === 'root-auto') {
+      text = document.getElementById(id).innerText;
+    } else {
+      text = document.getElementById(id).innerText;
     }
-  </script>
+    const original = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = "Copied";
+      setTimeout(() => btn.textContent = original, 900);
+    } catch(e) {
+      btn.textContent = "Error";
+      setTimeout(() => btn.textContent = original, 900);
+    }
+  }
+</script>
 </body>
 </html>
