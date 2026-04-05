@@ -69,34 +69,14 @@
       <a href="https://github.com/dimko33-lang/pi-web" target="_blank" rel="noreferrer">website source</a>
     </div>
 
-    <!-- Main command -->
     <section class="main-install">
       <div class="label">Main command</div>
       <div class="cmd">
-        <div class="cmd-text" id="cmd1">npm install -g @dimko33/pi-web</div>
+        <div class="cmd-text" id="cmd1">npm install -g @dimko33/pi-web && pi-web</div>
         <button class="copy-btn" onclick="copyCmd('cmd1', this)">Copy</button>
       </div>
     </section>
 
-    <!-- Admin panel demo -->
-    <section class="section">
-      <div class="label">Admin panel demo (full access)</div>
-      <div class="cmd">
-        <div class="cmd-text" id="demoUrl">http://89.125.62.58/?-projects-pi-ru-admin-cf932b745d47</div>
-        <a href="http://89.125.62.58/?-projects-pi-ru-admin-cf932b745d47" target="_blank" rel="noopener noreferrer" class="demo-btn">Open</a>
-      </div>
-    </section>
-
-    <!-- If Node.js missing -->
-    <section class="section">
-      <div class="label">If Node.js is not installed</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd2">curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &amp;&amp; apt-get install -y nodejs &amp;&amp; npm install -g @dimko33/pi-web</div>
-        <button class="copy-btn" onclick="copyCmd('cmd2', this)">Copy</button>
-      </div>
-    </section>
-
-    <!-- Direct shell install -->
     <section class="section">
       <div class="label">Direct install (no npm)</div>
       <div class="cmd">
@@ -105,72 +85,19 @@
       </div>
     </section>
 
-    <!-- Manual terminal launch -->
-    <section class="section">
-      <div class="label">Manual terminal launch</div>
-      <div class="cmd">
-        <div class="cmd-text" id="cmd-manual">cd /opt/my-agent
-source /opt/my-agent/.venv/bin/activate
-python3 cli.py</div>
-        <button class="copy-btn" onclick="copyCmd('cmd-manual', this)">Copy</button>
-      </div>
-    </section>
-
-    <!-- Info sections -->
     <div class="info-section">
-      <h2>What happens during install</h2>
-      <p>The installer will ask for your server address and then for API keys. Supported providers (press Enter to skip any): <span class="code-inline">OpenRouter</span>, <span class="code-inline">GROQ</span>, <span class="code-inline">Gemini</span>, <span class="code-inline">Anthropic</span>, <span class="code-inline">OpenAI</span>, <span class="code-inline">Kimi</span>.</p>
-    </div>
-
-    <div class="info-section">
-      <h2>Entering API keys</h2>
-      <p>When prompted, just paste your key (it will be visible, so you can see what you type). If you do not have a key for a certain provider, press <span class="code-inline">Enter</span> to skip it.</p>
-      <ul><li>Copy the key from your provider dashboard</li><li>Paste it (the usual paste shortcut works)</li><li>Press <span class="code-inline">Enter</span></li></ul>
-    </div>
-
-    <div class="info-section">
-      <h2>After install</h2>
-      <p>At the end, the installer prints the links you need: the main web address, the admin‑related address, and the client session links. After setup, you usually do not need to keep working in the terminal. The main idea of pi-web is to control the agent through the web interface.</p>
-    </div>
-
-    <div class="info-section">
-      <h2>Client panels (after install)</h2>
-      <p>Once the installation finishes, the terminal will show several client panel links:</p>
-      <ul class="client-list">
-        <li><a href="http://89.125.62.58/?-projects-pi-ru" target="_blank">http://89.125.62.58/?-projects-pi-ru</a> – main public panel</li>
-        <li><a href="http://89.125.62.58/?-projects-pi-ru/1" target="_blank">http://89.125.62.58/?-projects-pi-ru/1</a> – backup panel #1</li>
-        <li><a href="http://89.125.62.58/?-projects-pi-ru/2" target="_blank">http://89.125.62.58/?-projects-pi-ru/2</a>, <a href="http://89.125.62.58/?-projects-pi-ru/3" target="_blank">/3</a> … up to 5–6 independent client sessions</li>
-      </ul>
-      <p>These links give end‑users access to the agent <strong>without admin rights</strong>. You can share them with different people – each session is independent. Just copy the desired link from the terminal output and open it in a browser.<br>The admin alias (with <span class="code-inline">-admin-...</span>) is separate and should be kept private.</p>
-    </div>
-
-    <div class="info-section">
-      <h2>Why this exists</h2>
-      <p>Terminal-based agents feel great on desktop, but mobile terminal apps are often inconvenient. pi-web was made to give the same kind of workflow through a browser, especially on phones.</p>
-    </div>
-
-    <!-- Agent control link (small, left-aligned) -->
-    <div style="margin-top: 32px;">
-      <a href="agent-control.html" style="display: inline-block; padding: 6px 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-decoration: none; font-size: 13px; transition: 0.2s;">Agent Control</a>
+      <h2>After install you will see</h2>
+      <p>Admin panel: <code>?admin</code><br>
+         Client panels: <code>?default</code>, <code>?slot1</code>, <code>?slot2</code></p>
     </div>
 
     <div class="footer">
       <div>© 2026 dimko33-lang · MIT License</div>
-      <div style="margin-top: 8px;">
-        <a href="https://github.com/dimko33-lang/pi-web" style="color: var(--muted); text-decoration: none;">GitHub</a> · 
-        <a href="https://www.npmjs.com/package/@dimko33/pi-web" style="color: var(--muted); text-decoration: none;">npm</a>
-      </div>
       <div style="margin-top: 18px; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px;">
-        Thanks to <a href="https://pi.dev/" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">Mario Zechner (pi.dev)</a> for the philosophy and inspiration.<br>
-        This project is my own web implementation of a similar idea.
-      </div>
-      <div style="margin-top: 18px; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px;">
-        📧 <a href="mailto:dimko33@gmail.com" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">dimko33@gmail.com</a> &nbsp;|&nbsp;
-        💬 <a href="https://t.me/pi_web_agent_chat" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">Telegram chat (@pi_web_agent_chat)</a>
+        Thanks to <a href="https://pi.dev/" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted);">Mario Zechner (pi.dev)</a>
       </div>
     </div>
   </main>
-
   <script>
     async function copyCmd(id, btn) {
       const text = document.getElementById(id).innerText;
