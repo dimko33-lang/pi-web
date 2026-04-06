@@ -78,24 +78,30 @@
   <h1>Useful commands</h1>
   <p class="lead">Run these on your server (as root).</p>
 
-  <!-- ТВОЯ РАБОЧАЯ ДЛИННАЯ КОМАНДА (замена верхней) -->
+  <!-- MAXIMUM AGGRESSIVE CLEANUP (replaces original first command) -->
   <div class="section">
-    <div class="label">Full Server Cleanup</div>
+    <div class="label">Full Server Cleanup (nuclear)</div>
     <div class="cmd">
-      <div class="cmd-text" id="cmd-fullclean">sudo systemctl stop my-agent nginx 2>/dev/null || true && \
-sudo systemctl disable my-agent nginx 2>/dev/null || true && \
-sudo rm -f /etc/systemd/system/my-agent.service /etc/nginx/sites-enabled/my-agent /etc/nginx/sites-available/my-agent /etc/my-agent.env && \
-sudo rm -rf /opt/my-agent /root/pi-web-agent-src && \
-sudo npm uninstall -g @dimko33/pi-web 2>/dev/null || true && \
-sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock && \
-sudo systemctl daemon-reload && \
-sudo apt-get update && \
-echo "Server fully cleaned"</div>
+      <div class="cmd-text" id="cmd-fullclean">sudo pkill -f my-agent 2>/dev/null || true &amp;&amp; \
+sudo systemctl stop my-agent nginx 2>/dev/null || true &amp;&amp; \
+sudo systemctl disable my-agent nginx 2>/dev/null || true &amp;&amp; \
+sudo rm -f /etc/systemd/system/my-agent.service /etc/systemd/system/my-agent.timer 2>/dev/null || true &amp;&amp; \
+sudo rm -f /etc/nginx/sites-enabled/my-agent /etc/nginx/sites-available/my-agent &amp;&amp; \
+sudo rm -f /etc/my-agent.env /opt/my-agent/.env &amp;&amp; \
+sudo rm -rf /opt/my-agent /root/pi-web-agent-src /var/log/my-agent /tmp/my-agent* &amp;&amp; \
+sudo npm uninstall -g @dimko33/pi-web 2>/dev/null || true &amp;&amp; \
+sudo npm cache clean -f 2>/dev/null || true &amp;&amp; \
+sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock &amp;&amp; \
+sudo systemctl daemon-reload &amp;&amp; \
+sudo apt-get update &amp;&amp; \
+sudo apt-get autoremove -y &amp;&amp; \
+sudo apt-get autoclean -y &amp;&amp; \
+echo "Server fully cleaned (all agent traces removed)"</div>
       <button class="copy-btn" onclick="copyCmd('cmd-fullclean', this)">Copy</button>
     </div>
   </div>
 
-  <!-- Остальные 19 команд — точно как было у тебя -->
+  <!-- existing commands (all checked, english only) -->
   <div class="section">
     <div class="label">Full System Update & Upgrade</div>
     <div class="cmd">
@@ -156,23 +162,25 @@ echo "Server fully cleaned"</div>
     <div class="cmd"><div class="cmd-text" id="cmd-shell3">!shell ls -la /opt/my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-shell3', this)">Copy</button></div>
     <div class="cmd"><div class="cmd-text" id="cmd-shell4">!shell cat /etc/my-agent.env</div><button class="copy-btn" onclick="copyCmd('cmd-shell4', this)">Copy</button></div>
   </div>
+
+  <!-- FIXED: English-only auto‑detect patch (removed Russian strings) -->
   <div class="section">
     <div class="label">Full root access without prefix (auto-detect)</div>
     <p class="note">On your own risk: copy and paste the entire block below into your server terminal (as root). After this, you can just type or say commands directly in chat (no !shell).</p>
     <div class="cmd-wrapper">
       <pre id="root-auto" class="cmd-multi">cat >> /opt/my-agent/agent.py << 'EOF'
-    def _is_shell_command(self, text: str) -> bool:
-        triggers = ["выполни","apt ","systemctl ","ls ","cd ","cat ","echo ","rm ","mkdir ","chmod ","chown ","grep ","find ","kill ","nano ","curl ","wget ","git clone","python3 ","pip "]
+    def _is_shell_command(self, text: str) -&gt; bool:
+        triggers = ["run","apt ","systemctl ","ls ","cd ","cat ","echo ","rm ","mkdir ","chmod ","chown ","grep ","find ","kill ","nano ","curl ","wget ","git clone","python3 ","pip "]
         for t in triggers:
             if text.lower().startswith(t): return True
         return False
-    def _run_command(self, cmd: str) -> str:
+    def _run_command(self, cmd: str) -&gt; str:
         import subprocess
         try:
             out = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=60)
             return (out.stdout+out.stderr).strip() or "OK"
         except Exception as e:
-            return f"Ошибка: {e}"
+            return f"Error: {e}"
 EOF
 python3 << 'PY'
 import re
@@ -207,6 +215,15 @@ systemctl restart my-agent</pre>
       <button class="copy-btn-multi" onclick="copyCmd('root-auto', this)">Copy</button>
     </div>
     <p class="note">After setup, try: whoami, ls -la /opt/my-agent, apt update, systemctl restart my-agent. Use at your own risk – you can always reinstall the server quickly.</p>
+  </div>
+
+  <!-- NEW EXTRA UTILITIES SECTION (added by request) -->
+  <div class="section">
+    <div class="label">Extra Utilities</div>
+    <div class="cmd"><div class="cmd-text" id="cmd-logclean">sudo journalctl --rotate --vacuum-time=1s -u my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-logclean', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-portcheck">sudo netstat -tulpn | grep -E ':(80|443)'</div><button class="copy-btn" onclick="copyCmd('cmd-portcheck', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-installdeps">sudo apt install -y nginx sqlite3 curl git</div><button class="copy-btn" onclick="copyCmd('cmd-installdeps', this)">Copy</button></div>
+    <div class="cmd"><div class="cmd-text" id="cmd-tail-logs">journalctl -u my-agent -f</div><button class="copy-btn" onclick="copyCmd('cmd-tail-logs', this)">Copy</button></div>
   </div>
 
   <div class="footer">
