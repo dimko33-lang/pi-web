@@ -78,15 +78,24 @@
   <h1>Useful commands</h1>
   <p class="lead">Run these on your server (as root).</p>
 
-  <!-- Новые команды (добавлены сверху) -->
+  <!-- ТВОЯ РАБОЧАЯ ДЛИННАЯ КОМАНДА (замена верхней) -->
   <div class="section">
-    <div class="label">Full Server Cleanup (максимально чистит все хвосты)</div>
+    <div class="label">Full Server Cleanup</div>
     <div class="cmd">
-      <div class="cmd-text" id="cmd-fullclean">sudo systemctl stop my-agent nginx 2>/dev/null || true && sudo systemctl disable my-agent nginx 2>/dev/null || true && sudo rm -f /etc/systemd/system/my-agent.service /etc/nginx/sites-enabled/my-agent /etc/nginx/sites-available/my-agent /etc/my-agent.env && sudo rm -rf /opt/my-agent /root/pi-web-agent-src && sudo npm uninstall -g @dimko33/pi-web 2>/dev/null || true && sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock && sudo systemctl daemon-reload && echo "Server fully cleaned"</div>
+      <div class="cmd-text" id="cmd-fullclean">sudo systemctl stop my-agent nginx 2>/dev/null || true && \
+sudo systemctl disable my-agent nginx 2>/dev/null || true && \
+sudo rm -f /etc/systemd/system/my-agent.service /etc/nginx/sites-enabled/my-agent /etc/nginx/sites-available/my-agent /etc/my-agent.env && \
+sudo rm -rf /opt/my-agent /root/pi-web-agent-src && \
+sudo npm uninstall -g @dimko33/pi-web 2>/dev/null || true && \
+sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock && \
+sudo systemctl daemon-reload && \
+sudo apt-get update && \
+echo "Server fully cleaned"</div>
       <button class="copy-btn" onclick="copyCmd('cmd-fullclean', this)">Copy</button>
     </div>
   </div>
 
+  <!-- Остальные 19 команд — точно как было у тебя -->
   <div class="section">
     <div class="label">Full System Update & Upgrade</div>
     <div class="cmd">
@@ -94,7 +103,6 @@
       <button class="copy-btn" onclick="copyCmd('cmd-update', this)">Copy</button>
     </div>
   </div>
-
   <div class="section">
     <div class="label">Install / Reinstall Node.js 22</div>
     <div class="cmd">
@@ -102,57 +110,45 @@
       <button class="copy-btn" onclick="copyCmd('cmd-node', this)">Copy</button>
     </div>
   </div>
-
-  <!-- Всё, что было у тебя раньше — оставлено полностью -->
-  <!-- Reset -->
   <div class="section">
     <div class="label">Reset page to default (fix broken UI)</div>
     <div class="cmd"><div class="cmd-text" id="cmd-reset">sqlite3 /opt/my-agent/agent.db "DELETE FROM session_html;" && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-reset', this)">Copy</button></div>
   </div>
-  <!-- Restart -->
   <div class="section">
     <div class="label">Restart agent service</div>
     <div class="cmd"><div class="cmd-text" id="cmd-restart">systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-restart', this)">Copy</button></div>
     <div class="cmd"><div class="cmd-text" id="cmd-status">systemctl status my-agent --no-pager</div><button class="copy-btn" onclick="copyCmd('cmd-status', this)">Copy</button></div>
   </div>
-  <!-- Increase tokens -->
   <div class="section">
     <div class="label">Increase answer length (max_tokens = 16384)</div>
     <div class="cmd"><div class="cmd-text" id="cmd-maxtokens">sed -i 's/"max_tokens": [0-9]*/"max_tokens": 16384/' /opt/my-agent/agent.py && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-maxtokens', this)">Copy</button></div>
   </div>
-  <!-- Temperature -->
   <div class="section">
     <div class="label">Adjust creativity (temperature)</div>
     <div class="cmd"><div class="cmd-text" id="cmd-temp-high">sed -i 's/"temperature": [0-9.]*/"temperature": 1.5/' /opt/my-agent/agent.py && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-temp-high', this)">Copy</button></div>
     <div class="cmd"><div class="cmd-text" id="cmd-temp-low">sed -i 's/"temperature": [0-9.]*/"temperature": 0.5/' /opt/my-agent/agent.py && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-temp-low', this)">Copy</button></div>
   </div>
-  <!-- Change model -->
   <div class="section">
     <div class="label">Change AI model (Groq)</div>
     <div class="cmd"><div class="cmd-text" id="cmd-model">echo '{"provider": "groq", "model": "llama-3.3-70b-versatile"}' > /opt/my-agent/global_model.json && systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-model', this)">Copy</button></div>
   </div>
-  <!-- Update keys -->
   <div class="section">
     <div class="label">Update API keys</div>
     <div class="cmd"><div class="cmd-text" id="cmd-keys">nano /etc/my-agent.env</div><button class="copy-btn" onclick="copyCmd('cmd-keys', this)">Copy</button></div>
     <div class="cmd"><div class="cmd-text" id="cmd-keys-restart">systemctl restart my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-keys-restart', this)">Copy</button></div>
   </div>
-  <!-- Full reinstall -->
   <div class="section">
     <div class="label">Full reinstall (keeps server)</div>
     <div class="cmd"><div class="cmd-text" id="cmd-reinstall">systemctl stop my-agent; rm -rf /opt/my-agent /root/pi-web-agent-src; cd /root; git clone https://github.com/dimko33-lang/pi-web-agent.git /root/pi-web-agent-src; cd /root/pi-web-agent-src; bash install.sh</div><button class="copy-btn" onclick="copyCmd('cmd-reinstall', this)">Copy</button></div>
   </div>
-  <!-- Logs -->
   <div class="section">
     <div class="label">View logs (errors)</div>
     <div class="cmd"><div class="cmd-text" id="cmd-logs">journalctl -u my-agent -n 50 --no-pager</div><button class="copy-btn" onclick="copyCmd('cmd-logs', this)">Copy</button></div>
   </div>
-  <!-- Backup -->
   <div class="section">
     <div class="label">Backup current HTML</div>
     <div class="cmd"><div class="cmd-text" id="cmd-backup">sqlite3 /opt/my-agent/agent.db "SELECT html FROM session_html WHERE session_id=1;" > /root/page_backup.html</div><button class="copy-btn" onclick="copyCmd('cmd-backup', this)">Copy</button></div>
   </div>
-  <!-- !shell commands -->
   <div class="section">
     <div class="label">Full root access (with !shell prefix)</div>
     <div class="cmd"><div class="cmd-text" id="cmd-shell1">!shell apt update &amp;&amp; apt upgrade -y</div><button class="copy-btn" onclick="copyCmd('cmd-shell1', this)">Copy</button></div>
@@ -160,7 +156,6 @@
     <div class="cmd"><div class="cmd-text" id="cmd-shell3">!shell ls -la /opt/my-agent</div><button class="copy-btn" onclick="copyCmd('cmd-shell3', this)">Copy</button></div>
     <div class="cmd"><div class="cmd-text" id="cmd-shell4">!shell cat /etc/my-agent.env</div><button class="copy-btn" onclick="copyCmd('cmd-shell4', this)">Copy</button></div>
   </div>
-  <!-- Full root without prefix -->
   <div class="section">
     <div class="label">Full root access without prefix (auto-detect)</div>
     <p class="note">On your own risk: copy and paste the entire block below into your server terminal (as root). After this, you can just type or say commands directly in chat (no !shell).</p>
