@@ -26,7 +26,7 @@ import { omitSessionMessage, restoreSessionMessage } from './message-deletion.ts
 import { createTranscriptDeletion, isServerNotice } from './transcript-deletion.ts';
 import { createSourceArchive } from './source-archive.ts';
 import { createFilesRouter } from './files.ts';
-import { askAgent, isBusy, clearBusy, resetSession, useSession, currentSession, sessionsDir, modelId, piContextConfig } from './agent.ts';
+import { askAgent, browserPiReference, isBusy, clearBusy, resetSession, useSession, currentSession, sessionsDir, modelId, piContextConfig } from './agent.ts';
 import { sessionFile, sessionFiles, readSession, sumFiles, usageForSession, costAsSonnet, listChats, readSessionMessages } from './usage.ts';
 import { MODELS, DEFAULT_MODEL, loadSaved, setModel, availableModels, probeProviders, probeModels, startAutoRefresh } from './models.ts';
 import { piContextStatus } from './pi-context.ts';
@@ -545,7 +545,7 @@ const SETTINGS_FILE = path.join(DATA_DIR, 'browser-settings.json');
 const TG_DATA_DIR = process.env.PI_WEB_TELEGRAM_DATA || DATA_DIR;
 const TG_DEFAULTS_FILE = path.join(TG_DATA_DIR, 'settings.json');
 const tgThinking = new ChatThinking(path.join(TG_DATA_DIR, 'chat-thinking.json'));
-const SETTINGS_DEF = { customPrompt: '', character: '', memory: true, systemPrompt: true, root: false,
+const SETTINGS_DEF = { piOn: false, customPrompt: '', character: '', memory: true, systemPrompt: true, root: false,
   /* How many earlier messages Telegram contexts may include (100 or 200). */
   memoryLimit: 200,
   /* Per-chat tail notes: appended to the very end of each Telegram request. */
@@ -569,6 +569,7 @@ function writeSettings(body: any) {
   const next = {
     /* Preserve omitted fields so toggle updates cannot erase shared prompts.
        agent.ts reads the persisted instructions for each turn. */
+    piOn: body?.piOn === undefined ? cur.piOn === true : body.piOn === true,
     customPrompt: body?.customPrompt === undefined ? str(cur.customPrompt, 20000) : str(body.customPrompt, 20000),
     character: body?.character === undefined ? str(cur.character, 8000) : str(body.character, 8000),
     tailPiwep: body?.tailPiwep === undefined ? str(cur.tailPiwep, 4000) : str(body.tailPiwep, 4000),
@@ -655,6 +656,12 @@ app.get('/profiles', requireAuth, (_req, res) => {
   res.sendFile(path.join(PUBLIC, 'conversation-profiles.html'));
 });
 
+app.get('/api/browser-pi-reference', requireAuth, async (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  try { res.json({ text: await browserPiReference() }); }
+  catch { res.status(503).json({ error: 'A compatible local Pi installation is required to preview its instructions.' }); }
+});
+
 app.get('/api/settings', requireAuth, (req, res) => {
   const saved = readSettings();
   res.setHeader('Cache-Control', 'no-store');
@@ -664,6 +671,7 @@ app.get('/api/settings', requireAuth, (req, res) => {
 });
 
 app.post('/api/settings', requireAuth, (req, res) => {
+  if (req.body?.piOn !== undefined && typeof req.body.piOn !== 'boolean') return res.status(400).json({ error: 'Invalid Pi switch' });
   if (['character', 'customPrompt', 'systemPrompt', 'tailPiwep', 'tailDebri', 'tailLightcone', 'tailDirect',
        'tailPiwepOn', 'tailDebriOn', 'tailLightconeOn', 'tailDirectOn']
       .some(key => req.body?.[key] !== undefined)

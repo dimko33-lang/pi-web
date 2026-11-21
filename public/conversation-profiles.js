@@ -126,6 +126,38 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     for (const picker of editor.pickers) picker.refresh();
     void updateThinking(editor, item.settings.thinking);
   }
+  function bindShow(button, area, key, onOpen) {
+    const display = open => {
+      area.hidden = !open; button.setAttribute('aria-expanded', String(open));
+      if (open && onOpen) onOpen();
+    };
+    let open = false; try { open = localStorage.getItem(key) === '1'; } catch {}
+    display(open);
+    button.addEventListener('click', () => { display(area.hidden); try { localStorage.setItem(key, area.hidden ? '0' : '1'); } catch {} });
+  }
+  function addShowControls(form, id) {
+    for (const [toggle, name] of Object.entries({baseOn:'basePrompt', systemPrompt:'character', customOn:'customPrompt', tailOn:'tail'})) {
+      const heading = form.elements[toggle].closest('.field-heading'), area = form.elements[name];
+      area.id = 'block-' + id + '-' + name;
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Show'; button.className = 'instruction-show';
+      button.setAttribute('aria-label', 'Show ' + heading.textContent.trim() + ' text'); button.setAttribute('aria-controls', area.id); heading.append(button);
+      bindShow(button, area, 'profiles.show.' + id + '.' + name);
+    }
+  }
+  async function initBrowserPi() {
+    const row = document.querySelector('#browser-pi'), toggle = row.querySelector('input'), area = row.querySelector('[id=browser-pi-reference]');
+    bindShow(row.querySelector('button'), area, 'profiles.show.browser.pi', async () => {
+      const pre = area.querySelector('pre'); pre.textContent = 'Loading…';
+      try { pre.textContent = (await request('/api/browser-pi-reference')).text; } catch (error) { pre.textContent = error.message; }
+    });
+    const saved = await request('/api/settings'); toggle.checked = saved.settings.piOn === true; toggle.disabled = false;
+    toggle.addEventListener('change', async () => {
+      const next = toggle.checked; toggle.disabled = true;
+      try { toggle.checked = (await request('/api/settings', {piOn:next})).settings.piOn === true; }
+      catch (error) { toggle.checked = !next; window.alert(error.message); }
+      finally { toggle.disabled = false; }
+    });
+  }
   function createEditor(item) {
     const section = document.querySelector('#profile-template').content.firstElementChild.cloneNode(true);
     section.dataset.profile = item.id;
@@ -137,6 +169,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     const form = section.querySelector('form');
     const toolbar = document.createElement('div'); toolbar.className = 'profile-toolbar';
     form.prepend(toolbar);
+    addShowControls(form, item.id);
     toolbar.append(form.querySelector('.grid'), form.elements.toolsOn.closest('.field-heading'), form.elements.memory.closest('.field-heading'), form.querySelector('.memory-grid'), form.querySelector('.actions'));
     const replyHint = section.querySelector('[data-reply-hint]');
     replyHint.id = 'reply-hint-' + item.id;
@@ -228,5 +261,6 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   window.addEventListener('beforeunload', event => {
     if (pending || [...editors.values()].some(editor => editor.dirty)) { event.preventDefault(); event.returnValue = ''; }
   });
+  void initBrowserPi().catch(error => message(status, error.message, true));
   void start();
 })();

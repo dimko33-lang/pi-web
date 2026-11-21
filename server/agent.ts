@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getModel as getCurrentModel, MODELS } from './models.ts';
-import { piContextStatus, type PiContextConfig } from './pi-context.ts';
+import { piContextStatus, piSdkEntry, type PiContextConfig } from './pi-context.ts';
 import { chatThinking } from './chat-thinking.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -32,9 +32,23 @@ function chatSettings() {
   const str = (v: any, n: number) => String(v ?? '').slice(0, n).trim();
   const forced = process.env.PI_WEB_NAKED === '1';
   return {
+    piOn: !forced && s.piOn === true,
     custom: forced ? '' : str(s.customPrompt, 20000),
     character: forced || s.systemPrompt === false ? '' : str(s.character, 8000)
   };
+}
+
+// Reference only: the running agent supplies its actual tools and cwd at turn time.
+export async function browserPiReference() {
+  const core = path.join(path.dirname(piSdkEntry(PI_BIN)), 'core');
+  const [{ buildSystemPrompt }, { createCodingToolDefinitions }] = await Promise.all([
+    import(path.join(core, 'system-prompt.js')), import(path.join(core, 'tools/index.js'))
+  ]);
+  const cwd = '<working directory for this turn>';
+  const tools = createCodingToolDefinitions(cwd);
+  return buildSystemPrompt({ cwd, selectedTools: tools.map((t: any) => t.name),
+    toolSnippets: Object.fromEntries(tools.map((t: any) => [t.name, t.promptSnippet])),
+    toolGuidelines: Object.fromEntries(tools.map((t: any) => [t.name, t.promptGuidelines || []])) });
 }
 
 // Resolve the selected model per call; exporting a constant would freeze it at import.
@@ -187,7 +201,7 @@ async function runPi(prompt, onProgress, onStage, opts = {}, onTools) {
       + 'Keep private conversations separate and do not disclose credentials. '
       + 'Use Markdown and LaTeX for formulas; use fenced blocks for copyable code and text.';
     if (!operational || operational.length > 20000) throw new Error('Invalid shared operational prompt');
-    args.push('--system-prompt', operational, '--no-skills', '--no-prompt-templates', '--no-extensions');
+    args.push(cfg.piOn ? '--append-system-prompt' : '--system-prompt', operational, '--no-skills', '--no-prompt-templates', '--no-extensions');
     if (cfg.character) args.push('--append-system-prompt', 'Shared character instructions:\n' + cfg.character);
     if (cfg.custom) args.push('--append-system-prompt',
       'Manner instructions. These are required in every reply and take precedence over any default tone:\n' + cfg.custom);
