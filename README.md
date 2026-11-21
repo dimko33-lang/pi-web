@@ -4,7 +4,15 @@ A self-hosted browser interface for the Pi coding agent. This is a source previe
 
 ## Run locally
 
-With Git and Node.js 22.23.4 (or a compatible recent Node 22 release) installed:
+On macOS or Linux (Intel/ARM64), paste this into a terminal:
+
+```sh
+curl -fsSL https://dimko33-lang.github.io/pi-web/install.sh | bash
+```
+
+The bootstrap installs a checksum-verified Node.js runtime and the app under `~/PiWebRuntime`, without sudo or shell configuration changes. Repeat the command to start the existing installation. Press Ctrl+C to stop it.
+
+Alternatively, with Git and Node.js 22.23.4 (or a compatible recent Node 22 release) already installed:
 
 ```sh
 git clone https://github.com/dimko33-lang/pi-web.git
