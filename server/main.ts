@@ -58,6 +58,30 @@ app.use((req, res, next) => {
   next();
 });
 
+// The HTTPS launcher supplies an owner-only ticket file outside the served tree.
+const ticketFile = process.env.PI_WEB_TICKET_FILE;
+if (ticketFile) {
+  if (!process.env.PI_WEB_PASSWORD || !process.env.PI_WEB_INSTANCE) throw Error('Missing remote access configuration');
+  app.use((req, res, next) => {
+    res.setHeader('X-Pi-Web-Instance', process.env.PI_WEB_INSTANCE!);
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    if (req.path === '/api/vision/capture' && req.headers.host !== `127.0.0.1:${PORT}`) return res.sendStatus(403);
+    next();
+  });
+  app.get('/open', (_req, res) => res.set('Cache-Control', 'no-store').type('html').send(`<!doctype html><meta charset="utf-8"><title>Open Nikita</title><p>Opening Nikita…</p><script>(async()=>{const key=location.hash.slice(1);history.replaceState(null,'','/open');try{const r=await fetch('/open',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});if(r.ok){location.replace('/profiles');return}}catch{}document.querySelector('p').textContent='Link expired or already used. Run the install command again for a fresh link.'})()</script>`));
+  app.post('/open', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    if (!req.body || typeof req.body.key !== 'string' || !/^[a-f0-9]{48}$/.test(req.body.key)) return res.sendStatus(401);
+    try {
+      const ticket = JSON.parse(fs.readFileSync(ticketFile, 'utf8'));
+      if (!(ticket.until > Date.now()) || !crypto.timingSafeEqual(Buffer.from(ticket.key), Buffer.from(req.body.key))) return res.sendStatus(401);
+      fs.unlinkSync(ticketFile); // Consume before granting the session, with no intervening await.
+    } catch { return res.sendStatus(401); }
+    createSession(res);
+    res.sendStatus(204);
+  });
+}
+
 // The private access link establishes a browser session and removes the key
 // from the address bar before loading assets or exposing any project API.
 app.use(async (req, res, next) => {
@@ -855,4 +879,12 @@ app.get('/', (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.sendFile(path.join(PUBLIC, 'chat.html'));
 });
-app.listen(PORT, '127.0.0.1', () => console.log(`Nikita is ready. Open the control panel:\nhttp://127.0.0.1:${PORT}/profiles`));
+app.listen(PORT, '127.0.0.1', () => {
+  if (ticketFile) return; // The launcher prints the link only after an external HTTPS check.
+  const url = `http://127.0.0.1:${PORT}/profiles`;
+  console.log(`Nikita is ready. Open the control panel:\n${url}`);
+  if (process.platform === 'darwin' && process.env.PI_WEB_OPEN_LOCAL === '1') {
+    const browser = spawn('open', [url], { stdio: 'ignore', detached: true });
+    browser.on('error', () => {}); browser.unref();
+  }
+});
