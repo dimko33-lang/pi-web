@@ -22,6 +22,10 @@ npm ci && npm start
 
 Open http://127.0.0.1:5070. The interface starts without an account. For model replies, install and authenticate your own compatible Pi CLI, then set `PI_WEB_PI_BIN` to its executable path before starting. No provider credentials or production profiles are distributed.
 
+## Remove the default Linux test installation
+
+Run `curl -fsSL https://dimko33-lang.github.io/pi-web/uninstall.sh | bash` as the same user on the server. This stops private runtime processes and deletes `~/PiWebRuntime`, including its chats, settings, access tickets and HTTPS files. It does not change nginx, the operating system or other installation directories. If you manually stopped nginx for your test, restart it separately when you want it back.
+
 ## Same command over SSH
 
 On a fresh public IPv4 server the same command prepares HTTPS with Caddy, checks that `/profiles` requires authentication through the public URL, then prints a private one-use link valid for ten minutes. Click it on your laptop. Repeat the command to get another link. The processes stay running after logout; they are not registered to start after reboot. After a reboot repeat the command. Local mode does not download Caddy or publish anything.
