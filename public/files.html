@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark">
+<title>Files</title><link rel="stylesheet" href="/surface-colors.css"><link rel="stylesheet" href="/file-browser.css"><script src="/file-browser.js" defer></script>
+</head><body>
+<div class="wrap">
+  <form id="upform" class="drop" method="post" action="upload" enctype="multipart/form-data" tabindex="0" aria-label="Choose files to upload">
+    <input type="file" name="file" id="picker" multiple>
+    <div class="drop-icon">↑</div>
+    <div class="drop-title">Drop files here</div>
+    <div class="drop-hint">or click to choose</div>
+  </form>
+  <div class="card uploading" id="queue" aria-label="Upload progress"></div>
+  <div class="toolbar">
+    <div class="crumbs"><span>All files</span></div>
+    <div class="count" id="count">0 files</div>
+  </div>
+  <div class="card list" id="list"><div class="empty">Loading…</div></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<dialog id="deleteConfirm" aria-label="Delete file"><p id="deleteMessage"></p><div class="confirm-actions"><button id="cancelDelete" type="button">Cancel</button><button id="confirmDelete" type="button">Delete</button></div></dialog>
+</body></html>

@@ -1,0 +1,12 @@
+/* Viewport-anchored chat popovers ignore stale draggable coordinates. */
+#chatPop, #resumeWin, #mPop {
+  position: fixed !important; left: auto !important; top: auto !important;
+  right: var(--chat-popup-right, 8px) !important;
+  bottom: var(--chat-popup-bottom, 8px) !important;
+  transform: none !important; margin: 0 !important;
+  min-width: 0 !important; min-height: 0 !important;
+  max-width: var(--chat-popup-width, calc(100vw - 16px)) !important;
+  max-height: var(--chat-popup-height, calc(100dvh - 16px)) !important;
+  overflow: auto !important; overscroll-behavior: contain;
+}
+/* Resize handles remain available; positioning stays viewport-anchored. */

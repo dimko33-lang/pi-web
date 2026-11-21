@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pi-web</title>
+<script src="/legacy-storage.js"></script>
+<link rel="icon" href="data:,">
+<meta name="description" content="pi-web — your private AI chat workspace.">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="pi-web">
+<meta property="og:title" content="pi-web">
+<meta property="og:description" content="Your private AI chat workspace.">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pi-web">
+<meta name="twitter:description" content="Your private AI chat workspace.">
+<link rel="stylesheet" href="/vendor/katex/katex.min.css">
+<link rel="preload" as="style" href="/vendor/katex/katex.min.css">
+<link rel="preload" as="script" href="/vendor/katex/katex.min.js">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/vendor/katex/fonts/KaTeX_Main-Regular.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/vendor/katex/fonts/KaTeX_Math-Italic.woff2">
+<script defer src="/vendor/katex/katex.min.js"></script>
+
+<script>
+/* BOOT APPEARANCE: apply theme/language before paint to avoid a visible flash. */
+(function(){
+  var dark = true;
+  try { dark = (localStorage.getItem('pi-web.theme') || 'dark') === 'dark'; } catch (e) {}
+  /* Text and panel colors depend on the dark class, not only the background. */
+  document.documentElement.classList.toggle('dark', dark);
+  if (!dark) document.documentElement.classList.add('pre-light');
+  document.documentElement.style.background = dark ? '#16191e' : '#f0f2f5';
+  try { window.__piWebBootLang = localStorage.getItem('pi-web.lang') || 'en'; } catch (e) { window.__piWebBootLang = 'en'; }
+  document.documentElement.lang = window.__piWebBootLang;
+})();
+</script>
+<link rel="stylesheet" href="/chat.css?v=prompt-anchor-20261113-1">
+<link rel="stylesheet" href="/scientific-content.css">
+<script src="/interactive-cards.js" defer></script>
+<link rel="stylesheet" href="/interactive-cards.css">
+<link rel="stylesheet" href="/chat-popovers.css">
+<script src="/chat-popover-anchor.js" defer></script>
+<link rel="stylesheet" href="/notice.css">
+<script src="/notice.js"></script>
+<script src="/chat-message-actions.js"></script>
+<script src="/chat-last-message-time.js"></script>
+<script src="/chat-images.js"></script>
+<script src="/chat-thinking.js"></script>
+<link rel="stylesheet" href="/source-save.css">
+<link rel="stylesheet" href="/surface-colors.css">
+<script src="/source-save.js" defer></script>
+<style>.reader-nav,header .reader-nav{position:fixed;top:4px;right:132px;height:24px;display:inline-flex;align-items:center;gap:10px;margin:0;padding:0;z-index:270}.reader-nav .reader-link{display:inline-flex;align-items:center;font:500 11.5px/24px system-ui;color:inherit;opacity:.70;text-decoration:none;white-space:nowrap}.reader-nav .reader-link:hover,.reader-nav .reader-link:focus-visible{opacity:1;text-decoration:underline}body.chat-focus .reader-nav{z-index:9200}@media(pointer:coarse){.reader-nav,header .reader-nav{top:2px;right:142px}}</style>
+</head>
+<body data-chat-appearance="chat">
+<!-- Invisible top-left fullscreen control; the right corner is reserved for message actions. -->
+<button type="button" id="styleSwitch" aria-label="Full screen" title="Full screen"></button>
+<div class="app">
+
+  <!-- Standalone chat workspace. -->
+  <div class="workspace">
+
+    <!-- Chat transcript and composer. -->
+    <aside class="chat-col" id="drawerChat">
+      <div class="chat-inner">
+        <div class="chat-msgs" id="chatMsgs"></div>
+        <div class="chat-in">
+          <!-- Composer controls; behavior is owned by chat.js. -->
+          <div class="chat-box">
+            <button id="chatFilesX" type="button" title="Files" aria-label="Files">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 3.5L11 8l-5.5 4.5"/></svg>
+            </button>
+            <textarea id="chatInput" rows="1" placeholder=""></textarea>
+            <input type="file" id="chatAttach" style="display:none" />
+            <button id="chatNew" type="button" title="New chat" aria-label="New chat">new</button>
+            <button id="chatPlus" type="button" title="Menu" aria-label="Menu">menu</button>
+            <button id="chatMic" type="button" title="Voice input" aria-label="Voice input" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M9 22h6"/></svg></button>
+            <button id="chatSend" type="button" title="Send" aria-label="Send">send</button>
+          </div>
+        </div>
+        <div class="chat-usage" id="chatUsage" title="Current conversation usage"></div>
+        <a class="app-brand" href="/profiles" title="Conversation settings"><span>Pi Web</span></a><!-- Optional demo navigation: leave empty until a demo is available. -->
+
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Custom system prompt sheet. -->
+<div class="pmpt-sheet" id="pmptSheet" hidden>
+  <div class="rz-ne rz-corner"></div>
+  <textarea id="pmptText" spellcheck="false" placeholder="Paste the prompt here. Empty — nothing is sent."></textarea>
+  <div class="pmpt-foot">
+    <span class="pmpt-hint" id="pmptHint">empty → no prompt</span>
+    <span class="pmpt-spacer"></span>
+    <button type="button" class="pmpt-btn" id="pmptClear">Clear</button>
+    <button type="button" class="pmpt-btn primary" id="pmptApply">Apply</button>
+  </div>
+</div>
+
+<!-- Model picker, opened from the status row. -->
+<div class="mpop" id="mPop" hidden>
+  <div class="rz-n"></div><div class="rz-s"></div><div class="rz-e"></div><div class="rz-w"></div>
+  <div class="rz-nw rz-corner"></div><div class="rz-ne"></div><div class="rz-sw"></div><div class="rz-se"></div>
+  <div class="mpop-list" id="mPopList"></div>
+</div>
+
+<!-- Resume picker for existing conversations. -->
+<div class="mpop" id="resumeWin" hidden style="z-index:9900">
+  <div class="rz-n"></div><div class="rz-s"></div><div class="rz-e"></div><div class="rz-w"></div>
+  <div class="rz-nw rz-corner"></div><div class="rz-sw"></div><div class="rz-se"></div>
+  <div class="mpop-list" id="resumeList"></div>
+</div>
+
+<!-- Chat actions and execution settings. -->
+<div class="mpop" id="chatPop" hidden>
+  <div class="rz-n"></div><div class="rz-s"></div><div class="rz-e"></div><div class="rz-w"></div>
+  <div class="rz-nw rz-corner"></div><div class="rz-ne"></div><div class="rz-sw"></div><div class="rz-se"></div>
+  <div class="mpop-list" id="chatPopList">
+
+    <div class="mpop-item" data-act="reasoning">
+      <span class="mpop-dot"></span>
+      <span class="mpop-body mpop-body-toggle">
+        <span class="mpop-price" id="chatPopThink">show</span>
+        <span class="mpop-name">Reason</span>
+        <span class="mpop-hint">hide · show · open</span>
+      </span>
+    </div>
+
+    <div class="mpop-item" data-act="files">
+      <span class="mpop-dot"></span>
+      <span class="mpop-body">
+        <span class="mpop-name">Files</span>
+        <span class="mpop-hint">files window</span>
+      </span>
+    </div>
+  <div class="mpop-item" data-act="resume">
+      <span class="mpop-dot"></span>
+      <span class="mpop-body">
+        <span class="mpop-name">Resume</span>
+        <span class="mpop-hint">conversations</span>
+      </span>
+  </div>
+
+  <div class="mpop-item" data-act="newchat">
+      <span class="mpop-dot"></span>
+      <span class="mpop-body">
+        <span class="mpop-name">New chat</span>
+        <span class="mpop-hint">start clean</span>
+      </span>
+  </div>
+
+  <div class="mpop-foot" id="chatPopFoot">Enter to send · Shift+Enter</div>
+    <div class="mpop-modes" id="chatPopModes">
+      <div class="tb-toggles" id="tbToggles">
+        <button type="button" class="tb-tg" id="tgCustom" title="Custom instructions for the browser chat">custom</button>
+        <button type="button" class="tb-tg" id="tgChar" title="Browser chat character">character</button>
+        <button type="button" class="tb-tg on" id="tgMemory" title="Memory: model keeps the conversation">memory</button>
+        <button type="button" class="tb-tg on" id="tgPrompt" title="Enable the browser chat character">system</button>
+        <button type="button" class="tb-tg" id="tgRoot" title="Root unavailable; tools remain enabled" aria-pressed="false" disabled>root</button>
+      </div>
+    </div>
+  </div><!-- /.mpop-list -->
+</div>
+
+<script src="/chat.js?v=browser-five-1"></script>
+
+</body>
+</html>

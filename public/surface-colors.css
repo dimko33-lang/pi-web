@@ -1,0 +1,41 @@
+/* Shared neutral surface sampled from the active Safari toolbar screenshot.
+   Browser chrome and native system menus are outside page CSS control. */
+:root {
+  --chat-surface: #353536;
+  --chat-surface-hover: #414142;
+  --chat-surface-border: #4b4b4c;
+}
+body .chat-msgs .cm.me,
+body .chat-in .chat-box,
+body .mpop,
+body #chatPop,
+body #mPop,
+body #resumeWin,
+body #pmptSheet,
+body .pmpt-sheet,
+body #filesWin,
+body .reasoning-card,
+body .pi-web-notice,
+body .cm-undo {
+  background: var(--chat-surface) !important;
+  border-color: var(--chat-surface-border);
+}
+body .mpop-list,
+body .mpop-foot,
+body .mpop-modes,
+body .pmpt-foot,
+body .pmpt-sheet textarea {
+  background: var(--chat-surface) !important;
+  border-color: var(--chat-surface-border);
+}
+body .mpop-item:hover,
+body .mpop-item.on,
+body .pi-web-notice button,
+body .pmpt-btn {
+  background: var(--chat-surface-hover);
+  border-color: var(--chat-surface-border);
+}
+body .chat-usage .thinking-choice option {
+  background: var(--chat-surface);
+  color: #ddd;
+}
