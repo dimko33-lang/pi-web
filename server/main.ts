@@ -855,4 +855,4 @@ app.get('/', (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.sendFile(path.join(PUBLIC, 'chat.html'));
 });
-app.listen(PORT, '127.0.0.1', () => console.log(`Pi Chat on http://127.0.0.1:${PORT}/`));
+app.listen(PORT, '127.0.0.1', () => console.log(`Nikita is ready. Open the control panel:\nhttp://127.0.0.1:${PORT}/profiles`));
