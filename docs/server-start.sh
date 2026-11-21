@@ -14,7 +14,19 @@ fi
 url="https://$host"; ticket="$state/ticket.json"; version=2.11.9
 # Check the certificate, exact instance and auth gate, never just the status of a public landing page.
 protected(){ local headers; headers=$(curl -sS --noproxy '*' --max-time 4 -D - -o /dev/null "$1/profiles" 2>/dev/null) || return 1; grep -Eq '^HTTP/[^ ]+ 401' <<< "$headers" && tr -d '\r' <<< "$headers" | grep -Fxiq "x-pi-web-instance: $instance"; }
-issue(){ local key; key=$(node -e 'process.stdout.write(require("crypto").randomBytes(24).toString("hex"))'); printf '%s' "$key" | node -e 'const f=require("fs"),p=process.argv[1],t=p+"."+process.pid; f.writeFileSync(t,JSON.stringify({key:f.readFileSync(0,"utf8"),until:Date.now()+600000}),{mode:0o600}); f.renameSync(t,p)' "$ticket"; printf '\nOpen Nikita (private, one use, valid for 10 minutes):\n%s/open#%s\n' "$url" "$key"; }
+issue(){
+  local key path headers link
+  # An already-running older server still expects its original ticket format.
+  headers=$(curl -sS --noproxy '*' --max-time 4 -I "$url/i" 2>/dev/null) || return 1
+  if tr -d '\r' <<< "$headers" | grep -Fxiq 'x-pi-link-format: compact-v1'; then
+    path=i; key=$(node -e 'process.stdout.write(require("crypto").randomBytes(12).toString("base64url"))')
+  else
+    path=open; key=$(node -e 'process.stdout.write(require("crypto").randomBytes(24).toString("hex"))')
+  fi
+  printf '%s' "$key" | node -e 'const f=require("fs"),p=process.argv[1],t=p+"."+process.pid; f.writeFileSync(t,JSON.stringify({key:f.readFileSync(0,"utf8"),until:Date.now()+600000}),{mode:0o600}); f.renameSync(t,p)' "$ticket"
+  link="$url/$path#$key"
+  if [[ -t 1 && ${TERM_PROGRAM:-} == iTerm.app ]]; then printf '\n\033]8;;%s\033\\Open Nikita\033]8;;\033\\\n' "$link"; else printf '\nOpen Nikita:\n%s\n' "$link"; fi
+}
 if [[ -r $state/instance ]]; then instance=$(<"$state/instance"); if protected "$url"; then issue; exit; fi; fi
 # Refuse conflicts before downloading or requesting a certificate.
 node - "$port" <<'JS'

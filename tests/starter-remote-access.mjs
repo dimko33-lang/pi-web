@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 const {PORT, PI_WEB_TICKET_FILE, PI_WEB_INSTANCE} = process.env;
 assert.equal(PI_WEB_INSTANCE, 'starter-auth-test');
-const key = crypto.randomBytes(24).toString('hex');
+const key = crypto.randomBytes(12).toString('base64url');
+assert.equal(key.length, 16);
 const request = (path, options = {}) => fetch(`http://127.0.0.1:${PORT}${path}`, {
   ...options, headers: {'X-Forwarded-Proto': 'https', ...options.headers}
 });
@@ -14,6 +15,7 @@ const panel = await request('/profiles');
 assert.equal(panel.status, 401);
 assert.equal(panel.headers.get('x-pi-web-instance'), PI_WEB_INSTANCE);
 assert.equal((await request('/open')).status, 200);
+assert.equal((await request('/i')).headers.get('x-pi-link-format'), 'compact-v1');
 ticket(Date.now() - 1); assert.equal((await redeem(key)).status, 401);
 ticket(Date.now() + 60000); assert.equal((await redeem('f'.repeat(48))).status, 401);
 const success = await redeem(key); assert.equal(success.status, 204);

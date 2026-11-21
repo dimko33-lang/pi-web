@@ -27,16 +27,16 @@ if [ ! -d "$base/app" ]; then
 fi
 # Upgrade only the exact previously published entrypoint. Never replace user code or data.
 sha(){ node -e 'console.log(require("crypto").createHash("sha256").update(require("fs").readFileSync(process.argv[1])).digest("hex"))' "$1"; }
-if [ "$(sha "$base/app/server/main.ts")" = ac7b6642fe006652b94a50ea3a94de9c2137eed3dc56818e42d12b157f6766b6 ]; then
+case "$(sha "$base/app/server/main.ts")" in ac7b6642fe006652b94a50ea3a94de9c2137eed3dc56818e42d12b157f6766b6|19ead8986a76f817e9860e2f74e8f67f8b29d4fd331c43efba4660935d1d07ae)
   fetch 'https://raw.githubusercontent.com/dimko33-lang/pi-web/main/server/main.ts' "$tmp/main.ts"
-  [ "$(sha "$tmp/main.ts")" = 19ead8986a76f817e9860e2f74e8f67f8b29d4fd331c43efba4660935d1d07ae ] || { echo 'Entrypoint version mismatch; existing installation unchanged.' >&2; exit 1; }
+  [ "$(sha "$tmp/main.ts")" = b2b3ae86de1b7a054bba42cb270b17301183e45330fb85298d3b8d602f638b47 ] || { echo 'Entrypoint version mismatch; existing installation unchanged.' >&2; exit 1; }
   cp "$base/app/server/main.ts" "$base/app/server/main.ts.pre-https"; mv "$tmp/main.ts" "$base/app/server/main.ts"
-fi
+;; esac
 if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
   grep -q 'const ticketFile = process.env.PI_WEB_TICKET_FILE' "$base/app/server/main.ts" || { echo 'This installation has a different entrypoint. Install into a new PI_WEB_INSTALL_DIR; existing data has been preserved.' >&2; exit 1; }
   helper="$base/app/docs/server-start.sh"
-  if [ ! -f "$helper" ]; then fetch 'https://dimko33-lang.github.io/pi-web/server-start.sh' "$tmp/server-start.sh"; helper="$tmp/server-start.sh"; fi
-  [ "$(sha "$helper")" = 12828ac39ec247591a1465e1458312c6f0298a961f6c05e114ec2762e1911bb8 ] || { echo 'HTTPS launcher checksum mismatch.' >&2; exit 1; }
+  if [ ! -f "$helper" ] || [ "$(sha "$helper")" = 12828ac39ec247591a1465e1458312c6f0298a961f6c05e114ec2762e1911bb8 ]; then fetch 'https://dimko33-lang.github.io/pi-web/server-start.sh' "$tmp/server-start.sh"; helper="$tmp/server-start.sh"; fi
+  [ "$(sha "$helper")" = 56809476d2752223e33cd1554c161493151c0b1aa11c11dfadb6261a4f311933 ] || { echo 'HTTPS launcher checksum mismatch.' >&2; exit 1; }
   bash "$helper" "$base" "$os" "$arch"; exit
 fi
 cd "$base/app"; rm -rf "$tmp"; trap - EXIT; export PI_WEB_OPEN_LOCAL=1; exec node --import tsx server/main.ts
