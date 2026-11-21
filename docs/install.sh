@@ -25,12 +25,25 @@ if [ ! -d "$base/app" ]; then
   echo 'Downloading Pi Web...'; fetch https://codeload.github.com/dimko33-lang/pi-web/tar.gz/refs/heads/main "$tmp/app.tar.gz"; mkdir "$tmp/app"; tar -xzf "$tmp/app.tar.gz" -C "$tmp/app" --strip-components=1
   (cd "$tmp/app"; npm ci --no-audit --no-fund); mv "$tmp/app" "$base/app"
 fi
-# Upgrade only the exact previously published entrypoint. Never replace user code or data.
+# Upgrade the previous stock salon release as a unit. Never replace edited files, settings or sessions.
 sha(){ node -e 'console.log(require("crypto").createHash("sha256").update(require("fs").readFileSync(process.argv[1])).digest("hex"))' "$1"; }
-case "$(sha "$base/app/server/main.ts")" in ac7b6642fe006652b94a50ea3a94de9c2137eed3dc56818e42d12b157f6766b6|19ead8986a76f817e9860e2f74e8f67f8b29d4fd331c43efba4660935d1d07ae)
-  fetch 'https://raw.githubusercontent.com/dimko33-lang/pi-web/main/server/main.ts' "$tmp/main.ts"
-  [ "$(sha "$tmp/main.ts")" = b2b3ae86de1b7a054bba42cb270b17301183e45330fb85298d3b8d602f638b47 ] || { echo 'Entrypoint version mismatch; existing installation unchanged.' >&2; exit 1; }
-  cp "$base/app/server/main.ts" "$base/app/server/main.ts.pre-https"; mv "$tmp/main.ts" "$base/app/server/main.ts"
+case "$(sha "$base/app/server/main.ts")" in ac7b6642fe006652b94a50ea3a94de9c2137eed3dc56818e42d12b157f6766b6|19ead8986a76f817e9860e2f74e8f67f8b29d4fd331c43efba4660935d1d07ae|b2b3ae86de1b7a054bba42cb270b17301183e45330fb85298d3b8d602f638b47)
+  fetch 'https://codeload.github.com/dimko33-lang/pi-web/tar.gz/edae8248ff99770d3873766f9fa3c377346077f5' "$tmp/update.tgz"
+  mkdir "$tmp/update"; tar -xzf "$tmp/update.tgz" -C "$tmp/update" --strip-components=1
+  while read -r known file; do
+    actual=$(sha "$base/app/$file")
+    [ "$actual" = "$known" ] || [ "$actual" = "$(sha "$tmp/update/$file")" ] || { echo "Local edit in $file; update stopped without overwriting it." >&2; exit 1; }
+  done <<'KNOWN'
+61bb8f678d9b2abbd55e9b48f8a74d5d96371a576d44781011a9aeb13dd9ed9a public/conversation-profiles.html
+52c6a892b1d021e342ca4916f08e227d174dd6937ca0395da12ec0ad85e9a836 public/conversation-profiles.js
+ba25154763b3f50f5259d4cc0fa1a2575300a062939c8360b7b2702c30de306f public/conversation-profiles.css
+2b6c1bf29bfa15828f2a7f36a3d7db69c68fbc744f2c1892e60a16c2aa4ec27a server/agent.ts
+0dd62f2073cfc1d9b186d4e6b1a579cc37f320243453972b904b44076774c3d9 starter/system.md
+KNOWN
+  for file in starter/system.md public/conversation-profiles.html public/conversation-profiles.js public/conversation-profiles.css server/agent.ts server/main.ts; do
+    mv "$tmp/update/$file" "$base/app/$file"
+  done
+  echo 'Updated stock application files. Restart an already running server to load the new code.'
 ;; esac
 if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
   grep -q 'const ticketFile = process.env.PI_WEB_TICKET_FILE' "$base/app/server/main.ts" || { echo 'This installation has a different entrypoint. Install into a new PI_WEB_INSTALL_DIR; existing data has been preserved.' >&2; exit 1; }
