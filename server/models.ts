@@ -659,7 +659,7 @@ export function isModelAlive(id: string): boolean {
 
 /* Filter by cached availability and sort by combined input/output price. */
 export function availableModels(): ModelInfo[] {
-  /* Provider access alone does not imply access to every model. */
-  const list = MODELS.filter((m) => enabledModelIds.includes(m.id) && isProviderAvailable(m.provider) && isModelAlive(m.id));
+  // Settings are editable offline; selecting a model does not authorize inference.
+  const list = MODELS.filter((m) => enabledModelIds.includes(m.id));
   return list.sort((a, b) => (b.inUsd + b.outUsd) - (a.inUsd + a.outUsd));
 }

@@ -7,7 +7,10 @@ import { piSdkEntry, type PiContextConfig } from './pi-context.ts';
 export class ChatThinking {
   constructor(private file = fileURLToPath(new URL('../data/browser-thinking.json', import.meta.url))) {}
   async get(model: string, config: PiContextConfig) {
-    const metadata: any = await new Promise((resolve, reject) => {
+    let metadata: any;
+    try {
+      const sdkEntry = piSdkEntry(config.piBin);
+      metadata = await new Promise((resolve, reject) => {
       const child = spawn(process.execPath, [fileURLToPath(new URL('./pi-context-reader.mjs', import.meta.url))], {
         cwd: config.cwd, env: config.env, stdio: ['pipe', 'pipe', 'ignore']
       });
@@ -21,9 +24,15 @@ export class ChatThinking {
         try { if (code) throw Error('Pi thinking metadata unavailable'); resolve(JSON.parse(output)); }
         catch (e) { reject(e); }
       });
-      child.stdin.end(JSON.stringify({ sdkEntry: piSdkEntry(config.piBin), cwd: config.cwd,
+      child.stdin.end(JSON.stringify({ sdkEntry, cwd: config.cwd,
         agentDir: config.env.PI_CODING_AGENT_DIR || path.join(config.env.HOME || '', '.pi/agent'), modelId: model, operation: 'thinking' }));
-    });
+      });
+    } catch (error) {
+      const catalog = JSON.parse(fs.readFileSync(new URL('../starter/thinking.json', import.meta.url), 'utf8'));
+      const preset = catalog[model];
+      if (!preset?.levels?.length) throw error;
+      metadata = { levels: preset.levels, defaultLevel: preset.levels[0] };
+    }
     if (!metadata?.levels?.length) throw Error('Pi thinking metadata unavailable');
     let saved: any = {};
     try { saved = JSON.parse(fs.readFileSync(this.file, 'utf8')); } catch (e) { if (e.code !== 'ENOENT') throw e; }

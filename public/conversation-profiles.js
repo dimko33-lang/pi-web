@@ -64,7 +64,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   const selectProfile = (id, push = false) => {
     if (!editors.has(id)) id = editors.keys().next().value;
     if (!id) return;
-
+    const salon=document.querySelector('#salon-link');if(salon)salon.href='/nikita/?chat='+encodeURIComponent(id);
     for (const [key, editor] of editors) {
       editor.section.hidden = key !== id;
       if (key === id) editor.tab.setAttribute('aria-current', 'page');
@@ -170,7 +170,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     for (const action of ['reset', 'restore']) {
       form.querySelector(`[data-action="${action}"]`).addEventListener('click', () => { void save(editor, action); });
     }
-    document.querySelector('#profile-tabs').insertBefore(tab,document.querySelector('#back-to-chat'));
+    document.querySelector('#profile-tabs').insertBefore(tab,document.querySelector('#salon-notes'));
     document.querySelector('#profiles').append(section);
     editors.set(item.id, editor);
     return editor;

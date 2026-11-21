@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import './starter.ts';
 import { rootAvailable, rootEnabled, currentRootMode, setRootMode } from './execution.ts';
 import { createChatLive } from './chat-live.ts';
 import { createStreamDelivery } from './stream-delivery.ts';
@@ -595,7 +596,16 @@ app.use('/api/conversation-profiles', requireAuth, createConversationProfiles({
     const enabled: string[] = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'models.json'), 'utf8'));
     return MODELS.map(model => model.id).filter(id => enabled.includes(id));
   },
-  thinking: model => tgThinking.get(model, piContextConfig()),
+  thinking: async model => {
+    try { return await tgThinking.get(model, piContextConfig()); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      const catalog = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'starter/thinking.json'), 'utf8'));
+      const snapshot = catalog[model];
+      if (!snapshot?.levels?.length) throw error;
+      return { model, levels: snapshot.levels, level: snapshot.levels[0] };
+    }
+  },
   notice: entry => entry.enabledKey && (readSettings(TG_DEFAULTS_FILE) || {})[entry.enabledKey] === false
     ? 'The main chat switch is off. Enable it in Chat to allow replies.' : '',
   defaults: entry => {
@@ -837,6 +847,8 @@ app.get('/api/project/download/source', async (req, res) => {
 });
 
 app.get('/api/version', (_req, res) => res.json({ version: 'standalone-chat' }));
+app.get(["/nikita/", "/nikita/piwep/", "/nikita/curvelab/", "/nikita/arri/", "/nikita/lightcone/", "/nikita/lake/", "/nikita/owner_dm/", "/nikita/guest_dm/"], requireAuth, (_req,res) => res.sendFile(path.join(PUBLIC, 'nikita/index.html')));
+app.get(['/go/lightcone','/go/debri'], requireAuth, (req,res) => res.sendFile(path.join(PUBLIC, req.path.slice(1), 'index.html')));
 app.use(express.static(PUBLIC, { index: false, etag: false, lastModified: false }));
 app.get('/', (req, res) => {
   if (!isAuthenticated(req)) return res.status(401).send('Authentication required');

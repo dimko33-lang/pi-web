@@ -2,6 +2,11 @@
 # User-local Pi Web installation. No sudo, shell profile edits or provider login.
 set -euo pipefail
 base=${PI_WEB_INSTALL_DIR:-"$HOME/PiWebRuntime"}
+# Keep the legacy chat (including local history) untouched when installing the salon edition.
+if [ -z "${PI_WEB_INSTALL_DIR:-}" ] && [ -d "$base/app" ] && [ ! -f "$base/app/starter/catalog.json" ]; then
+  echo 'Keeping your existing chat. Installing the salon edition alongside it.'
+  base="$HOME/PiWebSalonRuntime"; export PORT="${PORT:-5072}"
+fi
 version=22.23.4
 case "$(uname -s)" in Darwin) os=darwin;; Linux) os=linux;; *) echo 'Supported: macOS and Linux.' >&2; exit 1;; esac
 case "$(uname -m)" in x86_64|amd64) arch=x64;; arm64|aarch64) arch=arm64;; *) echo 'Unsupported processor.' >&2; exit 1;; esac
