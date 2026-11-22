@@ -21,6 +21,40 @@ if [ ! -x "$node_dir/bin/node" ]; then
   tar -xzf "$tmp/$file" -C "$tmp"; mv "$tmp/node-v$version-$os-$arch" "$node_dir"
 fi
 export PATH="$node_dir/bin:$PATH"
+# No credentials or interactive prompts. Use the same HOME for terminal and web Pi.
+base=$(cd "$base" && pwd -P); node_dir="$base/node-v$version-$os-$arch"
+managed="$base/pi-cli/node_modules/.bin/pi"; launcher="$base/bin/pi"
+pi_bin=${PI_WEB_PI_BIN:-$(type -P pi || true)}
+if [[ -z $pi_bin && -x $HOME/.pi/agent/bin/pi ]]; then pi_bin="$HOME/.pi/agent/bin/pi"; fi
+if [[ -n $pi_bin && $pi_bin -ef $launcher ]]; then pi_bin=$managed; fi
+if [[ -z $pi_bin || $pi_bin == "$managed" ]]; then
+  pi_bin=$managed
+  if [[ ! -x $managed ]]; then
+    echo 'Installing official Pi CLI (no login required)…'
+    npm install --prefix "$tmp/pi-cli" --ignore-scripts --no-audit --no-fund --no-progress --save-exact @earendil-works/pi-coding-agent@1.6.0
+    "$tmp/pi-cli/node_modules/.bin/pi" --version
+    [[ ! -e $base/pi-cli ]] || { echo 'Incomplete private Pi directory; leaving it untouched.' >&2; exit 1; }
+    mv "$tmp/pi-cli" "$base/pi-cli"
+  fi
+fi
+[[ -x $pi_bin ]] || { echo 'Pi executable not found; check PI_WEB_PI_BIN.' >&2; exit 1; }
+export PI_WEB_PI_BIN="$pi_bin"
+echo "Pi ready: $("$pi_bin" --version)"
+if [[ $pi_bin == "$managed" || -z $(type -P pi || true) ]]; then
+  mkdir -p "$base/bin"
+  printf '#!/bin/bash\nexport PATH=%q:"$PATH"\nexec %q "$@"\n' "$node_dir/bin" "$pi_bin" > "$tmp/pi-launcher"; chmod 755 "$tmp/pi-launcher"; mv -f "$tmp/pi-launcher" "$launcher"
+  # Never replace another Pi or edit shell startup files. On a fresh root SSH login,
+  # /usr/local/bin is already in PATH; unprivileged installs prefer user directories.
+  dirs=("$HOME/.local/bin" "$HOME/bin"); if [[ $EUID == 0 && $base == "$HOME/PiWebRuntime" ]]; then dirs=(/usr/local/bin "${dirs[@]}"); fi
+  for dir in "${dirs[@]}"; do
+    [[ :$PATH: == *":$dir:"* ]] || continue
+    mkdir -p "$dir" 2>/dev/null || continue
+    [[ $dir/pi -ef $launcher ]] && break
+    [[ -w $dir && ! -e $dir/pi && ! -L $dir/pi ]] || continue
+    ln -s "$launcher" "$dir/pi" && break
+  done
+  if ! type -P pi >/dev/null; then printf 'Terminal Pi: %q\n' "$launcher"; fi
+fi
 if [ ! -d "$base/app" ]; then
   echo 'Downloading Pi Web...'; fetch https://codeload.github.com/dimko33-lang/pi-web/tar.gz/refs/heads/main "$tmp/app.tar.gz"; mkdir "$tmp/app"; tar -xzf "$tmp/app.tar.gz" -C "$tmp/app" --strip-components=1
   (cd "$tmp/app"; npm ci --no-audit --no-fund); mv "$tmp/app" "$base/app"

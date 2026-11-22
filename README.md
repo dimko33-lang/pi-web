@@ -10,7 +10,7 @@ On macOS or Linux (Intel/ARM64), paste this into a terminal:
 curl -fsSL https://dimko33-lang.github.io/pi-web/install.sh | bash
 ```
 
-The bootstrap installs a checksum-verified Node.js runtime and the app under `~/PiWebRuntime`, without sudo or shell configuration changes. If the old chat-only installation already exists there, it is left untouched; the salon edition uses `~/PiWebSalonRuntime` and port 5072 instead. On a local Mac the panel opens automatically. Local mode stays in the foreground; press Ctrl+C to stop it. Over SSH, see the server mode below.
+The bootstrap installs a checksum-verified Node.js runtime and the app under `~/PiWebRuntime`, without sudo or shell configuration changes. It reuses your Pi CLI or installs the official npm package privately. No provider key, subscription or confirmation is needed during installation. For model replies, start `pi` as the same user and configure your provider in the standard terminal interface. If your PATH has no writable user bin directory, use the terminal command printed by the installer. If the old chat-only installation already exists there, it is left untouched; the salon edition uses `~/PiWebSalonRuntime` and port 5072 instead. On a local Mac the panel opens automatically. Local mode stays in the foreground; press Ctrl+C to stop it. Over SSH, see the server mode below.
 
 Alternatively, with Git and Node.js 22.23.4 (or a compatible recent Node 22 release) already installed:
 
@@ -24,7 +24,7 @@ Open http://127.0.0.1:5070. The interface starts without an account. For model r
 
 ## Remove the default Linux test installation
 
-Run `curl -fsSL https://dimko33-lang.github.io/pi-web/uninstall.sh | bash` as the same user on the server. This stops private runtime processes and deletes `~/PiWebRuntime`, including its chats, settings, access tickets and HTTPS files. It does not change nginx, the operating system or other installation directories. If you manually stopped nginx for your test, restart it separately when you want it back.
+Run `curl -fsSL https://dimko33-lang.github.io/pi-web/uninstall.sh | bash` as the same user on the server. This stops private runtime processes and deletes `~/PiWebRuntime`, including its chats, settings, access tickets and HTTPS files. It removes its private Pi CLI and matching launcher links, but keeps existing Pi installations and `~/.pi` (including your Pi credentials). It does not change nginx or other installation directories. If you manually stopped nginx for your test, restart it separately when you want it back.
 
 ## Same command over SSH
 

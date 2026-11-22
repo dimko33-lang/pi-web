@@ -60,6 +60,11 @@ for _ in range(60):
     time.sleep(0.15)
 else:
     stop('A runtime process is still active. Installation files were not removed.')
+# Remove only exact symlinks created for this runtime, never an external Pi or ~/.pi.
+for directory in (home / '.local/bin', home / 'bin', Path('/usr/local/bin')):
+    link = directory / 'pi'
+    if link.is_symlink() and os.readlink(link) == str(base / 'bin/pi'):
+        link.unlink()
 shutil.rmtree(base)
 print(f'Removed Pi Web, local data and access links from {base}.')
 PY
