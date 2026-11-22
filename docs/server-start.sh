@@ -17,13 +17,13 @@ protected(){ local headers; headers=$(curl -sS --noproxy '*' --max-time 4 -D - -
 issue(){
   local key headers link
   headers=$(curl -sS --noproxy '*' --max-time 4 -I "$url/i" 2>/dev/null) || return 1
-  tr -d '\r' <<< "$headers" | grep -Fxiq 'x-pi-link-format: persistent-v1' || { echo 'Restart the updated application before issuing its permanent link.' >&2; return 1; }
+  tr -d '\r' <<< "$headers" | grep -Fxiq 'x-pi-link-format: short-persistent-v1' || { echo 'Restart the updated application before issuing its permanent link.' >&2; return 1; }
   key=$(node - "$ticket" <<'JS'
 const fs=require('node:fs'), crypto=require('node:crypto'), p=process.argv[2];
 try {fs.writeFileSync(p, JSON.stringify({format:'persistent-v1',key:crypto.randomBytes(24).toString('hex')}), {flag:'wx',mode:0o600});} catch(e){if(e.code!=='EEXIST') throw e;}
 const item=JSON.parse(fs.readFileSync(p,'utf8'));
 if(item.format!=='persistent-v1'||!/^[a-f0-9]{48}$/.test(item.key))throw Error('Invalid access-link file');
-process.stdout.write(item.key);
+process.stdout.write(crypto.createHash('sha256').update(item.key).digest('base64url').slice(0,12));
 JS
   ) || return 1
   link="$url/i#$key"
