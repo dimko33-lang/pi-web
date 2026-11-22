@@ -6,7 +6,8 @@ import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
 const roots = ['server', 'public', 'tests', 'deploy', 'docs'];
-const files = ['package.json', 'package-lock.json', 'models.json', 'AGENTS.md', 'README.md', 'INTERACTIVE-CARDS.md', 'RESTORE.md', 'start.sh'];
+const files = ['package.json', 'package-lock.json', 'models.json', 'README.md'];
+const optionalFiles = ['AGENTS.md', 'INTERACTIVE-CARDS.md', 'RESTORE.md', 'start.sh'];
 const sourceExtension = /\.(?:ts|js|mjs|cjs|html|css|svg|json|md|sh|service|png|jpg|webp|woff2?|ttf|otf|map)$/i;
 
 /** Source-only export: runtime directories and credentials are never traversed. */
@@ -31,7 +32,7 @@ export async function createSourceArchive(root: string) {
   try {
     await fs.mkdir(destination);
     for (const relative of files) await copy(path.join(root, relative), path.join(destination, relative));
-    for (const relative of roots) {
+    for (const relative of [...optionalFiles, ...roots]) {
       try { await copy(path.join(root, relative), path.join(destination, relative)); }
       catch (error: any) { if (error.code !== 'ENOENT') throw error; }
     }
