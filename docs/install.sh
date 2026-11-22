@@ -82,8 +82,14 @@ KNOWN
 if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
   grep -q 'const ticketFile = process.env.PI_WEB_TICKET_FILE' "$base/app/server/main.ts" || { echo 'This installation has a different entrypoint. Install into a new PI_WEB_INSTALL_DIR; existing data has been preserved.' >&2; exit 1; }
   helper="$base/app/docs/server-start.sh"
+  # Upgrade only the known unmodified access-link pair. Preserve profiles, keys and chats.
+  if [[ $(sha "$base/app/server/main.ts") == 6d6eef81212ed1da395ace43976609b12b9bc1b5f37b646def14011d0ca57721 && -f $helper && $(sha "$helper") == 56809476d2752223e33cd1554c161493151c0b1aa11c11dfadb6261a4f311933 ]]; then
+    for file in server/main.ts docs/server-start.sh; do fetch "https://raw.githubusercontent.com/dimko33-lang/pi-web/main/$file" "$tmp/${file##*/}"; done
+    [[ $(sha "$tmp/main.ts") == 3b699caeda151994c8bbea66eea5d3738ea8ef92eea9f294221adae2cf8bcf6e && $(sha "$tmp/server-start.sh") == dc56783f5d248099b6de1745501d83bf07fb9768c8f04996a77cd6a6305e1e8b ]] || { echo 'Access-link update checksum mismatch.' >&2; exit 1; }
+    mv "$tmp/main.ts" "$base/app/server/main.ts"; mv "$tmp/server-start.sh" "$helper"
+  fi
   if [ ! -f "$helper" ] || [ "$(sha "$helper")" = 12828ac39ec247591a1465e1458312c6f0298a961f6c05e114ec2762e1911bb8 ]; then fetch 'https://dimko33-lang.github.io/pi-web/server-start.sh' "$tmp/server-start.sh"; helper="$tmp/server-start.sh"; fi
-  [ "$(sha "$helper")" = 56809476d2752223e33cd1554c161493151c0b1aa11c11dfadb6261a4f311933 ] || { echo 'HTTPS launcher checksum mismatch.' >&2; exit 1; }
+  [ "$(sha "$helper")" = dc56783f5d248099b6de1745501d83bf07fb9768c8f04996a77cd6a6305e1e8b ] || { echo 'HTTPS launcher checksum mismatch.' >&2; exit 1; }
   bash "$helper" "$base" "$os" "$arch"; exit
 fi
 cd "$base/app"; rm -rf "$tmp"; trap - EXIT; export PI_WEB_OPEN_LOCAL=1; exec node --import tsx server/main.ts

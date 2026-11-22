@@ -68,14 +68,13 @@ if (ticketFile) {
     if (req.path === '/api/vision/capture' && req.headers.host !== `127.0.0.1:${PORT}`) return res.sendStatus(403);
     next();
   });
-  app.get(['/i', '/open'], (_req, res) => res.set('X-Pi-Link-Format', 'compact-v1').set('Cache-Control', 'no-store').type('html').send(`<!doctype html><meta charset="utf-8"><title>Open Nikita</title><p>Opening Nikita…</p><script>(async()=>{const key=location.hash.slice(1);history.replaceState(null,'','/open');try{const r=await fetch('/open',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});if(r.ok){location.replace('/profiles');return}}catch{}document.querySelector('p').textContent='Link expired or already used. Run the install command again for a fresh link.'})()</script>`));
+  app.get(['/i', '/open'], (_req, res) => res.set('X-Pi-Link-Format', 'persistent-v1').set('Cache-Control', 'no-store').type('html').send(`<!doctype html><meta charset="utf-8"><title>Open Nikita</title><p>Opening Nikita…</p><script>(async()=>{const key=location.hash.slice(1);history.replaceState(null,'','/open');try{const r=await fetch('/open',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});if(r.ok){location.replace('/profiles');return}}catch{}document.querySelector('p').textContent='Access link not recognized. Use the link printed by your installer.'})()</script>`));
   app.post('/open', (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     if (!req.body || typeof req.body.key !== 'string' || !/^(?:[A-Za-z0-9_-]{16}|[a-f0-9]{48})$/.test(req.body.key)) return res.sendStatus(401);
     try {
       const ticket = JSON.parse(fs.readFileSync(ticketFile, 'utf8'));
-      if (!(ticket.until > Date.now()) || !crypto.timingSafeEqual(Buffer.from(ticket.key), Buffer.from(req.body.key))) return res.sendStatus(401);
-      fs.unlinkSync(ticketFile); // Consume before granting the session, with no intervening await.
+      if (ticket.format !== 'persistent-v1' || typeof ticket.key !== 'string' || !/^[a-f0-9]{48}$/.test(ticket.key) || req.body.key.length !== ticket.key.length || !crypto.timingSafeEqual(Buffer.from(ticket.key), Buffer.from(req.body.key))) return res.sendStatus(401);
     } catch { return res.sendStatus(401); }
     createSession(res);
     res.sendStatus(204);

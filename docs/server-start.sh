@@ -11,20 +11,22 @@ else
   host="${ip//./-}.sslip.io"
 fi
 [[ $host =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z0-9]+$ && $port =~ ^[0-9]{1,5}$ ]] || { echo 'Invalid host or port.' >&2; exit 1; }
-url="https://$host"; ticket="$state/ticket.json"; version=2.11.9
+url="https://$host"; ticket="$state/access-link.json"; version=2.11.9
 # Check the certificate, exact instance and auth gate, never just the status of a public landing page.
 protected(){ local headers; headers=$(curl -sS --noproxy '*' --max-time 4 -D - -o /dev/null "$1/profiles" 2>/dev/null) || return 1; grep -Eq '^HTTP/[^ ]+ 401' <<< "$headers" && tr -d '\r' <<< "$headers" | grep -Fxiq "x-pi-web-instance: $instance"; }
 issue(){
-  local key path headers link
-  # An already-running older server still expects its original ticket format.
+  local key headers link
   headers=$(curl -sS --noproxy '*' --max-time 4 -I "$url/i" 2>/dev/null) || return 1
-  if tr -d '\r' <<< "$headers" | grep -Fxiq 'x-pi-link-format: compact-v1'; then
-    path=i; key=$(node -e 'process.stdout.write(require("crypto").randomBytes(12).toString("base64url"))')
-  else
-    path=open; key=$(node -e 'process.stdout.write(require("crypto").randomBytes(24).toString("hex"))')
-  fi
-  printf '%s' "$key" | node -e 'const f=require("fs"),p=process.argv[1],t=p+"."+process.pid; f.writeFileSync(t,JSON.stringify({key:f.readFileSync(0,"utf8"),until:Date.now()+600000}),{mode:0o600}); f.renameSync(t,p)' "$ticket"
-  link="$url/$path#$key"
+  tr -d '\r' <<< "$headers" | grep -Fxiq 'x-pi-link-format: persistent-v1' || { echo 'Restart the updated application before issuing its permanent link.' >&2; return 1; }
+  key=$(node - "$ticket" <<'JS'
+const fs=require('node:fs'), crypto=require('node:crypto'), p=process.argv[2];
+try {fs.writeFileSync(p, JSON.stringify({format:'persistent-v1',key:crypto.randomBytes(24).toString('hex')}), {flag:'wx',mode:0o600});} catch(e){if(e.code!=='EEXIST') throw e;}
+const item=JSON.parse(fs.readFileSync(p,'utf8'));
+if(item.format!=='persistent-v1'||!/^[a-f0-9]{48}$/.test(item.key))throw Error('Invalid access-link file');
+process.stdout.write(item.key);
+JS
+  ) || return 1
+  link="$url/i#$key"
   if [[ -t 1 && ${TERM_PROGRAM:-} == iTerm.app ]]; then printf '\n\033]8;;%s\033\\Open Nikita\033]8;;\033\\\n' "$link"; else printf '\nOpen Nikita:\n%s\n' "$link"; fi
 }
 if [[ -r $state/instance ]]; then instance=$(<"$state/instance"); if protected "$url"; then issue; exit; fi; fi
@@ -47,7 +49,7 @@ if [[ ! -x $caddy ]]; then
 fi
 instance=$(node -e 'console.log(require("crypto").randomBytes(16).toString("hex"))'); printf '%s\n' "$instance" > "$state/instance"
 export PI_WEB_INSTANCE="$instance" PI_WEB_ALLOWED_HOSTS="$host" PI_WEB_TICKET_FILE="$ticket" PORT="$port"
-export PI_WEB_PASSWORD="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"; unset PI_WEB_PASSWORD_HASH; rm -f "$ticket"
+export PI_WEB_PASSWORD="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"; unset PI_WEB_PASSWORD_HASH
 export XDG_DATA_HOME="$state/data" XDG_CONFIG_HOME="$state/config"
 printf '{\n admin off\n persist_config off\n}\n%s {\n reverse_proxy 127.0.0.1:%s\n}\n' "$host" "$port" > "$state/Caddyfile"
 cd "$base/app"; app=; proxy=
