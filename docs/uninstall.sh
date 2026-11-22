@@ -3,7 +3,7 @@
 set -euo pipefail
 [[ $(uname -s) == Linux ]] || { echo 'This command is for the Linux server. Nothing removed.' >&2; exit 1; }
 exec python3 - <<'PY'
-import os, re, shutil, signal, sys, time
+import fcntl, hashlib, os, re, shutil, signal, subprocess, sys, time
 from pathlib import Path
 
 home = Path.home().resolve(strict=True)
@@ -47,6 +47,21 @@ def processes():
         finally:
             if fd is not None:
                 os.close(fd)
+
+# A connected Telegram worker uses the system Python, not the private Node binary.
+unit_name = 'nikita-telegram-' + hashlib.sha256(os.fsencode(base)).hexdigest()[:12] + '.service'
+unit = Path('/etc/systemd/system') / unit_name
+if unit.exists() or unit.is_symlink():
+    if unit.is_symlink() or not unit.read_text().startswith(f'# Pi Web managed instance: {base}\n') or os.getuid() != 0:
+        stop('Unexpected Telegram unit. Nothing removed.')
+    subprocess.run(['systemctl','disable','--now',unit_name], check=True)
+    unit.unlink(); subprocess.run(['systemctl','daemon-reload'], check=True)
+lock = base / 'telegram-state' / 'instance.lock'
+if lock.exists():
+    if lock.is_symlink() or lock.parent.is_symlink(): stop('Unexpected Telegram state link.')
+    guard = lock.open('a')
+    try: fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError: stop('Stop the foreground Telegram process before uninstalling.')
 
 for fd, name in processes():
     try:

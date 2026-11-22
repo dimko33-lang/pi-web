@@ -80,6 +80,13 @@ KNOWN
   echo 'Updated stock application files. Restart an already running server to load the new code.'
 ;; esac
 if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
+  if [[ $os == linux ]]; then
+    if [[ -f $base/app/telegram/install.sh ]]; then
+      bash "$base/app/telegram/install.sh" "$base" "$PI_WEB_PI_BIN" "$node_dir/bin"
+    else
+      echo 'Existing application predates Telegram support; preserving it. Fresh installations include Telegram.'
+    fi
+  fi
   grep -q 'const ticketFile = process.env.PI_WEB_TICKET_FILE' "$base/app/server/main.ts" || { echo 'This installation has a different entrypoint. Install into a new PI_WEB_INSTALL_DIR; existing data has been preserved.' >&2; exit 1; }
   helper="$base/app/docs/server-start.sh"
   # Upgrade only the known unmodified access-link pair. Preserve profiles, keys and chats.

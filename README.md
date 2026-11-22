@@ -1,6 +1,6 @@
 # Pi Web
 
-A self-hosted browser interface and Nikita salon for the Pi coding agent. The starter includes seven editable profiles, offline model and thinking selectors, and eighteen illustrated or mathematical notes. Open `/profiles` for settings and `/nikita/` for Notes. No Telegram sessions, message histories, author archives or API credentials are included. This edition does not install the Telegram service.
+A self-hosted browser interface and Nikita salon for the Pi coding agent. The starter includes seven editable profiles, offline model and thinking selectors, and eighteen illustrated or mathematical notes. Open `/profiles` for settings and `/nikita/` for Notes. No Telegram sessions, message histories, author archives or API credentials are included. Fresh Linux server installations include the Telegram owner-DM transport. It stays offline until you explicitly connect a new agent account. It is not the complete reference deployment: group routing/recovery, privileged browser execution and reference workers are not installed by this transport.
 
 ## Run locally
 
@@ -21,6 +21,12 @@ npm ci && npm start
 ```
 
 Open http://127.0.0.1:5070. The interface starts without an account. For model replies, install and authenticate your own compatible Pi CLI, then set `PI_WEB_PI_BIN` to its executable path before starting. No provider credentials or production profiles are distributed.
+
+## Connect the installed Telegram transport (Linux)
+
+Use the `nikita-telegram connect` command with the full path printed by the installer. Enter your Telegram application API ID/hash, your personal numeric owner ID, then scan the login QR with the **separate agent account**. Nothing is requested during the web installation. Each installation creates fresh private authorization under its own `telegram-state/`. Never copy that directory to a second running instance. Check `~/PiWebRuntime/bin/nikita-telegram status` without connecting to Telegram.
+
+On a standard root-owned systemd server, enrollment enables a dedicated unit; after reboot it resumes using the same authorization. If enrollment succeeded but service registration failed, use `nikita-telegram start` with the same full path. Other users can run `nikita-telegram run` in the foreground. Only incoming private text messages from the configured owner are answered. Pi uses its configured provider, the panel model when selected, and a separate Telegram conversation. Host tools and extensions are disabled on this transport. Groups and other users do not trigger replies. On Debian/Ubuntu a root install can install `python3-venv` if missing; other Linux hosts need Python 3.9+ with venv. The uninstaller removes this local Telegram login along with the installation, not the Telegram account itself.
 
 ## Remove the default Linux test installation
 

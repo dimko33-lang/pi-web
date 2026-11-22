@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
 const roots = ['server', 'public', 'tests', 'deploy', 'docs'];
+const telegramFiles = ['install.sh','instance.py','service.py','telegram_blocks.py','requirements.lock'];
 const files = ['package.json', 'package-lock.json', 'models.json', 'README.md'];
 const optionalFiles = ['AGENTS.md', 'INTERACTIVE-CARDS.md', 'RESTORE.md', 'start.sh'];
 const sourceExtension = /\.(?:ts|js|mjs|cjs|html|css|svg|json|md|sh|service|png|jpg|webp|woff2?|ttf|otf|map)$/i;
@@ -35,6 +36,15 @@ export async function createSourceArchive(root: string) {
     for (const relative of [...optionalFiles, ...roots]) {
       try { await copy(path.join(root, relative), path.join(destination, relative)); }
       catch (error: any) { if (error.code !== 'ENOENT') throw error; }
+    }
+    // Export only Telegram program files, never instance state or login material.
+    if (await fs.stat(path.join(root, 'telegram/install.sh')).then(() => true, () => false)) {
+      const target = path.join(destination, 'telegram'); await fs.mkdir(target);
+      for (const file of telegramFiles) {
+        const src = path.join(root, 'telegram', file);
+        if (!(await fs.lstat(src)).isFile()) throw Error('Invalid Telegram source file');
+        await fs.copyFile(src, path.join(target, file));
+      }
     }
     const config = path.join(destination, 'data');
     await fs.mkdir(config);
