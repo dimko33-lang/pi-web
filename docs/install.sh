@@ -72,6 +72,34 @@ if [ ! -d "$base/app" ]; then
 fi
 # Upgrade the previous stock salon release as a unit. Never replace edited files, settings or sessions.
 sha(){ node -e 'console.log(require("crypto").createHash("sha256").update(require("fs").readFileSync(process.argv[1])).digest("hex"))' "$1"; }
+# Migrate the preceding stock Linux card, not a source restore, fork or reference host.
+if [[ $os == linux && $EUID == 0 && $base == /root/PiWebRuntime && -z ${PI_WEB_RESTORE_SOURCE:-} && -f $base/app/server/export-list.json && $(sha "$base/app/server/export-list.json") == 815461a12b9fe8c190481cbb480f101fa3c2722c9328adf1ab101c7caf3cb578 ]]; then
+  echo 'Updating stock browser privilege handling; preserving chats, credentials and HTTPS access…'
+  fetch https://codeload.github.com/dimko33-lang/pi-web/tar.gz/1cd785d5fe43274337b7b4e886460313e465e331 "$tmp/root-update.tgz"
+  mkdir "$tmp/root-update"; tar -xzf "$tmp/root-update.tgz" -C "$tmp/root-update" --strip-components=1
+  python3 - "$base/app" "$tmp/root-update" <<'PY'
+import hashlib, os, sys, tempfile
+from pathlib import Path
+app,release=map(Path,sys.argv[1:]); old={
+ 'README.md':'f0932902ec747e5113bda37085396f509c4ea78c151561e99907a19a8daff4ee',
+ 'docs/install.sh':'34c7e6fa81b83d7d49395466a7524b29b5f6a0e9c5d052349873a5020e9fb904',
+ 'docs/reference-install.md':'af343954bd87fc4e8d8c8dee7e4d23ee12a69310c0a3143c0714fa26b86291b4',
+ 'server/execution.ts':'520569a144107bf7ed34db4e6ef0c0a90aedce4531b9fb3e4547bc031a078f66',
+ 'server/main.ts':'6153d6d1fe6ee754ca137fad619c32a42fec779035b18b393ef25bc35bb47bb1',
+ 'services/browser/install.sh':None,'services/browser/reload-stock.py':None,'services/browser/workspace.py':None,'tests/browser-root-live.mjs':None,
+ 'server/export-list.json':'815461a12b9fe8c190481cbb480f101fa3c2722c9328adf1ab101c7caf3cb578'} # completion marker last
+for f,expected in old.items():
+ p=app/f
+ if p.resolve()!=p or (p.exists() and not p.is_file()): sys.exit('Unexpected application path: '+f)
+ if p.exists() and p.read_bytes()==(release/f).read_bytes(): continue
+ if (hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None)!=expected: sys.exit('Local changes preserved; cannot migrate: '+f)
+for f in old:
+ p=app/f;p.parent.mkdir(exist_ok=True,parents=True)
+ with tempfile.NamedTemporaryFile(dir=p.parent,delete=False) as out:
+  out.write((release/f).read_bytes());os.fchmod(out.fileno(),0o755 if f.endswith('.sh') else 0o644)
+ os.replace(out.name,p)
+PY
+fi
 case "$(sha "$base/app/server/main.ts")" in ac7b6642fe006652b94a50ea3a94de9c2137eed3dc56818e42d12b157f6766b6|19ead8986a76f817e9860e2f74e8f67f8b29d4fd331c43efba4660935d1d07ae|b2b3ae86de1b7a054bba42cb270b17301183e45330fb85298d3b8d602f638b47)
   fetch 'https://codeload.github.com/dimko33-lang/pi-web/tar.gz/edae8248ff99770d3873766f9fa3c377346077f5' "$tmp/update.tgz"
   mkdir "$tmp/update"; tar -xzf "$tmp/update.tgz" -C "$tmp/update" --strip-components=1
