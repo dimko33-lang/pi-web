@@ -46,6 +46,12 @@ export async function createSourceArchive(root: string) {
         await fs.copyFile(src, path.join(target, file));
       }
     }
+    for (const relative of ['services/tools.mjs','services/tool-policy.txt','services/science/Dockerfile','services/science/requirements.lock','services/science/worker.py','services/science/install.sh','services/science/pi-web-science.service']) {
+      const src=path.join(root,relative), target=path.join(destination,relative);
+      try { if (!(await fs.lstat(src)).isFile() || await fs.realpath(src)!==path.join(await fs.realpath(root),relative)) throw Error('Invalid worker source file'); }
+      catch(e:any){ if(e.code==='ENOENT')continue; throw e; }
+      await fs.mkdir(path.dirname(target),{recursive:true}); await fs.copyFile(src,target);
+    }
     const config = path.join(destination, 'data');
     await fs.mkdir(config);
     // Do not copy arbitrary runtime JSON or custom prompt text into a portable archive.

@@ -63,6 +63,25 @@ if lock.exists():
     try: fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError: stop('Stop the foreground Telegram process before uninstalling.')
 
+# The dedicated science broker belongs only to the standard root installation.
+science = Path('/var/lib/pi-web-science')
+science_unit = Path('/etc/systemd/system/pi-web-science.service')
+if base == Path('/root/PiWebRuntime') and science_unit.exists():
+    if science_unit.is_symlink() or science.is_symlink() or (science/'.pi-web-managed').read_text().strip() != 'stock-v1' or 'ExecStart=/usr/bin/python3 -I /usr/local/lib/pi-web-science/worker.py' not in science_unit.read_text().splitlines():
+        stop('Unrecognized science service; nothing removed from it.')
+    subprocess.run(['systemctl','disable','--now',science_unit.name],check=True)
+    engine = '/usr/bin/podman'
+    if Path(engine).is_file():
+        ids=subprocess.check_output([engine,'ps','-aq','--filter','label=io.pi-web.stock.science=1'],text=True).split()
+        if ids: subprocess.run([engine,'rm','-f',*ids],check=True)
+        tags=subprocess.check_output([engine,'images','--format','{{.Repository}}:{{.Tag}}'],text=True).splitlines()
+        for tag in tags:
+            if re.fullmatch(r'localhost/pi-web-science:[0-9a-f]{20}',tag): subprocess.run([engine,'rmi',tag],check=False)
+    science_unit.unlink(); subprocess.run(['systemctl','daemon-reload'],check=True)
+    for p in (Path('/usr/local/lib/pi-web-science/worker.py'),science/'image-id',science/'.pi-web-managed'): p.unlink(missing_ok=True)
+    for p in (Path('/usr/local/lib/pi-web-science'),science):
+        if p.is_dir() and not any(p.iterdir()): p.rmdir()
+
 for fd, name in processes():
     try:
         signal.pidfd_send_signal(fd, signal.SIGTERM)

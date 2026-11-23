@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Portable, explicitly enrolled Telegram transport for a single owner's DMs."""
 import argparse
+import base64
+import io
+import sqlite3
 import asyncio
 from contextlib import contextmanager
 import fcntl
@@ -37,9 +40,10 @@ def exclusive():
 async def enroll():
     if CONFIG.exists():
         raise SystemExit('Already connected. Existing credentials were not changed.')
-    api = int(input('Telegram application API ID: ').strip())
-    secret = getpass('Telegram application API hash: ').strip()
-    owner = int(input('Your personal Telegram user ID (allowed sender): ').strip())
+    # Optionally provision application metadata privately, never ship it in the repo.
+    api = int((os.environ.get('TELEGRAM_API_ID') or input('Telegram application API ID: ')).strip())
+    secret = (os.environ.get('TELEGRAM_API_HASH') or getpass('Telegram application API hash: ')).strip()
+    owner = int((os.environ.get('NIKITA_OWNER_ID') or input('Your personal Telegram user ID (allowed sender): ')).strip())
     if api <= 0 or owner <= 0 or not re.fullmatch('[a-fA-F0-9]{32}', secret):
         raise SystemExit('Invalid Telegram application or owner ID.')
     c = TelegramClient(StringSession(), api, secret)
@@ -96,6 +100,8 @@ async def answer(text):
         raise RuntimeError('Pi CLI not found')
     cwd = BASE / 'conversation'; cwd.mkdir(mode=0o700, exist_ok=True)
     args = [pi, '--print', '--no-context-files', '--no-extensions', '--no-skills', '--no-prompt-templates', '--no-tools', '--session-dir', str(cwd), '--continue']
+    policy = APP / 'services/tool-policy.txt'
+    if policy.is_file(): args.extend(['--append-system-prompt',policy.read_text()])
     model = APP / 'data/browser-model.txt'
     if model.is_file() and model.read_text().strip():
         args.extend(['--model', model.read_text().strip()])
@@ -109,6 +115,50 @@ async def answer(text):
     if p.returncode or not data.strip():
         raise RuntimeError('Pi returned no reply')
     return data.decode(errors='replace').strip()
+
+
+async def tool_turn(e):
+    direct = re.fullmatch(r'/(image|science)\s+([\s\S]+)', e.raw_text)
+    if direct:
+        action = {'nikita_tool':'image','prompt':direct[2]} if direct[1]=='image' else {'nikita_tool':'python','code':direct[2]}
+        text = ''
+    else:
+        text = await answer(e.raw_text)
+        try: action = json.loads(text)
+        except ValueError: return text, None
+    if not isinstance(action,dict) or action.get('nikita_tool') not in ('image','python'): return text, None
+    image = action['nikita_tool']=='image'; field = 'prompt' if image else 'code'
+    if not isinstance(action.get(field), str): raise RuntimeError('Invalid tool request')
+    request = {'action':action['nikita_tool'],field:action[field]}
+    if image:
+        source = e.message
+        if not source.photo and source.reply_to_msg_id:
+            candidate = await e.get_reply_message()
+            if candidate and candidate.chat_id == e.chat_id: source = candidate
+        if source.photo:
+            if not source.file or not 0 < (source.file.size or 0) <= 5_000_000: raise RuntimeError('Invalid image source size')
+            raw = await source.download_media(file=bytes)
+            if not raw or len(raw)>5_000_000: raise RuntimeError('Invalid image')
+            request['image']=base64.b64encode(raw).decode()
+    # Commit before dispatch: reconnects cannot silently purchase the same generation twice.
+    db=sqlite3.connect(BASE/'tool-turns.sqlite');
+    try:
+        with db:
+            db.execute('create table if not exists attempts(chat integer, id integer, primary key(chat,id))')
+            if not db.execute('insert or ignore into attempts values(?,?)',(e.chat_id,e.id)).rowcount: return '',None
+    finally: db.close()
+    model = APP / 'data/browser-model.txt'
+    payload=json.dumps({'request':request,'model':model.read_text().strip() if model.exists() else ''}).encode()
+    proc=await asyncio.create_subprocess_exec('node','--import','tsx','services/tools.mjs',cwd=APP,stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.DEVNULL)
+    try: data,_=await asyncio.wait_for(proc.communicate(payload),335)
+    finally:
+        if proc.returncode is None: proc.kill(); await proc.wait()
+    if proc.returncode: raise RuntimeError('Instance tool failed')
+    result=json.loads(data)['result']
+    if image:
+        photo=io.BytesIO(base64.b64decode(result['data'],validate=True)); photo.name='image.'+{'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[result['mimeType']]
+        return '',photo
+    return '\n'.join(filter(None,['Scientific result:' if result.get('ok') else 'Calculation did not complete:',result['stdout']['text'],result['stderr']['text']])),None
 
 
 async def serve():
@@ -133,9 +183,11 @@ async def serve():
             return
         try:
             async with c.action(owner, 'typing'):
-                text = await answer(e.raw_text)
-        except (RuntimeError, OSError, asyncio.TimeoutError):
-            await e.reply('Pi could not complete this reply. Check provider login and selected model.'); return
+                text, photo = await tool_turn(e)
+                if photo is not None:
+                    sent = await e.reply(file=photo,force_document=False); archive.notify(owner,sent.id); return
+        except (RuntimeError, OSError, ValueError, KeyError, asyncio.TimeoutError):
+            await e.reply('Could not complete the request. Check the selected provider, its image access, or the science service.'); return
         for body, entities in message_parts(text, formatted=True):
             sent = await e.reply(body, formatting_entities=entities, link_preview=False)
             archive.notify(owner, sent.id)

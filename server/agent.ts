@@ -4,6 +4,7 @@ import { spawnAgent, restoreRuntimeOwnership, rootEnabled, stopAgentProcess } fr
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { chatImages } from './chat-images.ts';
+import { executeTool } from './instance-tools.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -202,6 +203,8 @@ async function runPi(prompt, onProgress, onStage, opts = {}, onTools) {
       + 'Use Markdown and LaTeX for formulas; use fenced blocks for copyable code and text.';
     if (!operational || operational.length > 20000) throw new Error('Invalid shared operational prompt');
     args.push(cfg.piOn ? '--append-system-prompt' : '--system-prompt', operational, '--no-skills', '--no-prompt-templates', '--no-extensions');
+    const toolPolicy = path.join(__dirname,'../services/tool-policy.txt');
+    if (fs.existsSync(toolPolicy)) args.push('--append-system-prompt',fs.readFileSync(toolPolicy,'utf8'));
     if (cfg.character) args.push('--append-system-prompt', 'Shared character instructions:\n' + cfg.character);
     if (cfg.custom) args.push('--append-system-prompt',
       'Manner instructions. These are required in every reply and take precedence over any default tone:\n' + cfg.custom);
@@ -447,8 +450,23 @@ export async function askAgent(prompt, onProgress, onStage?, opts = {}) {
       // Echo fallback when the configured Pi executable is unavailable.
       return `(model unavailable) received: ${prompt}`;
     }
-    const answer = await runPi(prompt, onProgress, onStage, { memory, withTools, root: rootEnabled(opts.root), vision: opts.vision, onMetadata: opts.onMetadata }, opts.onTools);
+    const direct = typeof prompt === 'string' ? /^\/(image|science)\s+([\s\S]+)$/.exec(prompt) : null;
+    const answer = direct ? '' : await runPi(prompt, onProgress, onStage, { memory, withTools, root: rootEnabled(opts.root), vision: opts.vision, onMetadata: opts.onMetadata }, opts.onTools);
     if (cancelled) return '⏹ Stopped.';
+    let action = direct ? (direct[1]==='image'?{nikita_tool:'image',prompt:direct[2]}:{nikita_tool:'python',code:direct[2]}) : null;
+    if (!direct && typeof answer === 'string' && answer.trim().startsWith('{')) { try { action=JSON.parse(answer); } catch {} }
+    if (!action || !['image','python'].includes(action.nikita_tool)) return answer;
+    if (action.nikita_tool==='image' && typeof action.prompt==='string') {
+      const picture=await executeTool({action:'image',prompt:action.prompt},PI_BIN,getCurrentModel());
+      if (cancelled) return '⏹ Stopped.';
+      const image=chatImages.save(picture.data,picture.mimeType);
+      opts.onTools?.([{id:'image',name:'generate_image',args:null,output:'Image ready.',images:[image],isError:false,running:false}]);
+      return 'Image ready.';
+    }
+    if (action.nikita_tool==='python' && typeof action.code==='string') {
+      const result=await executeTool({action:'python',code:action.code},PI_BIN,getCurrentModel());
+      return [result.ok?'Scientific result:':'Calculation did not complete:',result.stdout?.text,result.stderr?.text].filter(Boolean).join('\n');
+    }
     return answer;
   } finally {
     restoreRuntimeOwnership([SESSIONS_DIR, path.join(process.env.HOME || '', '.pi')]);

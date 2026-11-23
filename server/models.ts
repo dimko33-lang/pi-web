@@ -254,7 +254,7 @@ const STORE = path.join(__dirname, '..', 'data', 'browser-model.txt');
 export function loadSaved(file = STORE): string {
   try {
     const id = fs.readFileSync(file, 'utf8').trim();
-    if (id && enabledModelIds.includes(id) && MODELS.some((m) => m.id === id)) return id;
+    if (id && (id === nativeDefault() || (enabledModelIds.includes(id) && MODELS.some((m) => m.id === id)))) return id;
   } catch { /* Fall back to the default if the selection file is unreadable. */ }
   return DEFAULT_MODEL;
 }
@@ -269,15 +269,24 @@ function saveSaved(id: string) {
 let current = loadSaved();
 
 /* The displayed selection is also the model used for execution. */
+function nativeDefault():string | undefined {
+  // Only the local Pi settings, never client-supplied provider or model definitions.
+    try {
+      const dir = process.env.PI_CODING_AGENT_DIR || path.join(process.env.HOME || '', '.pi/agent');
+      const s = JSON.parse(fs.readFileSync(path.join(dir,'settings.json'),'utf8'));
+      if (/^[a-z][a-z0-9_-]*$/.test(s.defaultProvider || '') && typeof s.defaultModel === 'string' && /^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,200}$/.test(s.defaultModel)) return `${s.defaultProvider}/${s.defaultModel}`;
+    } catch { /* No native default selected. */ }
+}
+
 export function getModel() {
-  return current;
+  return !process.env.PI_WEB_MODEL && !fs.existsSync(STORE) ? nativeDefault() || current : current;
 }
 
 export function setModel(id: string): string {
   const hit = MODELS.find((m) => m.id === id);
   // Accept catalog IDs only, never arbitrary client-supplied model names.
-  if (!hit || !enabledModelIds.includes(id)) throw new Error('unknown model: ' + id);
-  current = hit.id;
+  if (id !== nativeDefault() && (!hit || !enabledModelIds.includes(id))) throw new Error('unknown model: ' + id);
+  current = id;
   saveSaved(current);
   return current;
 }
@@ -658,8 +667,11 @@ export function isModelAlive(id: string): boolean {
 }
 
 /* Filter by cached availability and sort by combined input/output price. */
-export function availableModels(): ModelInfo[] {
+export function availableModels() {
   // Settings are editable offline; selecting a model does not authorize inference.
   const list = MODELS.filter((m) => enabledModelIds.includes(m.id));
-  return list.sort((a, b) => (b.inUsd + b.outUsd) - (a.inUsd + a.outUsd));
+  list.sort((a, b) => (b.inUsd + b.outUsd) - (a.inUsd + a.outUsd));
+  const native=nativeDefault();
+  if (native && !list.some(m=>m.id===native)) return [{id:native,label:native,hint:'Selected in Pi',tier:'good',inUsd:null,outUsd:null,provider:native.split('/')[0]},...list];
+  return list;
 }
