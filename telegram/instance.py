@@ -23,6 +23,7 @@ from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
 from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
+from spoken_reply import requested as speak_requested, send_spoken, HINT as SPOKEN_HINT
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -189,7 +190,7 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
     return data.decode(errors='replace').strip()
 
 
-async def tool_turn(e):
+async def tool_turn(e, *, delivery=None):
     profile = owner_profile()  # Pin one settings snapshot for inference and dispatch.
     tools = profile.get('toolsOn', True)
     prepared_edit = None
@@ -197,9 +198,14 @@ async def tool_turn(e):
     voice=is_voice(getattr(e,'message',None))
     if profile.get('replyMode')=='off': return '',None
     async def download(message,**kwargs): return await message.download_media(**kwargs)
+    speak=speak_requested(getattr(e,'message',None),raw)
     if voice:
-        try: raw=(raw+'\n\n' if raw else '')+voice_prompt(await recognize(e.message,download))
+        try: spoken=await recognize(e.message,download)
         except VoiceError as exc: return str(exc),None
+        speak=speak or speak_requested(e.message,spoken)
+        raw=(raw+'\n\n' if raw else '')+voice_prompt(spoken)
+    if speak and delivery is not None:
+        delivery['spoken']=True;raw+=SPOKEN_HINT
     direct = None if voice else re.fullmatch(r'/(image|science)\s+([\s\S]+)', raw)
     if direct and not tools: return 'Tools are off for this conversation.', None
     if direct:
@@ -287,13 +293,18 @@ async def serve():
     async def incoming(e):
         if not owner_dm(e, owner):
             return
+        delivery={}
         try:
             async with c.action(owner, 'typing'):
-                text, photo = await tool_turn(e)
+                text, photo = await tool_turn(e,delivery=delivery)
                 if photo is not None:
                     sent = await e.reply(file=photo,force_document=False); archive.notify(owner,sent.id); return
         except (RuntimeError, OSError, ValueError, KeyError, asyncio.TimeoutError):
             await e.reply('Could not complete the request. Check the selected provider, its image access, or the science service.'); return
+        if delivery.get('spoken') and text:
+            note=await send_spoken(c,owner,e.id,text)
+            if note:
+                archive.notify(owner,note.id);return
         for body, entities in message_parts(text, formatted=True):
             sent = await e.reply(body, formatting_entities=entities, link_preview=False)
             archive.notify(owner, sent.id)
