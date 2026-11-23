@@ -23,6 +23,9 @@ if [[ -f $src/media-decoder/package-lock.json && ! -f $src/media-decoder/node_mo
   echo 'Installing isolated GIF/video frame decoder…'
   npm ci --prefix "$src/media-decoder" --ignore-scripts --no-audit --no-fund
 fi
+if [[ -f $src/voice_assets.py && $(uname -s) == Linux ]]; then
+  "$venv/bin/python" -I -B "$src/voice_assets.py"
+fi
 mkdir -p "$base/bin"; tmp=$(mktemp "$base/bin/.telegram.XXXXXX"); trap 'rm -f "$tmp"' EXIT
 {
   printf '#!/bin/bash\nset -eu\nbase=%q\nexport PI_WEB_PI_BIN=%q PATH=%q:"$PATH"\n' "$base" "$pi" "$node_bin"

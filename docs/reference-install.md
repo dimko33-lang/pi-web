@@ -22,6 +22,8 @@ The default Linux installer now applies a real browser turn privilege boundary u
 
 Addressed Telegram GIF/video attachments and same-chat replies now use a shared WebAssembly decoder with read-only, seekable access to one temporary input file and the existing image-input path. `tests/motion-frames.mjs` verifies ordered GIF and MP4 samples at a local provider, including exclusion for a text-only model. No audio or linked video retrieval.
 
+Russian voice notes in new permitted DMs are decoded and transcribed on the instance. Access gates run first: owner and admitted private guests on the reference, enrolled owner on the card. No collection of past or group audio. `tests/voice-notes.py` covers routing and optionally accepts a synthetic Ogg/Opus test recording for a real offline ASR check.
+
 Still incomplete: other group attachments and role-specific tools, exact message-window handling, and end-to-end boot/recovery on a blank Linux host. The card is not yet a verified replica.
 
 Before claiming parity: verify on an empty supported Linux server using the card command, then enroll a separate account and authorize its provider. Check profile independence, actual execution UID off/on/off, group address/reply handling and missed-question recovery, empty archives before enrollment, Notes, image and science jobs, Save/restore and post-reboot operation. Repeat installation without resetting state. For subsequent reference changes import the reviewed diff rather than syncing a live workspace, home directory, unit environment or machine image to GitHub.

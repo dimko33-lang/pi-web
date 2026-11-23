@@ -22,6 +22,7 @@ from telegram_blocks import message_parts, verify_blocks
 from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
+from voice_notes import is_voice, recognize, voice_prompt, VoiceError
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -94,7 +95,7 @@ async def enroll():
 
 
 def owner_dm(e, owner):
-    return bool(e.is_private and not e.out and e.sender_id == owner and e.chat_id == owner and ((e.raw_text or '').strip() or attachment_type(getattr(e, 'message', None))))
+    return bool(e.is_private and not e.out and e.sender_id == owner and e.chat_id == owner and ((e.raw_text or '').strip() or attachment_type(getattr(e, 'message', None)) or is_voice(getattr(e, 'message', None))))
 
 
 def conversation_profile(name):
@@ -192,14 +193,21 @@ async def tool_turn(e):
     profile = owner_profile()  # Pin one settings snapshot for inference and dispatch.
     tools = profile.get('toolsOn', True)
     prepared_edit = None
-    direct = re.fullmatch(r'/(image|science)\s+([\s\S]+)', e.raw_text or '')
+    raw=e.raw_text or ''
+    voice=is_voice(getattr(e,'message',None))
+    if voice:
+        if profile.get('replyMode')=='off': return '',None
+        async def download(message,**kwargs): return await message.download_media(**kwargs)
+        try: raw=voice_prompt(await recognize(e.message,download))
+        except VoiceError as exc: return str(exc),None
+    direct = None if voice else re.fullmatch(r'/(image|science)\s+([\s\S]+)', raw)
     if direct and not tools: return 'Tools are off for this conversation.', None
     if direct:
         action = {'nikita_tool':'image','prompt':direct[2]} if direct[1]=='image' else {'nikita_tool':'python','code':direct[2]}
         text = ''
     else:
         # Only serve()'s enrolled-owner DM path reaches here. Replies/forwards/media are not inspection tests.
-        test = ((e.raw_text or '').strip().lower() == 'ok' and not e.message.reply_to_msg_id
+        test = (not voice and raw.strip().lower() == 'ok' and not e.message.reply_to_msg_id
                 and not e.message.fwd_from and not e.message.media)
         quoted = None
         if getattr(e.message, 'reply_to_msg_id', None):
@@ -207,12 +215,12 @@ async def tool_turn(e):
             if candidate and candidate.chat_id == e.chat_id: quoted = candidate
         if attachment_type(e.message) or attachment_type(quoted):
             async with sampled_inputs(e.message, quoted) as (frames, note):
-                text = await answer((e.raw_text or '')+'\n\n'+note, profile, frames=frames)
+                text = await answer(raw+'\n\n'+note, profile, frames=frames)
                 if tools and text.lstrip().startswith('{'):
                     photo=next((p for p in frames if p.name.startswith('photo-')),None)
                     if photo: prepared_edit=base64.b64encode(photo.read_bytes()).decode()
         else:
-            text = await answer(e.raw_text, profile, inspect_owner=test)
+            text = await answer(raw, profile, inspect_owner=test)
         if not tools: return text, None
         try: action = json.loads(text)
         except ValueError: return text, None
