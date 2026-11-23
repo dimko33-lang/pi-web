@@ -34,7 +34,7 @@ function chatSettings() {
   const forced = process.env.PI_WEB_NAKED === '1';
   return {
     piOn: !forced && s.piOn === true,
-    custom: forced ? '' : str(s.customPrompt, 20000),
+    custom: forced || s.customOn === false ? '' : str(s.customPrompt, 20000),
     character: forced || s.systemPrompt === false ? '' : str(s.character, 8000)
   };
 }

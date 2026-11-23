@@ -191,6 +191,7 @@
     "tests/browser-root-live.mjs",
     "tests/group-replies.py",
     "tests/instance-tools.mjs",
+    "tests/personality.mjs",
     "tests/profile-install.mjs",
     "tests/reply-recovery.py",
     "tests/request-inspection.mjs",

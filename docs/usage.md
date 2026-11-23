@@ -32,6 +32,10 @@ On a standard root-owned systemd server, enrollment enables a dedicated unit; af
 
 In the authenticated panel, open `My DM`. Turn off Tools, Memory and Response style for that profile. Under `Request JSON`, select `Capture next ok`, then send a new plain `ok` in the owner DM (not a reply, forward or caption). The inspector shows the JSON body at the provider request hook, not proof of delivery. It does not collect HTTP headers or watch other chats. Anyone with panel access can read the body until you select `Clear` or the ten-minute capture expires. Restore your usual profile settings after the test.
 
+## Browser chat instruction buttons
+
+Open the `+` menu in the web chat. A short click or tap on `custom` or `character` pauses or resumes the saved text. A lit button means nonempty text is enabled for new turns. Hold the button for about half a second (or focus it and press F2) to edit, then choose Apply. Editing a paused instruction does not turn it back on. `system` still controls the same character switch; it does not toggle Custom. Telegram profiles are separate.
+
 ## Browser Root switch (standard root-owned Linux install)
 
 Root starts off on each controller launch. Ordinary browser turns run as the dedicated `pi-web-workspace` UID with no supplementary groups, no added privileges, a private process tree and a persistent `/workspace`. They cannot read the host's `/root`, Telegram state, panel access file or service sockets. Only the selected model's credential is resolved by the original Pi login; the workspace cannot edit the controller's provider store. A switch transition checks the effective UID before acknowledging it. Red means host administration is enabled for subsequent browser turns. A second click returns future turns to workspace permissions; switching off does not undo changes previously made as root. Active turns block switching. The controller itself still runs as root in this installation layout. Anyone with the full shared panel link is an administrator. Do not publish the link.

@@ -163,6 +163,7 @@
   let agentMemResetAt = 0;
   let agentPrompt = flag(K_PROMPT);
   /* Custom instructions are independent of the saved-character switch. */
+  let agentCustomOn = true;
   let agentCustom = '';
   try { agentCustom = localStorage.getItem(K_CUSTOM) || ''; } catch (e) {}
   /* System activates the saved shared character without deleting it. */
@@ -185,6 +186,7 @@
       agentPrompt = d.settings.systemPrompt !== false;
       agentChar = String(d.settings.character || '');
       agentCustom = String(d.settings.customPrompt || '');
+      agentCustomOn = d.settings.customOn !== false;
       agentTail = { piwep: String(d.settings.tailPiwep || ''), debri: String(d.settings.tailDebri || ''),
         lightcone: String(d.settings.tailLightcone || ''), direct: String(d.settings.tailDirect || '') };
       agentTailOn = { piwep: d.settings.tailPiwepOn !== false, debri: d.settings.tailDebriOn !== false,
@@ -207,8 +209,13 @@
     /* history lights up only while the retained conversation is actually attached. */
     if (tgMemHist) tgMemHist.classList.toggle('on', agentMemResetAt === 0);
     if (tgPrompt) tgPrompt.classList.toggle('on', agentPrompt);
-    if (tgCustom) tgCustom.classList.toggle('on', !!agentCustom.trim());
-    if (tgChar) tgChar.classList.toggle('on', agentPrompt);
+    for (const [button, text, enabled] of [[tgCustom, agentCustom, agentCustomOn], [tgChar, agentChar, agentPrompt]]) {
+      if (!button) continue;
+      const active = enabled && !!text.trim();
+      button.classList.toggle('on', active);
+      button.setAttribute('aria-pressed', String(active));
+      button.title = (active ? 'On' : 'Off') + ' · Click to toggle; hold or press F2 to edit';
+    }
     for (const key of Object.keys(agentTail)) {
       if (tgTail[key]) {
         const active = agentTailOn[key] && !!agentTail[key].trim();
@@ -233,9 +240,9 @@
     if (!pmptSheet) return;
     pmptMode = mode;
     if (pmptText) pmptText.placeholder = pmptMode === 'char'
-      ? 'Browser character — enabled by System'
+      ? 'Browser character'
       : pmptMode === 'custom'
-        ? 'Browser custom instructions — active when nonempty'
+        ? 'Browser custom instructions'
         : 'Tail note — appended to the very end of each request in this chat only';
     pmptSheet.hidden = false;
     if (pmptText) {
@@ -259,7 +266,7 @@
     pmptHint.textContent = !n
       ? (isTail ? 'empty → no tail note' : pmptMode === 'char' ? 'empty → no character' : 'empty → no prompt')
       : (n + ' chars — ' + (isTail ? 'appended at the very end of this chat\u2019s requests'
-        : pmptMode === 'char' ? 'enabled by System' : 'independent of System'));
+        : (pmptMode === 'char' ? agentPrompt : agentCustomOn) ? 'enabled' : 'paused'));
   }
   if (pmptText) pmptText.addEventListener('input', updatePmptHint);
   if ($('pmptClose')) $('pmptClose').onclick = closePmpt;
@@ -389,15 +396,33 @@
       paintToggles();
     };
 
-    if (tgCustom) tgCustom.onclick = () => {
-      if (pmptSheet && pmptSheet.classList.contains('show') && pmptMode === 'custom') closePmpt();
-      else openPmpt('custom');
-    };
-
-    if (tgChar) tgChar.onclick = () => {
-      if (pmptSheet && pmptSheet.classList.contains('show') && pmptMode === 'char') closePmpt();
-      else openPmpt('char');
-    };
+    function bindInstruction(button, mode) {
+      if (!button) return;
+      let timer, held = false, saving = false;
+      const cancel = () => clearTimeout(timer);
+      button.addEventListener('pointerdown', event => {
+        if (!event.isPrimary || event.button !== 0) return;
+        cancel(); held = false;
+        timer = setTimeout(() => { held = true; openPmpt(mode); }, 550);
+      });
+      for (const name of ['pointerup', 'pointerleave', 'pointercancel']) button.addEventListener(name, cancel);
+      window.addEventListener('blur', cancel);
+      button.addEventListener('contextmenu', event => event.preventDefault());
+      button.addEventListener('keydown', event => {
+        if (event.key === 'F2') { event.preventDefault(); openPmpt(mode); }
+      });
+      button.onclick = async event => {
+        if (held && event.detail !== 0) { held = false; return; }
+        if (saving) return;
+        const custom = mode === 'custom';
+        if (!(custom ? agentCustom : agentChar).trim()) { toast('No text yet. Hold the button or press F2 to edit.'); return; }
+        saving = true;
+        try { await saveSettingsNow(undefined, custom ? { customOn: !agentCustomOn } : { systemPrompt: !agentPrompt }); }
+        finally { saving = false; }
+      };
+    }
+    bindInstruction(tgCustom, 'custom');
+    bindInstruction(tgChar, 'char');
 
     for (const key of Object.keys(tgTail)) {
       const button = tgTail[key];
@@ -2177,12 +2202,8 @@ function makeResizable(el, minW, minH, onDone, anchorBottomLeft = false) {
         credentials: 'same-origin',
         body: JSON.stringify({
           message: t,
-          // Memory and prompt settings apply to this turn.
+          // The server reads active instructions; do not send cached or paused text.
           memory: agentMemory,
-          systemPrompt: agentPrompt,
-          // Custom instructions take precedence over the prompt toggle.
-          customPrompt: agentCustom,
-          character: agentChar,
           // The server owns execution privileges; tools are always enabled.
           root: agentRoot,
           
