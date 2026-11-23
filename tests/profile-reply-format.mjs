@@ -26,7 +26,11 @@ try {
     await page.evaluate(t=>document.documentElement.dataset.readerTheme=t,theme);
     const label=switches.getByText('Text',{exact:true});const color=()=>label.evaluate(el=>getComputedStyle(el).color);
     const off=await color();await label.click();const on=await color();await label.click();
-    assert.equal(off,theme==='light'?'rgb(146, 143, 137)':'rgb(101, 99, 95)');assert.notEqual(on,off);
+    assert.equal(off,theme==='light'?'rgb(164, 161, 155)':'rgb(85, 83, 79)');assert.notEqual(on,off);
+    const nav=page.locator('#profile-tabs'),a=nav.getByText('alpha',{exact:true}),b=nav.getByText('beta',{exact:true});
+    const tabStyle=el=>el.evaluate(e=>[getComputedStyle(e).color,getComputedStyle(e).textDecorationLine]);
+    assert.deepEqual(await tabStyle(a),[on,'underline']);assert.deepEqual(await tabStyle(b),[off,'none']);
+    await b.click();assert.deepEqual(await tabStyle(b),[on,'underline']);assert.deepEqual(await tabStyle(a),[off,'none']);await a.click();
     assert.equal(await label.evaluate(el=>getComputedStyle(el,'::before').width),'1px');
   }
   for(const name of ['Text','Voice'])await section.locator('label.toggle').filter({hasText:new RegExp('^'+name+'$')}).click();
