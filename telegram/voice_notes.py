@@ -1,4 +1,4 @@
-"""Local ASR for one newly addressed private Telegram voice note. Never scan replies or history."""
+"""Local ASR for an admitted turn's direct or explicitly quoted same-chat audio."""
 import asyncio
 import json
 import os
@@ -11,9 +11,17 @@ ROOT=Path(__file__).resolve().parent
 SLOT=asyncio.Semaphore(1)
 
 
-def is_voice(message):
-    # Telethon sets .voice only for DocumentAttributeAudio(voice=True), not music/files.
-    return bool(getattr(message,'voice',None))
+def audio_format(message):
+    if getattr(message,'voice',None): return 'ogg'
+    file=getattr(message,'file',None)
+    mime=(getattr(file,'mime_type','') or '').lower().split(';')[0].strip()
+    formats={'audio/ogg':'ogg','application/ogg':'ogg','audio/opus':'ogg','audio/mpeg':'mp3','audio/mp3':'mp3','audio/wav':'wav','audio/wave':'wav','audio/x-wav':'wav'}
+    if mime in formats:return formats[mime]
+    if mime not in ('','application/octet-stream'):return None
+    return {'.ogg':'ogg','.oga':'ogg','.opus':'ogg','.mp3':'mp3','.wav':'wav'}.get(Path(getattr(file,'name','') or '').suffix.lower())
+
+
+def is_voice(message):return bool(audio_format(message))
 
 
 class VoiceError(Exception): pass
@@ -35,7 +43,7 @@ async def recognize(message,download):
                     r,w=os.pipe()
                     try:
                         recog=await asyncio.create_subprocess_exec(sys.executable,'-I','-B',str(ROOT/'voice_recognize.py'),stdin=r,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.DEVNULL,env=env);children.append(recog)
-                        decoder=await asyncio.create_subprocess_exec('node','--max-old-space-size=96','--wasm-max-mem-pages=4096',str(ROOT/'media-decoder/voice-pcm.cjs'),stdin=source,stdout=w,stderr=asyncio.subprocess.DEVNULL,env=env);children.append(decoder)
+                        decoder=await asyncio.create_subprocess_exec('node','--max-old-space-size=96','--wasm-max-mem-pages=4096',str(ROOT/'media-decoder/voice-pcm.cjs'),audio_format(message),stdin=source,stdout=w,stderr=asyncio.subprocess.DEVNULL,env=env);children.append(decoder)
                     finally:os.close(r);os.close(w)
                     code,(out,_)=await asyncio.wait_for(asyncio.gather(decoder.wait(),recog.communicate()),1200)
                     if code or recog.returncode:raise ValueError('Voice processing failed')
@@ -50,6 +58,13 @@ async def recognize(message,download):
                 if children:await asyncio.gather(*(p.wait() for p in children))
     except (OSError,ValueError,KeyError,BufferError,asyncio.TimeoutError):
         raise VoiceError('Не получилось распознать голосовое. Можешь повторить или написать текстом?') from None
+
+
+async def audio_context(message, download, *, quoted=False):
+    try: text=await recognize(message,download)
+    except VoiceError as exc:return '[Speech not transcribed: '+str(exc)+']'
+    if quoted:return '[Quoted audio transcript, context only]:\n'+text
+    return voice_prompt(text)
 
 
 def voice_prompt(text):

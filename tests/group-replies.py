@@ -76,6 +76,16 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
             await g.step(); self.assertFalse(seen)
             ask=self.c.add('@my_agent what happened?',10000,reply=gif.id);await g.step()
             self.assertEqual(seen,[(ask,gif)]);self.assertEqual(self.sent,[ask.id])
+    async def test_voice_direct_quote_and_privacy(self):
+        g=await self.boot(); self.c.download_media=object(); seen=[]
+        async def context(m,download,*,quoted):seen.append((m.id,quoted));return 'heard the recital'
+        with patch('group_replies.audio_context',context):
+            file=self.c.add('',10000);file.file=NS(mime_type='application/octet-stream',name='recital.OGG');await g.step();self.assertFalse(seen)
+            req=self.c.add('@my_agent repeat that',10000,reply=file.id);await g.step();self.assertEqual(seen,[(file.id,True)]);self.assertIn('heard the recital',self.calls[-1][0])
+            voice=self.c.add('',10000,reply=self.sent[-1]+1);voice.voice=True;await g.step();self.assertEqual(seen[-1],(voice.id,False))
+            file.chat_id=-44;self.c.add('@my_agent foreign',10000,reply=file.id);await g.step();self.assertEqual(len(seen),2)
+            self.mode='off';m=self.c.add('@my_agent',10000);m.voice=True;await g.step();self.assertEqual(len(seen),2)
+
     def test_archive_does_not_grant_replies(self):
         bind(self.base,'lightcone',-7,True);p=self.base/'reply-bindings.json';self.assertFalse(p.exists())
         bind(self.base,'lightcone',-7,replies=True);self.assertEqual(read(p,{}),{'lightcone':-7})

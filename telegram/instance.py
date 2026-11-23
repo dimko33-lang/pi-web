@@ -22,7 +22,7 @@ from telegram_blocks import message_parts, verify_blocks
 from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
-from voice_notes import is_voice, recognize, voice_prompt, VoiceError
+from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -195,10 +195,10 @@ async def tool_turn(e):
     prepared_edit = None
     raw=e.raw_text or ''
     voice=is_voice(getattr(e,'message',None))
+    if profile.get('replyMode')=='off': return '',None
+    async def download(message,**kwargs): return await message.download_media(**kwargs)
     if voice:
-        if profile.get('replyMode')=='off': return '',None
-        async def download(message,**kwargs): return await message.download_media(**kwargs)
-        try: raw=voice_prompt(await recognize(e.message,download))
+        try: raw=(raw+'\n\n' if raw else '')+voice_prompt(await recognize(e.message,download))
         except VoiceError as exc: return str(exc),None
     direct = None if voice else re.fullmatch(r'/(image|science)\s+([\s\S]+)', raw)
     if direct and not tools: return 'Tools are off for this conversation.', None
@@ -213,6 +213,7 @@ async def tool_turn(e):
         if getattr(e.message, 'reply_to_msg_id', None):
             candidate = await e.get_reply_message()
             if candidate and candidate.chat_id == e.chat_id: quoted = candidate
+        if is_voice(quoted):raw+='\n\n'+await audio_context(quoted,download,quoted=True)
         if attachment_type(e.message) or attachment_type(quoted):
             async with sampled_inputs(e.message, quoted) as (frames, note):
                 text = await answer(raw+'\n\n'+note, profile, frames=frames)
