@@ -20,7 +20,7 @@ The default Linux installer now applies a real browser turn privilege boundary u
 
 `My DM → Request JSON` now uses the reference one-use ticket/socket protocol and Pi's `before_provider_request` hook. Only a private authenticated card panel can arm it. Send a new plain `ok` from the enrolled owner with Tools, Memory and Response style off; no group or guest turn loads the hook. The request body stays in controller memory for at most ten minutes and is never part of Save. `tests/request-inspection.mjs` compares the capture to the JSON received by a loopback provider using the real installed Pi CLI, without a live Telegram login or subscription.
 
-Addressed Telegram GIF/video attachments and same-chat replies now use a shared memory-only WebAssembly decoder and the existing image-input path. `tests/motion-frames.mjs` verifies ordered GIF and MP4 samples at a local provider, including exclusion for a text-only model. No audio or linked video retrieval.
+Addressed Telegram GIF/video attachments and same-chat replies now use a shared WebAssembly decoder with read-only, seekable access to one temporary input file and the existing image-input path. `tests/motion-frames.mjs` verifies ordered GIF and MP4 samples at a local provider, including exclusion for a text-only model. No audio or linked video retrieval.
 
 Still incomplete: other group attachments and role-specific tools, exact message-window handling, and end-to-end boot/recovery on a blank Linux host. The card is not yet a verified replica.
 

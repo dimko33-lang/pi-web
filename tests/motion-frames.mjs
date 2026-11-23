@@ -22,6 +22,8 @@ try{
     core.reset();assert.equal(core.exec('-v','error','-f','lavfi','-i',"color=red:s=96x64:r=6:d=2,drawbox=color=blue:t=fill:enable='gte(t,1)'",'test.'+ext),0);
     await fs.writeFile(path.join(tmp,'test.'+ext),core.FS.readFile('test.'+ext));
   }
+  core.reset();assert.equal(core.exec('-v','error','-f','lavfi','-i','color=green:s=64x64','-frames:v','1','photo.png'),0);
+  await fs.writeFile(tmp+'/photo.png',core.FS.readFile('photo.png'));
   await new Promise(r=>provider.listen(0,'127.0.0.1',r));
   await fs.mkdir(tmp+'/agent');await fs.mkdir(tmp+'/state');await fs.mkdir(tmp+'/data');
   await fs.writeFile(tmp+'/agent/models.json',JSON.stringify({providers:{fixture:{baseUrl:`http://127.0.0.1:${provider.address().port}/v1`,api:'openai-completions',models:['vision','text'].map(id=>({id,name:id,input:id==='vision'?['text','image']:['text'],contextWindow:100000,maxTokens:128}))}}}));
@@ -45,13 +47,26 @@ async def go():
         if ext=='foreign':clip.chat_id=2
         instance.owner_profile=lambda:{'model':'fixture/'+('text' if ext=='text' else 'vision'),'toolsOn':False,'memory':False}
         assert await instance.tool_turn(incoming)==('ok',None)
-    clip.file.size=5_000_001
-    async with sampled_inputs(clip) as (files,note):assert not files and '5 MB' in note
-    clip.file.size=12;clip.data=b'invalid file'
+    clip.file.size=4*1024**3+1
+    async with sampled_inputs(clip) as (files,note):assert not files and '4 GiB' in note
+    clip.data=b'invalid file';clip.file.size=len(clip.data)
     async with sampled_inputs(clip) as (files,note):assert not files and 'not viewed' in note
+    clip.file.mime_type='text/plain';clip.file.name='large.txt';clip.data=b'X'*6_000_000;clip.file.size=len(clip.data)
+    async with sampled_inputs(clip) as (files,note):assert not files and 'First 120000' in note and len(note)<121000
+    clip.file.mime_type='image/png';clip.file.name='large.png';clip.data=(base/'photo.png').read_bytes()+b'\\0'*6_000_000;clip.file.size=len(clip.data)
+    async with sampled_inputs(clip) as (files,note):assert len(files)==1 and files[0].read_bytes()[:2]==bytes([255,216])
+    assert not files[0].exists()
+    if os.environ.get('MOTION_TEST_FILE'):
+        p=Path(os.environ['MOTION_TEST_FILE']); incoming.message=NS(reply_to_msg_id=None,file=NS(size=p.stat().st_size,mime_type='video/mp4'))
+        async def download(file):
+            with p.open('rb') as src:
+                while chunk:=src.read(256*1024): file.write(chunk)
+        incoming.message.download_media=download;instance.owner_profile=lambda:{'model':'fixture/vision','toolsOn':False,'memory':False}
+        assert await instance.tool_turn(incoming)==('ok',None)
 asyncio.run(go())`;
-  await run(process.env.TEST_TELEGRAM_PYTHON||'python3',['-B','-c',py],{timeout:90000,env:{PATH:process.env.PATH,HOME:tmp,NIKITA_INSTANCE_DIR:tmp+'/state',PI_WEB_TELEGRAM_DATA:tmp+'/data',PI_CODING_AGENT_DIR:tmp+'/agent',PI_WEB_PI_BIN:process.env.PI_WEB_PI_BIN||'pi'}});
-  assert.equal(seen.length,4);
+  await run(process.env.TEST_TELEGRAM_PYTHON||'python3',['-B','-c',py],{timeout:120000,env:{PATH:process.env.PATH,MOTION_TEST_FILE:process.env.MOTION_TEST_FILE||'',HOME:tmp,NIKITA_INSTANCE_DIR:tmp+'/state',PI_WEB_TELEGRAM_DATA:tmp+'/data',PI_CODING_AGENT_DIR:tmp+'/agent',PI_WEB_PI_BIN:process.env.PI_WEB_PI_BIN||'pi'}});
+  assert.equal(seen.length,process.env.MOTION_TEST_FILE?5:4);
+  if(seen.length===5){const img=seen.pop().messages.at(-1).content.find(b=>b.type==='image_url');assert.ok(img?.image_url.url.startsWith('data:image/jpeg;base64,'));console.log('Optional real clip: JPEG samples reached the test provider.');}
   for(const [i,req] of seen.entries()){
     const content=req.messages.at(-1).content;const images=Array.isArray(content)?content.filter(p=>p.type==='image_url'):[];
     assert.equal(images.length,i<2?1:0,`image input case ${i}`);

@@ -8,7 +8,7 @@ import time
 import unicodedata
 
 from lc_recovery import ReplyQueue, WINDOW
-from motion_frames import motion_type, sampled_inputs
+from motion_frames import attachment_type, sampled_inputs
 from salon_archive import GROUPS, read
 
 log = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ class Group:
     async def handle(self, msg, retry=False):
         if not msg or msg.chat_id != self.peer or msg.out or not msg.sender_id: return
         text = (msg.raw_text or '').strip()
-        if (not text and not motion_type(msg)) or text.startswith('/'): return
+        if (not text and not attachment_type(msg)) or text.startswith('/'): return
         profile, mode, names = self.policy(self.tab, self.peer)
         if mode not in ('mention_reply', 'mentions', 'addressed', 'all'): return
         q = self.queue
@@ -101,7 +101,7 @@ class Group:
         if quoted: prompt += '\n\n[Reply target, quoted context]:\n' + (quoted.raw_text or '')[:12000]
         async with self.client.action(self.peer, 'typing'):
             address = ADDRESSING if candidate else ''
-            if (direct or candidate) and (motion_type(msg) or motion_type(quoted)):
+            if (direct or candidate) and (attachment_type(msg) or attachment_type(quoted)):
                 async with sampled_inputs(msg, quoted) as (frames, note):
                     result = await self.infer(prompt+'\n\n'+note, profile, self.peer, address, frames=frames)
             else:

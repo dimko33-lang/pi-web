@@ -21,7 +21,7 @@ from telethon.sessions import StringSession
 from telegram_blocks import message_parts, verify_blocks
 from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
-from motion_frames import motion_type, sampled_inputs
+from motion_frames import attachment_type, sampled_inputs, PHOTOS
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -94,7 +94,7 @@ async def enroll():
 
 
 def owner_dm(e, owner):
-    return bool(e.is_private and not e.out and e.sender_id == owner and e.chat_id == owner and ((e.raw_text or '').strip() or motion_type(getattr(e, 'message', None))))
+    return bool(e.is_private and not e.out and e.sender_id == owner and e.chat_id == owner and ((e.raw_text or '').strip() or attachment_type(getattr(e, 'message', None))))
 
 
 def conversation_profile(name):
@@ -191,6 +191,7 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
 async def tool_turn(e):
     profile = owner_profile()  # Pin one settings snapshot for inference and dispatch.
     tools = profile.get('toolsOn', True)
+    prepared_edit = None
     direct = re.fullmatch(r'/(image|science)\s+([\s\S]+)', e.raw_text or '')
     if direct and not tools: return 'Tools are off for this conversation.', None
     if direct:
@@ -204,9 +205,12 @@ async def tool_turn(e):
         if getattr(e.message, 'reply_to_msg_id', None):
             candidate = await e.get_reply_message()
             if candidate and candidate.chat_id == e.chat_id: quoted = candidate
-        if motion_type(e.message) or motion_type(quoted):
+        if attachment_type(e.message) or attachment_type(quoted):
             async with sampled_inputs(e.message, quoted) as (frames, note):
                 text = await answer((e.raw_text or '')+'\n\n'+note, profile, frames=frames)
+                if tools and text.lstrip().startswith('{'):
+                    photo=next((p for p in frames if p.name.startswith('photo-')),None)
+                    if photo: prepared_edit=base64.b64encode(photo.read_bytes()).decode()
         else:
             text = await answer(e.raw_text, profile, inspect_owner=test)
         if not tools: return text, None
@@ -216,16 +220,17 @@ async def tool_turn(e):
     image = action['nikita_tool']=='image'; field = 'prompt' if image else 'code'
     if not isinstance(action.get(field), str): raise RuntimeError('Invalid tool request')
     request = {'action':action['nikita_tool'],field:action[field]}
-    if image:
+    if image and prepared_edit:
+        request['image']=prepared_edit
+    elif image:
         source = e.message
-        if not source.photo and source.reply_to_msg_id:
+        if attachment_type(source) not in PHOTOS and source.reply_to_msg_id:
             candidate = await e.get_reply_message()
             if candidate and candidate.chat_id == e.chat_id: source = candidate
-        if source.photo:
-            if not source.file or not 0 < (source.file.size or 0) <= 5_000_000: raise RuntimeError('Invalid image source size')
-            raw = await source.download_media(file=bytes)
-            if not raw or len(raw)>5_000_000: raise RuntimeError('Invalid image')
-            request['image']=base64.b64encode(raw).decode()
+        if attachment_type(source) in PHOTOS:
+            async with sampled_inputs(source) as (frames,note):
+                if not frames: raise RuntimeError(note)
+                request['image']=base64.b64encode(frames[0].read_bytes()).decode()
     # Commit before dispatch: reconnects cannot silently purchase the same generation twice.
     db=sqlite3.connect(BASE/'tool-turns.sqlite');
     try:
