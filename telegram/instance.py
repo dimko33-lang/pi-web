@@ -204,7 +204,7 @@ async def tool_turn(e, *, delivery=None):
         except VoiceError as exc: return str(exc),None
         heard.append(spoken)
         raw=(raw+'\n\n' if raw else '')+voice_prompt(spoken)
-    speak=voice_policy(BASE,getattr(e,'message',None),original,heard,owner_dm=True)
+    speak=voice_policy(BASE,getattr(e,'message',None),original,heard,owner_dm=True,profile=profile)
     if speak and delivery is not None:
         delivery['spoken']=speak;raw+=SPOKEN_HINT
     direct = None if voice else re.fullmatch(r'/(image|science)\s+([\s\S]+)', raw)

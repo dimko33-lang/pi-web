@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import { Router } from 'express';
 
 type Profile = {
+  textOutput?: boolean; voiceOutput?: boolean;
   model: string; thinking: string; systemPrompt: boolean; character: string;
   customPrompt: string; customOn?: boolean; basePrompt?: string; baseOn?: boolean; piOn?: boolean; toolsOn?: boolean; tail: string; tailOn: boolean; memory: boolean;
   memoryLimit: number; backgroundLimit: number; replyMode: string;
@@ -52,14 +53,15 @@ export function createConversationProfiles(options: {
     profiles: catalog.map(entry => ({ id: entry.id, label: entry.label, chatId: entry.chatId,
       chatIds: entry.chatIds || (entry.chatId ? [entry.chatId] : []), kind: entry.kind || 'group',
       notice: options.notice?.(entry) || '',
-      independent: !!data.profiles[entry.id], settings: { piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
+      independent: !!data.profiles[entry.id], settings: { textOutput: false, voiceOutput: false, piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
         ...options.defaults(entry), ...data.profiles[entry.id] } }))
   });
   const validate = async (input: any, entry: CatalogEntry): Promise<Profile> => {
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('Invalid profile');
-    const allowed = ['piOn', 'model', 'thinking', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn', 'tail', 'tailOn',
+    const allowed = ['textOutput', 'voiceOutput', 'piOn', 'model', 'thinking', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn', 'tail', 'tailOn',
       'memory', 'memoryLimit', 'backgroundLimit', 'replyMode'];
     if (Object.keys(input).some(key => !allowed.includes(key))) throw Error('Unknown profile field');
+    for (const key of ['textOutput','voiceOutput']) if (input[key] !== undefined && typeof input[key] !== 'boolean') throw Error('Invalid ' + key);
     if (input.piOn !== undefined && typeof input.piOn !== 'boolean') throw Error('Invalid piOn');
     for (const key of ['systemPrompt', 'customOn', 'baseOn', 'toolsOn', 'tailOn', 'memory']) if (typeof input[key] !== 'boolean') throw Error('Invalid ' + key);
     for (const [key, limit] of [['basePrompt', 30000], ['character', 8000], ['customPrompt', 20000], ['tail', 4000]] as const) {
@@ -110,6 +112,8 @@ export function createConversationProfiles(options: {
       const previous = { ...(inherited || options.defaults(entry)), ...data.profiles[entry.id] };
       if (!next) next = { ...previous };
       else if (next.piOn === undefined) next.piOn = previous.piOn ?? false; // Older panel tabs preserve the setting.
+      next.textOutput ??= previous.textOutput ?? false;
+      next.voiceOutput ??= previous.voiceOutput ?? false;
       const reset = req.body.action === 'reset';
       const restore = req.body.action === 'restore';
       // Both history actions rotate the generation so Telegram repins its local floor.

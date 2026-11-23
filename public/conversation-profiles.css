@@ -61,6 +61,8 @@ main {max-width:850px}
 .intro,.section-heading,form .hint,.reply-hint,.profile-picker-field>span,#status:empty {display:none}
 main section {border:0;padding-top:0}
 .field-heading {border-top:1px solid var(--divider-ink);margin-top:10px;padding-top:4px}
+form .hint[data-format-hint] {display:block}
+.field-heading[aria-label="Reply format"] {justify-content:flex-start}
 .field-heading .toggle {position:relative;display:inline-flex;align-items:center;min-height:36px;margin:0;font:inherit;cursor:pointer;user-select:none;-webkit-user-select:none}
 .toggle input {position:absolute;opacity:0;width:1px;height:1px}
 .toggle:has(:focus-visible) {outline:1px solid currentColor}

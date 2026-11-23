@@ -109,7 +109,7 @@ class Group:
                 for source, is_quote in ((msg,False),(quoted,True)):
                     if is_voice(source):
                         prompt+='\n\n'+await audio_context(source,self.client.download_media,quoted=is_quote,on_current_speech=None if is_quote else heard.append)
-            speak=voice_policy(self.state.base,msg,text,heard)
+            speak=voice_policy(self.state.base,msg,text,heard,profile=profile)
             if speak:prompt+=SPOKEN_HINT
             if (direct or candidate) and (attachment_type(msg) or attachment_type(quoted)):
                 async with sampled_inputs(msg, quoted) as (frames, note):

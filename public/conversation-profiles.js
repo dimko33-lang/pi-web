@@ -15,7 +15,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     if (active instanceof HTMLTextAreaElement && active !== event.target) active.blur();
   });
   const endpoint = '/api/conversation-profiles';
-  const fields = ['piOn', 'model', 'thinking', 'replyMode', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn',
+  const fields = ['textOutput', 'voiceOutput', 'piOn', 'model', 'thinking', 'replyMode', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn',
     'tail', 'tailOn', 'memory', 'memoryLimit', 'backgroundLimit'];
   const status = document.querySelector('#status');
   const editors = new Map();
@@ -57,6 +57,10 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     const hint = editor.section.querySelector('[data-reply-hint]');
     if (hint.textContent !== text) hint.textContent = text;
   };
+  function formatHint(form) {
+    const text = form.elements.textOutput.checked, voice = form.elements.voiceOutput.checked;
+    form.querySelector('[data-format-hint]').textContent = (voice ? (text ? 'Match the incoming message: microphone notes get voice; everything else gets text.' : 'Voice replies in this conversation.') + ' Short answers go to Google Gacrux; unavailable voice is delivered as text.' : text ? 'Text replies only in this conversation.' : 'Using the instance default. Neither switch overrides it.') + ' Save to apply changes.';
+  }
   const currentSettings = editor => Object.fromEntries(fields.map(name => {
     const input = editor.form.elements[name];
     return [name, input.type === 'checkbox' ? input.checked : input.type === 'number' ? input.valueAsNumber : input.value];
@@ -123,6 +127,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       else input.value = item.settings[name];
     }
     updateReplyHint(editor);
+    formatHint(editor.form);
     for (const picker of editor.pickers) picker.refresh();
     void updateThinking(editor, item.settings.thinking);
   }
@@ -203,6 +208,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     });
     const editor = { section, form, tab, item, pickers, feedback: form.querySelector('.feedback'), baseline: null,
       dirty: false, conflict: false, metadataGeneration: 0, metadataPending: false };
+    for (const name of ['textOutput','voiceOutput']) form.elements[name].addEventListener('change', () => formatHint(form));
     form.elements.model.addEventListener('change', () => { void updateThinking(editor, ''); });
     form.elements.replyMode.addEventListener('change', () => { updateReplyHint(editor); });
     const dirty = () => {

@@ -40,6 +40,19 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
             return q.synthesize('sample',req)
         self.assertEqual(check(url),wav)
         with self.assertRaises(ValueError):check('https://example.invalid/audio.wav')
+    def test_profile_format(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            base=Path(d);(base/'voice-all-gacrux.enabled').mkdir()
+            for text,voice,expected in [(False,False,(True,True)),(True,False,(False,False)),(False,True,(True,True)),(True,True,(False,True))]:
+                prefs=dict(textOutput=text,voiceOutput=voice)
+                for incoming,want in zip([False,True],expected):
+                    mode=tts.voice_policy(base,NS(voice=incoming),'Поговори со мной' if text else 'Привет',profile=prefs)
+                    self.assertEqual(mode,'gacrux' if want else False)
+            prefs=dict(textOutput=True,voiceOutput=True)
+            for msg in (NS(voice=True,fwd_from=True),NS(audio=True),NS(reply_to_msg_id=41)):
+                self.assertFalse(tts.voice_policy(base,msg,'Привет',['поговори со мной'],profile=prefs))
     def test_owner_persistent_mode(self):
         from pathlib import Path
         import tempfile

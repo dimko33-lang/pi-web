@@ -50,9 +50,13 @@ def requested(message,text,*,transcribed=False):
 def requested_turn(message,text,heard=()):
     return requested(message,text) or next((v for s in heard if (v:=requested(message,s,transcribed=True))),False)
 
-def voice_policy(base,message,text,heard=(),*,owner_dm=False):
+def voice_policy(base,message,text,heard=(),*,owner_dm=False,profile=None):
     # Called only after chat admission. Quotes/history never select an output mode.
     if text.startswith('/') or (owner_dm and text.strip().lower()=='ok' and not getattr(message,'media',None)):return False
+    prefs=profile or {};typed=prefs.get('textOutput') is True;voice=prefs.get('voiceOutput') is True
+    if typed or voice:
+        microphone=bool(getattr(message,'voice',None)) and not getattr(message,'fwd_from',None)
+        return 'gacrux' if voice and (not typed or microphone) else False
     inputs=(text,*heard) if getattr(message,'voice',None) else (text,)
     if any(re.match(PREFIX+r'(?:ответь|напиши)(?:\s+мне)?\s+текстом'+END,s,re.I) for s in inputs):return False
     return requested_turn(message,text,heard) or ('gacrux' if (base/'voice-all-gacrux.enabled').is_dir() else False)

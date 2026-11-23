@@ -208,6 +208,7 @@
     "tests/motion-frames.mjs",
     "tests/personality.mjs",
     "tests/profile-install.mjs",
+    "tests/profile-reply-format.mjs",
     "tests/profile-theme.mjs",
     "tests/reply-recovery.py",
     "tests/request-inspection.mjs",
