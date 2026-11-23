@@ -8,6 +8,8 @@ The current installable release is [v0.10.3](https://github.com/dimko33-lang/pi-
 
 **Need to recover the voice name, connect Telegram or maintain the installation?** Open the [local operator handbook](server/handbook/START-HERE.md). The installer prints its path (normally `~/PiWebRuntime/app/server/handbook/START-HERE.md`). In the stock isolated Linux browser workspace the same index is readable at `/opt/app/server/handbook/START-HERE.md` without Root. Ask the maintenance agent to open the index and read only the matching note; these files are not automatically loaded into conversations.
 
+**Nikita's reference voice is already selected for Gemini enrollment.** With your own Google project/key, the bundled [Gacrux setup](server/handbook/voice-output.md) uses `gemini-3.1-flash-tts-preview`, `Gacrux`, and the exact approved third-audition direction (`gacrux-C-v1`). No AI Studio voice selection is required. Enrollment does not turn on cloud replies for every chat. Git supplies the voice recipe and seven starter profiles, not the owner's current Response style or per-chat switches. To reproduce a customized instance, separately keep a private snapshot of `tail`, `tailOn`, `textOutput`, `voiceOutput` per profile and its `/voice_all` default; restore these after enrollment, not the old Telegram session or a shared API key.
+
 ## Try it
 
 On macOS or Linux, run this in a terminal. For the full server setup, use a spare Debian or Ubuntu server with systemd and run it as root over SSH.
