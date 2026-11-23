@@ -71,6 +71,10 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
         def post(req,**kw):
             self.assertEqual(req.full_url,google.URL);self.assertNotIn('example-key',req.full_url);self.assertEqual(req.get_header('X-goog-api-key'),'example-key')
             payload=json.loads(req.data);self.assertEqual(payload['generationConfig']['speechConfig']['voiceConfig']['prebuiltVoiceConfig']['voiceName'],'Gacrux')
+            # Approved audition C: freeze the full wire settings for the fixed utterance 'test'.
+            import hashlib
+            fixture=json.dumps([req.full_url,payload],sort_keys=True,separators=(',',':')).encode()
+            self.assertEqual(hashlib.sha256(fixture).hexdigest(),'9237a7fb29d1630ec9348bfe3e0b2e7e79f35496b1fcf46840238afc2d29a2c2')
             data={'mimeType':'audio/l16; rate=24000; channels=1','data':base64.b64encode(b'\0\1'*100).decode()};return BytesIO(json.dumps({'candidates':[{'content':{'parts':[{'inlineData':data}]}}]}).encode())
         with wave.open(BytesIO(google.render('test','example-key',post))) as audio:self.assertEqual((audio.getframerate(),audio.getnframes()),(24000,100))
         self.assertIn('Gacrux',tts.cloud_failure('gacrux'))

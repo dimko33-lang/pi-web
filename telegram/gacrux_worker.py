@@ -15,7 +15,7 @@ class NoRedirect(http.HTTPRedirectHandler):
 
 def render(text,key,open_url):
     if not 0<len(text.strip())<=600: raise ValueError('Short speech required')
-    style='Read the dialogue verbatim. Use a slightly higher, lighter adult register, like a composed woman in her early forties. Speak with the cool courtesy of a nineteenth-century Russian salon hostess: unhurried, faintly imperious, never scolding. Let dry irony come through a small pause rather than a smile or theatrical emphasis. Keep natural Russian word stress. If the text switches to French, pronounce that phrase naturally in French, then return to Russian; never add or translate words.\n\n'
+    style='Say these exact words in Russian to one adult standing opposite you. This is an ordinary conversation, not a reading. Use your comfortable middle register. State the first thought plainly and finish it. Take one quiet beat before the last clause. Let the final stressed syllable settle downwards. Your face is at rest: no audible smile, no coaxing, no disdain to perform. The irony is in the wording; leave it there.\n\n'
     payload={'contents':[{'parts':[{'text':style+text}]}],'generationConfig':{'responseModalities':['AUDIO'],'speechConfig':{'voiceConfig':{'prebuiltVoiceConfig':{'voiceName':'Gacrux'}}}}}
     req=http.Request(URL,data=json.dumps(payload).encode(),headers={'Content-Type':'application/json','x-goog-api-key':key})
     with open_url(req,timeout=48) as response: raw=response.read(12*1024**2+1)
