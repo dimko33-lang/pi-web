@@ -15,6 +15,30 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
         for s in ('не поговори со мной','Она сказала: «поговори со мной».','поговори со мною','поговори со мнойкой','привет'):
             self.assertFalse(tts.requested(m,s))
         self.assertFalse(tts.requested(NS(fwd_from=True),'Поговори со мной'))
+    async def test_one_cloud_turn(self):
+        phrase='Ответь облачным голосом. Как дела?';m=NS(fwd_from=None,voice=True)
+        self.assertEqual(tts.requested_turn(m,'',[phrase]),'qwen')
+        self.assertEqual(tts.requested_turn(m,'@nikita Ответь голосом Qwen!'),'qwen')
+        self.assertIs(tts.requested_turn(m,'Поговори со мной'),True)
+        self.assertFalse(tts.requested_turn(m,'Она сказала: «Ответь голосом Qwen»'))
+        m.voice=None;self.assertFalse(tts.requested_turn(m,'',[phrase]))
+        m.fwd_from=True;self.assertFalse(tts.requested_turn(m,phrase))
+        client=NS(send_file=AsyncMock());self.assertIsNone(await tts.send_spoken(client,9,1,'x'*601,mode='qwen'));client.send_file.assert_not_awaited()
+    def test_cloud_protocol(self):
+        from io import BytesIO
+        import json,qwen_tts as q
+        url=q.HOST+'/gradio_api/file=/tmp/gradio/'+'b'*64+'/audio.wav';wav=b'RIFF1234WAVEdata'
+        def check(link):
+            calls=[]
+            def req(target,**kw):
+                calls.append(target)
+                if len(calls)==1:
+                    self.assertEqual(json.loads(target.data)['data'],['sample','Russian',q.STYLE]);return BytesIO(b'{"event_id":"' + b'a'*32 + b'"}')
+                if len(calls)==2:return BytesIO(b'event: complete\ndata: '+json.dumps([{'url':link}]).encode()+b'\n')
+                self.assertEqual(target,url);return BytesIO(wav)
+            return q.synthesize('sample',req)
+        self.assertEqual(check(url),wav)
+        with self.assertRaises(ValueError):check('https://example.invalid/audio.wav')
     async def test_spoken_then_reset(self):
         for voice,raw,expected in [(False,'Поговори со мной: зачем?',True),(True,'',True),(False,'а дальше?',False)]:
             m=NS(voice=voice,fwd_from=None,reply_to_msg_id=None,media=voice);out={}
@@ -27,7 +51,7 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(ConnectionError):await tts.send_spoken(client,9,1,'ok')
             client.send_file.assert_awaited_once()
 
-async def loopback():
+async def loopback(mode=True):
     calls=[]
     async def send(peer,stream,**opts):
         assert peer==7 and opts['reply_to']==42 and opts['voice_note'] and opts['mime_type']=='audio/ogg'
@@ -37,9 +61,10 @@ async def loopback():
         heard=await recognize(NS(voice=True,file=NS(size=len(data))),download)
         assert 'привет' in heard.lower() and 'никита' in heard.lower(),heard
         calls.append(1);return NS(id=43)
-    msg=await tts.send_spoken(NS(send_file=send),7,42,'Привет, Дим. Это Никита.');assert msg and msg.id==43 and calls==[1]
-    print('Local Irina -> Ogg/Opus -> Telegram voice attributes and reply target -> local GigaAM. No Telegram send.')
+    msg=await tts.send_spoken(NS(send_file=send),7,42,'Привет, Дим. Это Никита.',mode=mode);assert msg and msg.id==43 and calls==[1]
+    print(('Public Qwen demo' if mode=='qwen' else 'Local Irina')+' -> Ogg/Opus -> Telegram voice attributes and reply target -> local GigaAM. No Telegram send.')
 
 if __name__=='__main__':
     if '--live' in sys.argv:sys.argv.remove('--live');asyncio.run(loopback())
+    if '--cloud-live' in sys.argv:sys.argv.remove('--cloud-live');asyncio.run(loopback('qwen'))
     unittest.main()

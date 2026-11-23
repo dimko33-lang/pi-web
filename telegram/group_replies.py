@@ -10,7 +10,7 @@ import unicodedata
 from lc_recovery import ReplyQueue, WINDOW
 from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
-from spoken_reply import requested as speak_requested, HINT as SPOKEN_HINT
+from spoken_reply import requested_turn, HINT as SPOKEN_HINT
 from salon_archive import GROUPS, read
 
 log = logging.getLogger(__name__)
@@ -108,7 +108,7 @@ class Group:
                 for source, is_quote in ((msg,False),(quoted,True)):
                     if is_voice(source):
                         prompt+='\n\n'+await audio_context(source,self.client.download_media,quoted=is_quote,on_current_speech=None if is_quote else heard.append)
-            speak=any(speak_requested(msg,s) for s in (text,*heard))
+            speak=requested_turn(msg,text,heard)
             if speak:prompt+=SPOKEN_HINT
             if (direct or candidate) and (attachment_type(msg) or attachment_type(quoted)):
                 async with sampled_inputs(msg, quoted) as (frames, note):
@@ -120,7 +120,7 @@ class Group:
         if q and direct: q.forget(msg.id)
         if self.policy(self.tab, self.peer)[1] != mode: return
         if result and result.strip() != '[NO_REPLY]':
-            if speak:await self.send(msg,result,spoken=True)
+            if speak:await self.send(msg,result,spoken=speak)
             else:await self.send(msg,result)
 
     async def step(self):

@@ -23,7 +23,7 @@ from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
 from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
-from spoken_reply import requested as speak_requested, send_spoken, HINT as SPOKEN_HINT
+from spoken_reply import requested as speak_requested, send_spoken, CLOUD_FAILED, HINT as SPOKEN_HINT
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -202,10 +202,10 @@ async def tool_turn(e, *, delivery=None):
     if voice:
         try: spoken=await recognize(e.message,download)
         except VoiceError as exc: return str(exc),None
-        speak=speak or speak_requested(e.message,spoken)
+        speak=speak or speak_requested(e.message,spoken,transcribed=True)
         raw=(raw+'\n\n' if raw else '')+voice_prompt(spoken)
     if speak and delivery is not None:
-        delivery['spoken']=True;raw+=SPOKEN_HINT
+        delivery['spoken']=speak;raw+=SPOKEN_HINT
     direct = None if voice else re.fullmatch(r'/(image|science)\s+([\s\S]+)', raw)
     if direct and not tools: return 'Tools are off for this conversation.', None
     if direct:
@@ -274,9 +274,10 @@ async def serve():
     archive = SalonArchive(BASE, owner)
     async def send_group(msg, text, *, spoken=False):
         if spoken:
-            note=await send_spoken(c,msg.chat_id,msg.id,text)
+            note=await send_spoken(c,msg.chat_id,msg.id,text,mode=spoken)
             if note:
                 archive.notify(msg.chat_id,note.id);return
+            if spoken=='qwen':text=CLOUD_FAILED+text
         for body, entities in message_parts(text, formatted=True):
             sent = await msg.reply(body, formatting_entities=entities, link_preview=False)
             archive.notify(msg.chat_id, sent.id)
@@ -306,9 +307,10 @@ async def serve():
         except (RuntimeError, OSError, ValueError, KeyError, asyncio.TimeoutError):
             await e.reply('Could not complete the request. Check the selected provider, its image access, or the science service.'); return
         if delivery.get('spoken') and text:
-            note=await send_spoken(c,owner,e.id,text)
+            note=await send_spoken(c,owner,e.id,text,mode=delivery['spoken'])
             if note:
                 archive.notify(owner,note.id);return
+            if delivery['spoken']=='qwen':text=CLOUD_FAILED+text
         for body, entities in message_parts(text, formatted=True):
             sent = await e.reply(body, formatting_entities=entities, link_preview=False)
             archive.notify(owner, sent.id)

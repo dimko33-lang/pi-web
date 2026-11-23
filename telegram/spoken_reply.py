@@ -1,4 +1,4 @@
-"""Opt-in, one-turn speech delivery after the normal conversation admission checks. No ambient mode or network TTS."""
+"""Opt-in, one-turn speech delivery after the normal conversation admission checks. Local by default; cloud only on an explicit current-turn request."""
 import asyncio
 from array import array
 import io
@@ -13,11 +13,20 @@ from telethon import types,utils
 ASSETS=Path(sys.prefix)/'nikita-speech-irina-v1'
 ENCODER=Path(__file__).resolve().parent/'media-decoder/voice-pack.cjs'
 SLOT=asyncio.Semaphore(1)
-TRIGGER=re.compile(r'^\s*(?:@[\w]+[\s,!:—–-]+)?(?:никита[\s,!:—–-]+|[а-яё]{2,24},\s+)?поговори\s+со\s+мной(?=$|[\s,.!?:;…—–-])',re.I)
+PREFIX=r'^\s*(?:@[\w]+[\s,!:—–-]+)?(?:никита[\s,!:—–-]+|[а-яё]{2,24},\s+)?'
+END=r'(?=$|[\s,.!?:;…—–-])'
+TRIGGER=re.compile(PREFIX+r'поговори\s+со\s+мной'+END,re.I)
+CLOUD=re.compile(PREFIX+r'ответь\s+(?:облачным\s+голосом|голосом\s+(?:qwen|квен))'+END,re.I)
+CLOUD_FAILED='Не удалось озвучить ответ через Qwen. Вот он текстом:\n\n'
 HINT='\n\n[Delivery: this one reply will be spoken aloud. Answer the user directly in a few natural sentences, without markup.]'
 
-def requested(message,text):
-    return not getattr(message,'fwd_from',None) and bool(TRIGGER.match(text or ''))
+def requested(message,text,*,transcribed=False):
+    if getattr(message,'fwd_from',None):return False
+    if CLOUD.match(text or '') and (not transcribed or getattr(message,'voice',None)):return 'qwen'
+    return bool(TRIGGER.match(text or ''))
+
+def requested_turn(message,text,heard=()):
+    return requested(message,text) or next((v for s in heard if (v:=requested(message,s,transcribed=True))),False)
 
 async def run(argv,*,stdin,stdout,env=None,data=None):
     proc=await asyncio.create_subprocess_exec(*argv,stdin=stdin,stdout=stdout,stderr=asyncio.subprocess.DEVNULL,env=env)
@@ -31,21 +40,26 @@ async def run(argv,*,stdin,stdout,env=None,data=None):
             except ProcessLookupError:pass
             await proc.wait()
 
-async def prepare(text):
+async def prepare(text,*,cloud=False):
     # Never truncate a substantive answer to fit; fall back to its original text.
-    if not text or len(text)>1400 or '```' in text:return None
+    if not text or len(text)>(600 if cloud else 1400) or '```' in text:return None
+    if cloud and re.search(r'https?://|sk-[A-Za-z0-9_-]{12,}|-----BEGIN .*KEY-----',text,re.I):return None
     line=' '.join(text.replace('**','').split())
     if not line:return None
     async with SLOT:
         try:
             with tempfile.TemporaryDirectory(prefix='nikita-speech-') as folder:
                 wav=Path(folder)/'reply.wav';piper=ASSETS/'piper';env={'PATH':os.environ.get('PATH','/usr/bin:/bin'),'LD_LIBRARY_PATH':str(piper),'OMP_NUM_THREADS':'1'}
-                await run([str(piper/'piper'),'-q','-m',str(ASSETS/'irina.onnx'),'--espeak_data',str(piper/'espeak-ng-data'),'--length_scale','1.08','--sentence_silence','0.35','-f',str(wav)],stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.DEVNULL,env=env,data=(line+'\n').encode())
+                if cloud:
+                    with wav.open('xb') as dst:
+                        await run([sys.executable,'-I','-B',str(Path(__file__).with_name('qwen_tts.py'))],stdin=asyncio.subprocess.PIPE,stdout=dst,env={'PATH':env['PATH']},data=line.encode())
+                else:await run([str(piper/'piper'),'-q','-m',str(ASSETS/'irina.onnx'),'--espeak_data',str(piper/'espeak-ng-data'),'--length_scale','1.08','--sentence_silence','0.35','-f',str(wav)],stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.DEVNULL,env=env,data=(line+'\n').encode())
                 if not 44<wav.stat().st_size<=16*1024**2:return None
                 with wave.open(str(wav),'rb') as src:
                     n=src.getnframes();rate=src.getframerate()
                     if src.getnchannels()!=1 or src.getsampwidth()!=2 or not 0<n<=rate*180:return None
                     samples=array('h');samples.frombytes(src.readframes(n));stride=max(1,n//100)
+                    if len(samples)!=n:return None
                     peaks=[max((abs(v) for v in samples[i:i+stride:8]),default=0) for i in range(0,n,stride)][:100];top=max(peaks)
                     if not top:return None
                     waveform=utils.encode_waveform(bytes(round(31*p/top) for p in peaks))
@@ -55,8 +69,8 @@ async def prepare(text):
                 return stream,types.DocumentAttributeAudio(duration=max(1,round(n/rate)),voice=True,waveform=waveform)
         except (OSError,ValueError,EOFError,wave.Error,asyncio.TimeoutError):return None
 
-async def send_spoken(client,peer,mid,text):
-    prepared=await prepare(text)
+async def send_spoken(client,peer,mid,text,*,mode=True):
+    prepared=await prepare(text,cloud=True) if mode=='qwen' else await prepare(text)
     if not prepared:return None
     stream,attr=prepared
     # A transport error after submission is uncertain: never retry it as text here.

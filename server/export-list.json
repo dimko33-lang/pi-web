@@ -189,6 +189,7 @@
     "telegram/media-decoder/voice-pack.cjs",
     "telegram/media-decoder/voice-pcm.cjs",
     "telegram/motion_frames.py",
+    "telegram/qwen_tts.py",
     "telegram/request-inspection.ts",
     "telegram/requirements.lock",
     "telegram/salon_archive.py",
