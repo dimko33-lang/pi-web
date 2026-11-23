@@ -15,11 +15,25 @@ try {
   browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH});const page=await browser.newPage({viewport:{width:390,height:800}});
   await page.goto(`http://127.0.0.1:${server.address().port}/conversation-profiles.html?chat=alpha`);
   const section=page.locator('[data-profile=alpha]');
+  const switches=section.getByRole('group',{name:'Reply format'});
+  await switches.waitFor();assert.equal(await section.locator('[data-format-hint]').count(),0);
+  for(const width of [320,390,1000]) {
+    await page.setViewportSize({width,height:800});
+    const boxes=await Promise.all([section.getByRole('button',{name:'Old Chat'}),...['Text','Voice'].map(n=>switches.getByText(n,{exact:true}))].map(el=>el.boundingBox()));
+    assert.ok(boxes.every((b,i)=>b&&b.x+b.width<=width&&(!i||b.x>boxes[i-1].x+boxes[i-1].width)&&Math.abs(b.y+b.height/2-boxes[0].y-boxes[0].height/2)<2));
+  }
+  for(const theme of ['light','dark']) {
+    await page.evaluate(t=>document.documentElement.dataset.readerTheme=t,theme);
+    const label=switches.getByText('Text',{exact:true});const color=()=>label.evaluate(el=>getComputedStyle(el).color);
+    const off=await color();await label.click();const on=await color();await label.click();
+    assert.equal(off,theme==='light'?'rgb(146, 143, 137)':'rgb(101, 99, 95)');assert.notEqual(on,off);
+    assert.equal(await label.evaluate(el=>getComputedStyle(el,'::before').width),'1px');
+  }
   for(const name of ['Text','Voice'])await section.locator('label.toggle').filter({hasText:new RegExp('^'+name+'$')}).click();
   const saved=page.waitForResponse(r=>r.url().endsWith('/alpha')&&r.request().method()==='POST');await section.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await saved).status(),200);
   const profiles=JSON.parse(readFileSync(path.join(dir,'conversation-profiles.json'))).profiles;
   assert.equal(profiles.alpha.textOutput,true);assert.equal(profiles.alpha.voiceOutput,true);assert.equal(profiles.beta,undefined);
-  await page.reload();await section.getByText(/Match the incoming message/).waitFor();
+  await page.reload();await switches.waitFor();
   for(const name of ['Text','Voice'])assert.ok(await section.getByRole('checkbox',{name,exact:true}).isChecked());
   console.log('Mobile Text + Voice -> Save -> isolated profile on disk -> reload verified.');
 } finally {await browser?.close();server.close();rmSync(dir,{recursive:true,force:true});}

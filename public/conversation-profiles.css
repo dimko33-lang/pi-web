@@ -61,9 +61,8 @@ main {max-width:850px}
 .intro,.section-heading,form .hint,.reply-hint,.profile-picker-field>span,#status:empty {display:none}
 main section {border:0;padding-top:0}
 .field-heading {border-top:1px solid var(--divider-ink);margin-top:10px;padding-top:4px}
-form .hint[data-format-hint] {display:block}
-.field-heading[aria-label="Reply format"] {justify-content:flex-start}
-.field-heading .toggle {position:relative;display:inline-flex;align-items:center;min-height:36px;margin:0;font:inherit;cursor:pointer;user-select:none;-webkit-user-select:none}
+.format-switches {display:inline-flex;align-items:center;gap:var(--tool-gap)}
+:is(.field-heading,.format-switches) .toggle {position:relative;display:inline-flex;align-items:center;min-height:36px;margin:0;font:inherit;cursor:pointer;user-select:none;-webkit-user-select:none}
 .toggle input {position:absolute;opacity:0;width:1px;height:1px}
 .toggle:has(:focus-visible) {outline:1px solid currentColor}
 form textarea,form textarea:focus {field-sizing:content;min-height:1.6em;height:auto;resize:none;padding:0;margin:6px 0 0;overflow:hidden;background:none;border:0;font:inherit;line-height:1.6;color:inherit}
@@ -85,7 +84,7 @@ header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-st
 .profile-toolbar .field-heading {margin:0;border:0;padding:0}
 /* Hairlines sit in the existing gaps, without shifting the controls. */
 .profile-toolbar :is(.profile-picker-field:not(:first-child),.field-heading,.memory-grid,.number-slot) {position:relative}
-.profile-toolbar :is(.profile-picker-field:not(:first-child),.field-heading,.number-slot)::before,.profile-toolbar .actions button + button::before {content:"";position:absolute;inset-inline-start:calc(var(--tool-gap) / -2);top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
+.profile-toolbar :is(.profile-picker-field:not(:first-child),.field-heading,.number-slot)::before,.profile-toolbar .actions button + button::before,.format-switches .toggle::before {content:"";position:absolute;inset-inline-start:calc(var(--tool-gap) / -2);top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
 .model-pair {display:grid;grid-template-columns:minmax(0,1fr) 2.5em;gap:var(--tool-gap);align-items:center;min-width:0}
 .profile-toolbar .profile-picker-list {top:100%;left:0;background:var(--surface);border:0;border-radius:0;padding:0;box-shadow:none}
 .profile-toolbar .profile-picker-option {background:none;border:0;border-radius:0;padding:5px 10px 5px 0;color:#94928f}
@@ -98,10 +97,15 @@ header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-st
 .memory-grid input::-webkit-inner-spin-button,.memory-grid input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .memory-grid input[type=number]:focus {outline:none;box-shadow:none;color:#eee}
 .memory-grid input:disabled,.profile-toolbar button:disabled {opacity:1;color:var(--inactive-ink);-webkit-text-fill-color:var(--inactive-ink)}
-.profile-toolbar .actions {grid-column:1/-1;min-width:0;flex-wrap:nowrap;margin:0;gap:var(--tool-gap)}
+.profile-toolbar .actions {grid-column:1/-1;min-width:0;flex-wrap:wrap;margin:0;gap:0 var(--tool-gap)}
 .profile-toolbar .feedback:empty {display:none}
 .profile-toolbar .actions button {white-space:nowrap;flex:none}
-.profile-toolbar .feedback {min-width:0;overflow-wrap:anywhere}
+.profile-toolbar .feedback {flex-basis:100%;min-width:0;overflow-wrap:anywhere}
+body {--switch-off:#65635f}
+html:is([data-theme=light],[data-reader-theme=light]) body {--switch-off:#928f89}
+form :is(.field-heading,.format-switches) .toggle:has(input:not(:checked)),form .field-heading .instruction-show[aria-expanded=false] {color:var(--switch-off)}
+form .toggle:has(input:checked) {color:var(--ink,#eee);font-weight:600}
+form .toggle:has(input:focus-visible) {outline-color:var(--ink,#eee)}
 @media(max-width:480px){.profile-toolbar{font-size:inherit}.profile-toolbar>.grid:first-child{width:100%;grid-template-columns:minmax(0,1fr) 2.5em}.profile-toolbar .memory-grid input{width:3ch}}
 .profile-toolbar .actions button {padding-inline:0}
 .profile-toolbar .actions button + button {position:relative}

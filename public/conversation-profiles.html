@@ -8,10 +8,10 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Conversations</title>
 <link rel="stylesheet" href="/surface-colors.css">
-<link rel="stylesheet" href="/conversation-profiles.css?v=45">
+<link rel="stylesheet" href="/conversation-profiles.css?v=46">
 <link rel="stylesheet" href="/reader-theme.css">
 <script defer src="/reader-theme.js"></script>
-<script type="module" src="/conversation-profiles.js?v=22"></script>
+<script type="module" src="/conversation-profiles.js?v=23"></script>
 <style>.reader-nav,header .reader-nav{position:fixed;top:4px;right:132px;height:24px;display:inline-flex;align-items:center;gap:10px;margin:0;padding:0;z-index:270}.reader-nav .reader-link{display:inline-flex;align-items:center;font:500 11.5px/24px system-ui;color:inherit;opacity:.70;text-decoration:none;white-space:nowrap}.reader-nav .reader-link:hover,.reader-nav .reader-link:focus-visible{opacity:1;text-decoration:underline}body.chat-focus .reader-nav{z-index:9200}@media(pointer:coarse){.reader-nav,header .reader-nav{top:2px;right:142px}}</style>
 </head>
 <body>
@@ -21,7 +21,7 @@
 <p class="intro">Independent settings for each conversation. Tabs keep unsaved edits. Saved changes sync across devices without overwriting your drafts.</p>
 <p id="status" role="status" aria-live="polite">Loading...</p>
 <div id="profiles"></div>
-<footer class="hint">Pi Web · Nikita v0.9.0</footer>
+<footer class="hint">Pi Web · Nikita v0.9.1</footer>
 </main>
 <template id="profile-template">
 <section hidden>
@@ -38,8 +38,6 @@
 <option value="off">Off</option>
 </select></div><p class="reply-hint" data-reply-hint></p></div>
 </div>
-<div class="field-heading" role="group" aria-label="Reply format"><label class="toggle"><input type="checkbox" name="textOutput">Text</label><label class="toggle"><input type="checkbox" name="voiceOutput">Voice</label></div>
-<p class="hint" data-format-hint aria-live="polite"></p>
 <div class="field-heading"><label class="toggle"><input type="checkbox" name="toolsOn">Tools</label></div>
 <p class="hint">Off removes tool definitions and execution access for future replies. Existing permissions and approval checks remain enforced.</p>
 <div class="field-heading"><label class="toggle"><input type="checkbox" name="piOn">Pi</label></div>
@@ -63,7 +61,7 @@
 </div>
 <p class="hint">Both sliders support 0–500 messages, one message per step. Save slider changes to apply them to future replies. Dialogue and group background are separate, byte-bounded windows; long messages may reduce the actual count. Memory off sends no automatic history. An explicit reply can still quote its target.</p>
 <p class="hint" data-memory-scope role="status" aria-live="polite"></p>
-<div class="actions"><button type="submit">Save</button><button type="button" data-action="reset">New Chat</button><button type="button" data-action="restore">Old Chat</button><span class="feedback" role="status" aria-live="polite"></span></div>
+<div class="actions"><button type="submit">Save</button><button type="button" data-action="reset">New Chat</button><button type="button" data-action="restore">Old Chat</button><span class="format-switches" role="group" aria-label="Reply format"><label class="toggle"><input type="checkbox" name="textOutput">Text</label><label class="toggle"><input type="checkbox" name="voiceOutput">Voice</label></span><span class="feedback" role="status" aria-live="polite"></span></div>
 <p class="hint" data-reset-hint>New Chat starts a fresh context only here. Old Chat reopens all retained history here, including before resets; saved message limits and the Memory switch still apply. Neither deletes stored history, cancels active replies or restores messages already removed from storage.</p>
 </form>
 </section>
