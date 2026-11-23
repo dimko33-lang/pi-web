@@ -20,9 +20,29 @@ fetch(){
   else curl -fsSL --retry 2 "$1" -o "$2"; fi
 }
 run_stage(){
-  local label=$1; shift
-  if [[ -f $base/app/docs/install-progress.mjs ]]; then node "$base/app/docs/install-progress.mjs" "$label" "$@";
-  else "$@" </dev/null; fi  # Older installs/archives may not include the reporter.
+  # Keep this in the bootstrap: an interrupted older install can resume without replacing its app.
+  node --input-type=module - "$@" <<'PROGRESS'
+import {spawn} from 'node:child_process';
+import {constants} from 'node:os';
+const [label, command, ...args] = process.argv.slice(2);
+const start = performance.now();
+function report(status) {
+  const seconds = Math.floor((performance.now() - start) / 1000);
+  const elapsed = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+  console.error(`[${elapsed}] ${label}: ${status}`);
+}
+report('starting');
+const child = spawn(command, args, {stdio: ['ignore', 'inherit', 'inherit']});
+const timer = setInterval(() => report('still running'), 10000);
+for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.once(signal, () => child.kill(signal));
+child.on('error', err => console.error(`${label}: ${err.message}`));
+child.once('close', (code, signal) => {
+  clearInterval(timer);
+  const status = code === null ? 128 + (constants.signals[signal] || 0) : code < 0 ? 1 : code;
+  report(status === 0 ? 'done' : `failed (${signal || status})`);
+  process.exitCode = status;
+});
+PROGRESS
 }
 # Reuse the private runtime on later launches. Never depend on a terminal's PATH for npm.
 node_dir="$base/node-v$version-$os-$arch"
