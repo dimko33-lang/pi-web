@@ -4,6 +4,8 @@ Nikita is a personal project I’ve wanted to build for twenty years. This is my
 
 The current installable release is [v0.4.1](https://github.com/dimko33-lang/pi-web/releases/tag/v0.4.1). Fresh installs use its archive; rerunning the card is not a general upgrade command.
 
+[Nikita on Telegram](https://t.me/+n4lYVtZb0RE4NGE6)
+
 ## Try it
 
 On macOS or Linux, run this in a terminal. For the full server setup, use a spare Debian or Ubuntu server with systemd and run it as root over SSH.
