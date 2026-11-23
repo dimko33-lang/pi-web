@@ -50,6 +50,31 @@ def requested(message,text,*,transcribed=False):
 def requested_turn(message,text,heard=()):
     return requested(message,text) or next((v for s in heard if (v:=requested(message,s,transcribed=True))),False)
 
+def voice_policy(base,message,text,heard=(),*,owner_dm=False):
+    # Called only after chat admission. Quotes/history never select an output mode.
+    if text.startswith('/') or (owner_dm and text.strip().lower()=='ok' and not getattr(message,'media',None)):return False
+    inputs=(text,*heard) if getattr(message,'voice',None) else (text,)
+    if any(re.match(PREFIX+r'(?:ответь|напиши)(?:\s+мне)?\s+текстом'+END,s,re.I) for s in inputs):return False
+    return requested_turn(message,text,heard) or ('gacrux' if (base/'voice-all-gacrux.enabled').is_dir() else False)
+
+def set_voice_all(base,on):
+    marker=base/'voice-all-gacrux.enabled'
+    if on:
+        if not GOOGLE_ENABLED.is_file():return 'Сначала подключи Gacrux. Режим не включён.'
+        marker.mkdir(mode=0o700,exist_ok=True)
+    else:
+        try:marker.rmdir()
+        except FileNotFoundError:pass
+    return 'Голосовые ответы Gacrux включены везде без таймера.' if on else 'Голосовые ответы по умолчанию выключены. Голос остаётся по просьбе.'
+
+def owner_voice_command(base,event,owner):
+    if not (event.is_private and event.sender_id==owner and event.chat_id==owner and not getattr(event,'out',False)):return None
+    text=(event.raw_text or '').strip().lower();m=event.message
+    if text not in ('/voice_all on','/voice_all off','/voice_all status'):return None
+    if any(getattr(m,k,None) for k in ('fwd_from','reply_to_msg_id','media')):return 'Напиши команду отдельным текстовым сообщением.'
+    if text.endswith('status'):return 'Голос по умолчанию: '+('включён.' if (base/'voice-all-gacrux.enabled').is_dir() else 'выключен.')
+    return set_voice_all(base,text.endswith(' on'))
+
 async def run(argv,*,stdin,stdout,env=None,data=None):
     proc=await asyncio.create_subprocess_exec(*argv,stdin=stdin,stdout=stdout,stderr=asyncio.subprocess.DEVNULL,env=env)
     try:

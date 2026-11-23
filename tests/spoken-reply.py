@@ -40,6 +40,15 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
             return q.synthesize('sample',req)
         self.assertEqual(check(url),wav)
         with self.assertRaises(ValueError):check('https://example.invalid/audio.wav')
+    def test_owner_persistent_mode(self):
+        from pathlib import Path
+        import tempfile
+        with tempfile.TemporaryDirectory() as d,patch.object(tts,'GOOGLE_ENABLED',NS(is_file=lambda:True)):
+            base=Path(d);m=NS();e=NS(is_private=True,sender_id=4,chat_id=4,raw_text='/voice_all on',message=m)
+            self.assertIsNone(tts.owner_voice_command(base,e,9));self.assertFalse(tts.voice_policy(base,m,'Привет'))
+            self.assertTrue(tts.owner_voice_command(base,e,4));self.assertEqual(tts.voice_policy(base,m,'Привет'),'gacrux');self.assertFalse(tts.voice_policy(base,m,'Ответь текстом, пожалуйста'))
+            e.raw_text='/voice_all off';m.fwd_from=True;tts.owner_voice_command(base,e,4);self.assertEqual(tts.voice_policy(base,m,'Привет'),'gacrux');m.fwd_from=None
+            tts.owner_voice_command(base,e,4);self.assertFalse(tts.voice_policy(base,m,'Привет'));self.assertEqual(tts.voice_policy(base,m,'Поговори со мной'),'gacrux')
     def test_optional_google_voice(self):
         from io import BytesIO
         import base64,json,wave,gacrux_worker as google

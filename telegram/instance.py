@@ -23,7 +23,7 @@ from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
 from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
-from spoken_reply import requested as speak_requested, send_spoken, cloud_failure, HINT as SPOKEN_HINT
+from spoken_reply import voice_policy, owner_voice_command, send_spoken, cloud_failure, HINT as SPOKEN_HINT
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -198,12 +198,13 @@ async def tool_turn(e, *, delivery=None):
     voice=is_voice(getattr(e,'message',None))
     if profile.get('replyMode')=='off': return '',None
     async def download(message,**kwargs): return await message.download_media(**kwargs)
-    speak=speak_requested(getattr(e,'message',None),raw)
+    heard=[];original=raw
     if voice:
         try: spoken=await recognize(e.message,download)
         except VoiceError as exc: return str(exc),None
-        speak=speak or speak_requested(e.message,spoken,transcribed=True)
+        heard.append(spoken)
         raw=(raw+'\n\n' if raw else '')+voice_prompt(spoken)
+    speak=voice_policy(BASE,getattr(e,'message',None),original,heard,owner_dm=True)
     if speak and delivery is not None:
         delivery['spoken']=speak;raw+=SPOKEN_HINT
     direct = None if voice else re.fullmatch(r'/(image|science)\s+([\s\S]+)', raw)
@@ -298,6 +299,8 @@ async def serve():
     async def incoming(e):
         if not owner_dm(e, owner):
             return
+        voice_setting=owner_voice_command(BASE,e,owner)
+        if voice_setting is not None:await e.reply(voice_setting);return
         delivery={}
         try:
             async with c.action(owner, 'typing'):

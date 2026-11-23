@@ -10,7 +10,7 @@ import unicodedata
 from lc_recovery import ReplyQueue, WINDOW
 from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
-from spoken_reply import requested_turn, HINT as SPOKEN_HINT
+from spoken_reply import voice_policy, HINT as SPOKEN_HINT
 from salon_archive import GROUPS, read
 
 log = logging.getLogger(__name__)
@@ -22,6 +22,7 @@ ADDRESSING = ('This turn was selected by an ordinary name mention, not a direct 
 
 class PeerState:
     def __init__(self, base, peer):
+        self.base=base
         self.db = sqlite3.connect(base / f'group-{peer}.sqlite')
         self.db.executescript('CREATE TABLE IF NOT EXISTS incoming(id INTEGER PRIMARY KEY); '
                               'CREATE TABLE IF NOT EXISTS kv(k TEXT PRIMARY KEY,v INTEGER NOT NULL)')
@@ -108,7 +109,7 @@ class Group:
                 for source, is_quote in ((msg,False),(quoted,True)):
                     if is_voice(source):
                         prompt+='\n\n'+await audio_context(source,self.client.download_media,quoted=is_quote,on_current_speech=None if is_quote else heard.append)
-            speak=requested_turn(msg,text,heard)
+            speak=voice_policy(self.state.base,msg,text,heard)
             if speak:prompt+=SPOKEN_HINT
             if (direct or candidate) and (attachment_type(msg) or attachment_type(quoted)):
                 async with sampled_inputs(msg, quoted) as (frames, note):
