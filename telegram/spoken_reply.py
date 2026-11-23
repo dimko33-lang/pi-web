@@ -1,4 +1,4 @@
-"""Opt-in, one-turn speech delivery in the owner's private chat. No ambient mode or network TTS."""
+"""Opt-in, one-turn speech delivery after the normal conversation admission checks. No ambient mode or network TTS."""
 import asyncio
 from array import array
 import io
@@ -13,7 +13,7 @@ from telethon import types,utils
 ASSETS=Path(sys.prefix)/'nikita-speech-irina-v1'
 ENCODER=Path(__file__).resolve().parent/'media-decoder/voice-pack.cjs'
 SLOT=asyncio.Semaphore(1)
-TRIGGER=re.compile(r'^\s*(?:никита[\s,!:—–-]+)?поговори\s+со\s+мной(?=$|[\s,.!?:;…—–-])',re.I)
+TRIGGER=re.compile(r'^\s*(?:@[\w]+[\s,!:—–-]+)?(?:никита[\s,!:—–-]+|[а-яё]{2,24},\s+)?поговори\s+со\s+мной(?=$|[\s,.!?:;…—–-])',re.I)
 HINT='\n\n[Delivery: this one reply will be spoken aloud. Answer the user directly in a few natural sentences, without markup.]'
 
 def requested(message,text):

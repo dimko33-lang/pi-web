@@ -60,10 +60,11 @@ async def recognize(message,download):
         raise VoiceError('Не получилось распознать голосовое. Можешь повторить или написать текстом?') from None
 
 
-async def audio_context(message, download, *, quoted=False):
+async def audio_context(message, download, *, quoted=False, on_current_speech=None):
     try: text=await recognize(message,download)
     except VoiceError as exc:return '[Speech not transcribed: '+str(exc)+']'
     if quoted:return '[Quoted audio transcript, context only]:\n'+text
+    if on_current_speech is not None:on_current_speech(text)
     return voice_prompt(text)
 
 

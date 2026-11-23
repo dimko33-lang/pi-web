@@ -272,7 +272,11 @@ async def serve():
     conf = json.loads(CONFIG.read_text()); owner = conf['owner']
     c = TelegramClient(StringSession(conf['session']), conf['api'], conf['secret'], sequential_updates=True)
     archive = SalonArchive(BASE, owner)
-    async def send_group(msg, text):
+    async def send_group(msg, text, *, spoken=False):
+        if spoken:
+            note=await send_spoken(c,msg.chat_id,msg.id,text)
+            if note:
+                archive.notify(msg.chat_id,note.id);return
         for body, entities in message_parts(text, formatted=True):
             sent = await msg.reply(body, formatting_entities=entities, link_preview=False)
             archive.notify(msg.chat_id, sent.id)

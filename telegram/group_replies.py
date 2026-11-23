@@ -10,6 +10,7 @@ import unicodedata
 from lc_recovery import ReplyQueue, WINDOW
 from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
+from spoken_reply import requested as speak_requested, HINT as SPOKEN_HINT
 from salon_archive import GROUPS, read
 
 log = logging.getLogger(__name__)
@@ -102,10 +103,13 @@ class Group:
         if quoted: prompt += '\n\n[Reply target, quoted context]:\n' + (quoted.raw_text or '')[:12000]
         async with self.client.action(self.peer, 'typing'):
             address = ADDRESSING if candidate else ''
+            heard=[]
             if direct or candidate:
                 for source, is_quote in ((msg,False),(quoted,True)):
                     if is_voice(source):
-                        prompt+='\n\n'+await audio_context(source,self.client.download_media,quoted=is_quote)
+                        prompt+='\n\n'+await audio_context(source,self.client.download_media,quoted=is_quote,on_current_speech=None if is_quote else heard.append)
+            speak=any(speak_requested(msg,s) for s in (text,*heard))
+            if speak:prompt+=SPOKEN_HINT
             if (direct or candidate) and (attachment_type(msg) or attachment_type(quoted)):
                 async with sampled_inputs(msg, quoted) as (frames, note):
                     result = await self.infer(prompt+'\n\n'+note, profile, self.peer, address, frames=frames)
@@ -115,7 +119,9 @@ class Group:
         # Final delivery may already have reached Telegram on disconnect. Never replay it.
         if q and direct: q.forget(msg.id)
         if self.policy(self.tab, self.peer)[1] != mode: return
-        if result and result.strip() != '[NO_REPLY]': await self.send(msg, result)
+        if result and result.strip() != '[NO_REPLY]':
+            if speak:await self.send(msg,result,spoken=True)
+            else:await self.send(msg,result)
 
     async def step(self):
         messages = await self.client.get_messages(self.peer, min_id=self.cursor, reverse=True, limit=30)

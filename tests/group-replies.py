@@ -78,7 +78,7 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(seen,[(ask,gif)]);self.assertEqual(self.sent,[ask.id])
     async def test_voice_direct_quote_and_privacy(self):
         g=await self.boot(); self.c.download_media=object(); seen=[]
-        async def context(m,download,*,quoted):seen.append((m.id,quoted));return 'heard the recital'
+        async def context(m,download,*,quoted,on_current_speech=None):seen.append((m.id,quoted));return 'heard the recital'
         with patch('group_replies.audio_context',context):
             file=self.c.add('',10000);file.file=NS(mime_type='application/octet-stream',name='recital.OGG');await g.step();self.assertFalse(seen)
             req=self.c.add('@my_agent repeat that',10000,reply=file.id);await g.step();self.assertEqual(seen,[(file.id,True)]);self.assertIn('heard the recital',self.calls[-1][0])
@@ -86,6 +86,18 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
             file.chat_id=-44;self.c.add('@my_agent foreign',10000,reply=file.id);await g.step();self.assertEqual(len(seen),2)
             self.mode='off';m=self.c.add('@my_agent',10000);m.voice=True;await g.step();self.assertEqual(len(seen),2)
 
+    async def test_group_spoken_reply_not_quoted_or_sticky(self):
+        g=await self.boot();self.c.download_media=object();sent=[]
+        async def send(m,text,*,spoken=False):sent.append((m.id,spoken))
+        g.send=send
+        from unittest.mock import AsyncMock
+        with patch('voice_notes.recognize',new=AsyncMock(return_value='Никита, поговори со мной.')) as asr:
+            a=self.c.add('@my_agent поговори со мной, пожалуйста',10000);await g.step()
+            v=self.c.add('@my_agent',10000);v.voice=True;await g.step()
+            q=self.c.add('@my_agent о чём запись?',10000,reply=v.id);await g.step()
+            f=self.c.add('@my_agent поговори со мной',10000);f.fwd_from=True;await g.step()
+            m=self.c.add('другой разговор',10000);m.voice=True;await g.step()
+            self.assertEqual(sent,[(a.id,True),(v.id,True),(q.id,False),(f.id,False)]);self.assertEqual(asr.await_count,2)
     def test_archive_does_not_grant_replies(self):
         bind(self.base,'lightcone',-7,True);p=self.base/'reply-bindings.json';self.assertFalse(p.exists())
         bind(self.base,'lightcone',-7,replies=True);self.assertEqual(read(p,{}),{'lightcone':-7})
