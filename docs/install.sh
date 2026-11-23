@@ -2,6 +2,10 @@
 # User-local Pi Web installation. No sudo, shell profile edits or provider login.
 set -euo pipefail
 base=${PI_WEB_INSTALL_DIR:-"$HOME/PiWebRuntime"}
+if [[ -n ${PI_WEB_RESTORE_SOURCE:-} ]]; then
+  [[ -r $PI_WEB_RESTORE_SOURCE/restore-checksums.json && -r $PI_WEB_RESTORE_SOURCE/docs/restore-source.mjs ]] || { echo 'Expected an unpacked trusted panel Save.' >&2; exit 1; }
+  [[ ! -e $base || ( -d $base && ! -L $base && -z $(ls -A "$base") ) ]] || { echo 'Restore requires a new empty installation directory.' >&2; exit 1; }
+fi
 # Keep the legacy chat (including local history) untouched when installing the salon edition.
 if [ -z "${PI_WEB_INSTALL_DIR:-}" ] && [ -d "$base/app" ] && [ ! -f "$base/app/starter/catalog.json" ]; then
   echo 'Keeping your existing chat. Installing the salon edition alongside it.'
@@ -56,7 +60,12 @@ if [[ $pi_bin == "$managed" || -z $(type -P pi || true) ]]; then
   if ! type -P pi >/dev/null; then printf 'Terminal Pi: %q\n' "$launcher"; fi
 fi
 if [ ! -d "$base/app" ]; then
-  echo 'Downloading Pi Web...'; fetch https://codeload.github.com/dimko33-lang/pi-web/tar.gz/refs/heads/main "$tmp/app.tar.gz"; mkdir "$tmp/app"; tar -xzf "$tmp/app.tar.gz" -C "$tmp/app" --strip-components=1
+  if [[ -n ${PI_WEB_RESTORE_SOURCE:-} ]]; then
+    echo 'Verifying and restoring the saved application...'
+    node "$PI_WEB_RESTORE_SOURCE/docs/restore-source.mjs" "$PI_WEB_RESTORE_SOURCE" "$tmp/app"
+  else
+    echo 'Downloading Pi Web...'; fetch https://codeload.github.com/dimko33-lang/pi-web/tar.gz/refs/heads/main "$tmp/app.tar.gz"; mkdir "$tmp/app"; tar -xzf "$tmp/app.tar.gz" -C "$tmp/app" --strip-components=1
+  fi
   (cd "$tmp/app"; npm ci --no-audit --no-fund); mv "$tmp/app" "$base/app"
 fi
 # Upgrade the previous stock salon release as a unit. Never replace edited files, settings or sessions.

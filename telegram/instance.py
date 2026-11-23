@@ -19,7 +19,8 @@ import tempfile
 from telethon import TelegramClient, errors, events
 from telethon.sessions import StringSession
 from telegram_blocks import message_parts, verify_blocks
-from salon_archive import SalonArchive, bind, GROUPS
+from salon_archive import SalonArchive, bind, GROUPS, read
+from group_replies import GroupService
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -78,7 +79,8 @@ async def enroll():
                     if not pick.isdigit() or not 1 <= int(pick) <= len(dialogs):
                         print('Choose a listed number.'); continue
                     collect = profile == 'lightcone' and input('Collect participant text in the private author reader? [y/N] ').strip().lower() == 'y'
-                    try: bind(BASE, profile, dialogs[int(pick)-1].id, collect)
+                    replies = input('Allow the agent to reply here using this profile? [y/N] ').strip().lower() == 'y'
+                    try: bind(BASE, profile, dialogs[int(pick)-1].id, collect, replies)
                     except ValueError as e: print(e); continue
                     break
         with tempfile.NamedTemporaryFile('w', dir=BASE, delete=False) as out:
@@ -94,7 +96,7 @@ def owner_dm(e, owner):
     return bool(e.is_private and not e.out and e.sender_id == owner and e.chat_id == owner and (e.raw_text or '').strip())
 
 
-def owner_profile():
+def conversation_profile(name):
     data = Path(os.environ.get('PI_WEB_TELEGRAM_DATA') or APP / 'data')
     try:
         saved = json.loads((data / 'conversation-profiles.json').read_text())
@@ -102,9 +104,25 @@ def owner_profile():
         return {}
     if saved.get('version') != 1 or not isinstance(saved.get('profiles'), dict):
         raise ValueError('Invalid conversation profiles')
-    profile = saved['profiles'].get('owner_dm', {})
-    if not isinstance(profile, dict): raise ValueError('Invalid owner profile')
+    profile = saved['profiles'].get(name, {})
+    if not isinstance(profile, dict): raise ValueError('Invalid conversation profile')
     return profile
+
+
+def owner_profile():
+    return conversation_profile('owner_dm')
+
+
+def group_policy(tab, peer):
+    if read(BASE / 'reply-bindings.json', {}).get(tab) != peer or read(BASE / 'archive-bindings.json', {}).get(tab) != peer:
+        return {}, 'off', ()
+    data = Path(os.environ.get('PI_WEB_TELEGRAM_DATA') or APP / 'data')
+    if tab == 'lightcone' and read(APP/'data/browser-settings.json', {}).get('lightconeReplies') is False:
+        return {}, 'off', ()
+    profile = conversation_profile(tab)
+    if not profile and tab in ('lake', 'arri'): return {}, 'off', ()
+    names = read(data/'addressing.json', {}).get('names', [])
+    return profile, profile.get('replyMode', 'mention_reply'), names
 
 
 def selected_model(profile):
@@ -115,13 +133,17 @@ def selected_model(profile):
     return os.environ.get('PI_WEB_MODEL', '')  # Otherwise let the enrolled Pi choose.
 
 
-async def answer(text, profile=None):
+async def answer(text, profile=None, group=None, addressing=''):
     if profile is None: profile = owner_profile()
     pi = os.environ.get('PI_WEB_PI_BIN') or shutil.which('pi')
     if not pi:
         raise RuntimeError('Pi CLI not found')
-    cwd = BASE / 'conversation'; cwd.mkdir(mode=0o700, exist_ok=True)
-    args = [pi, '--print', '--no-context-files', '--no-extensions', '--no-skills', '--no-prompt-templates', '--no-tools']
+    cwd = BASE / 'conversation'
+    if group is not None:
+        if type(group) is not int or group >= 0: raise ValueError('Invalid group peer')
+        cwd = BASE / f'conversation-group-{group}'
+    cwd.mkdir(mode=0o700, exist_ok=True)
+    args = [pi, '--print', '--no-context-files', '--no-extensions', '--no-mcp', '--no-skills', '--no-prompt-templates', '--no-tools']
     if profile.get('memory', True) and profile.get('memoryLimit', 100) > 0:
         since = int(profile.get('memoryResetAt') or 0)
         sessions = cwd / ('after-' + str(since)) if since > 0 else cwd
@@ -138,7 +160,8 @@ async def answer(text, profile=None):
     if profile.get('customOn', True) and profile.get('customPrompt'):
         parts.append('Manner instructions. These are required in every reply and take precedence over any default tone:\n' + profile['customPrompt'])
     policy = APP / 'services/tool-policy.txt'
-    if profile.get('toolsOn', True) and policy.is_file(): parts.append(policy.read_text())
+    if group is None and profile.get('toolsOn', True) and policy.is_file(): parts.append(policy.read_text())
+    if addressing: parts.append(addressing)
     if profile.get('tailOn') and profile.get('tail', '').strip():
         text += '\n\n[Приписка владельца, не сообщение и не просьба ответить на неё: ' + profile['tail'].strip() + ']'
     native = profile.get('piOn') is True
@@ -211,10 +234,17 @@ async def serve():
     conf = json.loads(CONFIG.read_text()); owner = conf['owner']
     c = TelegramClient(StringSession(conf['session']), conf['api'], conf['secret'], sequential_updates=True)
     archive = SalonArchive(BASE, owner)
-    archive_task = None
+    async def send_group(msg, text):
+        for body, entities in message_parts(text, formatted=True):
+            sent = await msg.reply(body, formatting_entities=entities, link_preview=False)
+            archive.notify(msg.chat_id, sent.id)
+            await verify_blocks(c, msg.chat_id, sent, entities)
+    groups = GroupService(BASE, group_policy, answer, send_group)
+    tasks = []
     @c.on(events.NewMessage(incoming=True))
     async def archive_incoming(e):
-        # Incoming text wakes only the explicitly enrolled author-reader group.
+        groups.notify(e.chat_id)
+        # Author collection is independent of reply permission.
         if e.chat_id == archive.reader_peer: archive.notify(e.chat_id, e.id)
 
     @c.on(events.NewMessage(outgoing=True))
@@ -241,11 +271,11 @@ async def serve():
         me = await c.get_me()
         if not me or me.id != conf['account']:
             raise SystemExit('Telegram account mismatch or expired authorization.')
-        archive_task = asyncio.create_task(archive.run(c))
+        tasks.extend((asyncio.create_task(archive.run(c)), asyncio.create_task(groups.run(c, me))))
         await c.run_until_disconnected()
     finally:
-        if archive_task:
-            archive_task.cancel(); await asyncio.gather(archive_task, return_exceptions=True)
+        for task in tasks: task.cancel()
+        if tasks: await asyncio.gather(*tasks, return_exceptions=True)
         await c.disconnect()
 
 
@@ -255,9 +285,13 @@ if __name__ == '__main__':
     for name in ('connect','run','status'): sub.add_parser(name)
     route = sub.add_parser('bind'); route.add_argument('profile',choices=GROUPS); route.add_argument('peer',type=int)
     route.add_argument('--authors',action='store_true',help='Also archive participant text in the authenticated LightCone reader')
+    permission = route.add_mutually_exclusive_group()
+    permission.add_argument('--replies', dest='replies', action='store_true', help='Allow group text replies')
+    permission.add_argument('--no-replies', dest='replies', action='store_false', help='Stop group replies, retaining the archive')
+    route.set_defaults(replies=None)
     args = parser.parse_args(); action = args.action
     if action == 'bind':
-        try: bind(BASE, args.profile, args.peer, args.authors)
+        try: bind(BASE, args.profile, args.peer, args.authors, args.replies)
         except ValueError as e: parser.error(str(e))
         print('Archive tab bound:', args.profile)
     elif action == 'status':

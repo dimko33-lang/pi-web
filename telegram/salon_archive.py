@@ -30,7 +30,7 @@ def atomic(path, value):
         Path(tmp).unlink(missing_ok=True)
 
 
-def bind(base, profile, peer, authors=False):
+def bind(base, profile, peer, authors=False, replies=None):
     if authors and profile != 'lightcone':
         raise ValueError('The author reader can only use the LightCone tab.')
     if profile not in GROUPS or peer >= 0:
@@ -45,6 +45,12 @@ def bind(base, profile, peer, authors=False):
         if any(k != profile and v == peer for k, v in mapping.items()):
             raise ValueError('Chat already bound to another tab.')
         mapping[profile] = peer; atomic(path, mapping)
+        # An existing archive binding never silently grants permission to speak.
+        if replies is not None:
+            allowed = read(base / 'reply-bindings.json', {})
+            if replies: allowed[profile] = peer
+            else: allowed.pop(profile, None)
+            atomic(base / 'reply-bindings.json', allowed)
         if authors:
             atomic(base / 'authors-binding.json', {'peer': peer})
 
