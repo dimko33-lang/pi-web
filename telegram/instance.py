@@ -23,7 +23,7 @@ from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
 from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
-from spoken_reply import requested as speak_requested, send_spoken, CLOUD_FAILED, HINT as SPOKEN_HINT
+from spoken_reply import requested as speak_requested, send_spoken, cloud_failure, HINT as SPOKEN_HINT
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -277,7 +277,7 @@ async def serve():
             note=await send_spoken(c,msg.chat_id,msg.id,text,mode=spoken)
             if note:
                 archive.notify(msg.chat_id,note.id);return
-            if spoken=='qwen':text=CLOUD_FAILED+text
+            if spoken in ('qwen','gacrux'):text=cloud_failure(spoken)+text
         for body, entities in message_parts(text, formatted=True):
             sent = await msg.reply(body, formatting_entities=entities, link_preview=False)
             archive.notify(msg.chat_id, sent.id)
@@ -310,7 +310,7 @@ async def serve():
             note=await send_spoken(c,owner,e.id,text,mode=delivery['spoken'])
             if note:
                 archive.notify(owner,note.id);return
-            if delivery['spoken']=='qwen':text=CLOUD_FAILED+text
+            if delivery['spoken'] in ('qwen','gacrux'):text=cloud_failure(delivery['spoken'])+text
         for body, entities in message_parts(text, formatted=True):
             sent = await e.reply(body, formatting_entities=entities, link_preview=False)
             archive.notify(owner, sent.id)

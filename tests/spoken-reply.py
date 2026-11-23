@@ -40,6 +40,18 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
             return q.synthesize('sample',req)
         self.assertEqual(check(url),wav)
         with self.assertRaises(ValueError):check('https://example.invalid/audio.wav')
+    def test_optional_google_voice(self):
+        from io import BytesIO
+        import base64,json,wave,gacrux_worker as google
+        with patch.object(tts,'GOOGLE_ENABLED',NS(is_file=lambda:True)):
+            self.assertEqual(tts.requested(NS(),'Поговори со мной'),'gacrux');self.assertEqual(tts.requested(NS(),'Ответь облачным голосом'),'gacrux')
+            self.assertEqual(tts.requested(NS(),'Ответь голосом Qwen'),'qwen');self.assertFalse(tts.requested(NS(),'Что дальше?'))
+        def post(req,**kw):
+            self.assertEqual(req.full_url,google.URL);self.assertNotIn('example-key',req.full_url);self.assertEqual(req.get_header('X-goog-api-key'),'example-key')
+            payload=json.loads(req.data);self.assertEqual(payload['generationConfig']['speechConfig']['voiceConfig']['prebuiltVoiceConfig']['voiceName'],'Gacrux')
+            data={'mimeType':'audio/l16; rate=24000; channels=1','data':base64.b64encode(b'\0\1'*100).decode()};return BytesIO(json.dumps({'candidates':[{'content':{'parts':[{'inlineData':data}]}}]}).encode())
+        with wave.open(BytesIO(google.render('test','example-key',post))) as audio:self.assertEqual((audio.getframerate(),audio.getnframes()),(24000,100))
+        self.assertIn('Gacrux',tts.cloud_failure('gacrux'))
     async def test_spoken_then_reset(self):
         for voice,raw,expected in [(False,'Поговори со мной: зачем?',True),(True,'',True),(False,'а дальше?',False)]:
             m=NS(voice=voice,fwd_from=None,reply_to_msg_id=None,media=voice);out={}
