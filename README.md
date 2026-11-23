@@ -1,61 +1,27 @@
-# Pi Web
+# Pi Web · Nikita
 
-A self-hosted browser interface and Nikita salon for the Pi coding agent. The starter includes seven editable profiles, offline model and thinking selectors, and eighteen illustrated or mathematical notes. Open `/profiles` for settings and `/nikita/` for Notes. No Telegram sessions, message histories, author archives or API credentials are included. Fresh Linux server installations include the Telegram owner-DM transport. It stays offline until you explicitly connect a new agent account. It is not the complete reference deployment: group reply routing/recovery and the browser privilege broker still differ from the reference deployment.
+Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
-## Run locally
+## Try it
 
-On macOS or Linux (Intel/ARM64), paste this into a terminal:
+On macOS or Linux, run this in a terminal. For the full server setup, use a spare Debian or Ubuntu server with systemd and run it as root over SSH.
 
 ```sh
 curl -fsSL https://dimko33-lang.github.io/pi-web/install.sh | bash
 ```
 
-The bootstrap installs a checksum-verified Node.js runtime and the app under `~/PiWebRuntime`, without sudo or shell configuration changes. It reuses your Pi CLI or installs the official npm package privately. No provider key, subscription or confirmation is needed during installation. For model replies, start `pi` as the same user and configure your provider in the standard terminal interface. If your PATH has no writable user bin directory, use the terminal command printed by the installer. If the old chat-only installation already exists there, it is left untouched; the salon edition uses `~/PiWebSalonRuntime` and port 5072 instead. On a local Mac the panel opens automatically. Local mode stays in the foreground; press Ctrl+C to stop it. Over SSH, see the server mode below.
+On a local Mac, the panel opens in your browser. On a server with public IPv4 and ports 80 and 443 available, the installer sets up HTTPS and prints **Open Nikita:** followed by a reusable link. **It’s an owner link, not a guest invite:** anyone who has it shares the panel and, on the standard Linux server install, can enable Root. Root starts off.
 
-Alternatively, with Git and Node.js 22.23.4 (or a compatible recent Node 22 release) already installed:
+No provider or Telegram login is needed to install or read the Notes. For model replies, run `pi` as the installation user (or use the path the installer prints) and connect your own provider. Telegram is optional and stays offline until you enroll a separate agent account.
 
-```sh
-git clone https://github.com/dimko33-lang/pi-web.git
-cd pi-web
-npm ci && npm start
-```
+## What you can try today
 
-Open http://127.0.0.1:5070. The interface starts without an account. For model replies, install and authenticate your own compatible Pi CLI, then set `PI_WEB_PI_BIN` to its executable path before starting. No provider credentials or production profiles are distributed.
+- **Browser chat and salon.** Choose a model and thinking level, edit seven conversation profiles at `/profiles`, or read the 18 bundled Notes at `/nikita/`.
+- **Telegram.** Connect your agent with `nikita-telegram connect`, set the owner, then choose the chats. Archiving a group does not give Nikita permission to speak there. Group text replies and the LightCone author archive are separate opt-ins. You start with empty archives, not someone else’s conversations.
+- **Science and images.** On the standard Linux server install, try `/science print(2 ** 32)` to run Python in an offline container. Ask for an image or a photo edit if your selected provider supports it. Nikita won’t switch to another billing provider to make it work.
+- **Request JSON.** In `My DM`, you can explicitly arm a one-shot check to see what Pi prepares to send to the provider for a test `ok`. It’s off by default, never watches groups, and expires after ten minutes. Anyone with panel access can see the captured body until it is cleared or expires.
+- **Save.** Export a restorable copy of the application, including the 18 Notes. It’s not a server backup: it doesn’t include chat history, personal settings, Telegram sessions or provider credentials.
 
-## Connect the installed Telegram transport (Linux)
+This installer doesn’t yet reproduce everything on the working Nikita server. In particular, group attachments, group-specific tools and the exact choice of conversation history still differ. On the stock server install, **after a reboot, rerun the install command to bring the panel and HTTPS back**. That’s separate from the enrolled Telegram service.
 
-Use the `nikita-telegram connect` command with the full path printed by the installer. Enter your Telegram application API ID/hash, your personal numeric owner ID, then scan the login QR with the **separate agent account**. Nothing is requested during the web installation. Each installation creates fresh private authorization under its own `telegram-state/`. Never copy that directory to a second running instance. Check `~/PiWebRuntime/bin/nikita-telegram status` without connecting to Telegram.
-
-On a standard root-owned systemd server, enrollment enables a dedicated unit; after reboot it resumes using the same authorization. If enrollment succeeded but service registration failed, use `nikita-telegram start` with the same full path. Other users can run `nikita-telegram run` in the foreground. In private chats, only incoming text from the configured owner is answered. Pi uses its configured provider, the panel model when selected, and a separate Telegram conversation. Host tools and extensions are disabled on this transport. Group text replies require an explicit reply binding during enrollment or `nikita-telegram bind TAB CHAT_ID --replies`; archive-only groups remain silent. Use `--no-replies` to revoke it. Each group uses its own profile and Pi history, never the owner's session or tool dispatcher. Direct routing matches the enrolled account's username, ID mention or a reply to that account. The LightCone tab uses the reference SQLite queue: new bindings start at the tip; after downtime only recent direct, still-unanswered requests are eligible for recovery (one hour, one retry). A final send with unknown delivery status is not repeated. These paths have offline restart coverage, not a live delivery certification. On Debian/Ubuntu a root install can install `python3-venv` if missing; other Linux hosts need Python 3.9+ with venv. The uninstaller removes this local Telegram login along with the installation, not the Telegram account itself.
-
-## Browser Root switch (standard root-owned Linux install)
-
-Root starts off on each controller launch. Ordinary browser turns run as the dedicated `pi-web-workspace` UID with no supplementary groups, no added privileges, a private process tree and a persistent `/workspace`. They cannot read the host's `/root`, Telegram state, panel access file or service sockets. Only the selected model's credential is resolved by the original Pi login; the workspace cannot edit the controller's provider store. A switch transition checks the effective UID before acknowledging it. Red means host administration is enabled for subsequent browser turns. A second click returns future turns to workspace permissions; switching off does not undo changes previously made as root. Active turns block switching. The controller itself still runs as root in this installation layout. Anyone with the full shared panel link is an administrator. Do not publish the link.
-
-This mode requires the bundled Pi CLI in the default `/root/PiWebRuntime` server installation. The reference host's existing launcher remains separate. A root-owned Linux process without either privilege boundary refuses browser model execution rather than silently inheriting UID 0. Uninstallation leaves the dedicated workspace and its files under `/var/lib/pi-web-workspace` intact.
-
-## Scientific computation and images
-
-On a fresh Debian/Ubuntu systemd server with the default root install, the same card command installs Podman, builds the pinned scientific Python image and enables `pi-web-science.service`. The initial download/build takes longer than a web-only install. No subscription is used for computation. Jobs run as UID 65534 in disposable, offline, read-only containers with bounded work storage, CPU, memory and time. No Python fallback runs on the host. On other installations the text/image functions remain available; science requires this Linux broker. The uninstaller removes the managed broker and its image tags, not Podman or unrelated containers.
-
-Use ordinary requests in the browser or the connected owner's Telegram DM, or `/science print(2 ** 32)` and `/image A watercolor owl` for explicit tool selection. In Telegram, an image request can use an attached photo or a photo in a direct same-chat reply as its edit source. The selected provider must support the requested operation. The image adapter runs on demand with Pi's credential store (not a second copy of its refresh token). It uses the selected provider's image catalog, or the Codex image endpoint for a connected `openai-codex` OAuth account. Provider subscriptions and quotas vary; a text-only provider does not gain image access, and there is no automatic switch to another billing provider. Fresh web sessions follow a provider/model explicitly selected in the native Pi settings unless a panel model override is saved. No credentials, user images, messages or subscriptions are distributed.
-
-## Salon and author archives
-
-The Telegram service also collects history on its existing connection. During enrollment you can choose groups for the salon tabs directly from your account's dialog list. No group is guessed from its name. The owner DM tab is bound automatically. Salon tabs collect **only outgoing text/captions and photos** in the selected chats. The LightCone tab optionally also collects participants' text in a separate authenticated author reader (`/go/lightcone`). This requires an explicit opt-in, and never includes other chats. An empty installation contains no Telegram history.
-
-You can also bind a tab later, e.g. `~/PiWebRuntime/bin/nikita-telegram bind lake -1001234567890` (replace the example ID). Use `bind lightcone CHAT_ID --authors` to opt in to the author reader. New bindings are picked up within about three minutes without restarting Telegram. A new binding starts at its current Telegram tip. After initialization, events wake the collector; a three-minute fallback catches missed updates. The checkpoint advances only after archive files have been written, and replay deduplicates entries. Private data lives under `telegram-state/`, never under `public/`. Source Save does not export conversations or images. This is not a Debri history importer or a guest-DM collector.
-
-## Panel Save and clean restore
-
-Save exports the reviewed application file list, including the 18 bundled Notes, worker sources and clean templates. Extra files in a live tree are never traversed, and changed seed content requires review. To restore a trusted unpacked Save onto a fresh host, use the command in its `RESTORE.md`. This reinstalls the saved application, not a GitHub update or a copy of a Telegram account. Maintainers: after staging new distribution files, regenerate `server/export-list.json` with `node tools/export-list.mjs` and run `node --import tsx tests/source-restore.mjs`.
-
-## Remove the default Linux test installation
-
-Run `curl -fsSL https://dimko33-lang.github.io/pi-web/uninstall.sh | bash` as the same user on the server. This stops private runtime processes and deletes `~/PiWebRuntime`, including its chats, settings, access tickets and HTTPS files. It removes its private Pi CLI and matching launcher links, but keeps existing Pi installations and `~/.pi` (including your Pi credentials). It does not change nginx or other installation directories. If you manually stopped nginx for your test, restart it separately when you want it back.
-
-## Same command over SSH
-
-On a fresh public IPv4 server the same command prepares HTTPS with Caddy, checks that `/profiles` requires authentication through the public URL, then prints a reusable panel link with no expiry. Use the same link on multiple devices. Anyone with the full link has the same panel access, not a separate account. Repeating the command prints the same link while the host and installation remain unchanged. To invalidate the link for future sign-ins, remove `remote-access/access-link.json` from the installation and rerun the launcher; this does not revoke existing browser sessions. The processes stay running after logout; they are not registered to start after reboot. After a reboot repeat the command. Local mode does not download Caddy or publish anything.
-
-Server mode needs a publicly routable address, DNS, and free ports 80 and 443 that the installer user can bind and the firewall permits. It uses the server address from SSH and sslip.io wildcard DNS by default. Set `PI_WEB_PUBLIC_HOST` to use your own DNS name (required for NAT/IPv6). Existing web servers are never reconfigured. TLS and application logs are under `remote-access/` inside the installation directory. Do not share the private link. Host administration is not installed by these commands.
+[Installation card](https://dimko33-lang.github.io/pi-web/) · [Setup, permissions and removal](docs/usage.md) · [Restore from Save](RESTORE.md) · [What matches the working server](docs/reference-install.md)

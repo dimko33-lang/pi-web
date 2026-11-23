@@ -9,6 +9,7 @@
     "docs/server-start.sh",
     "docs/social-preview.png",
     "docs/uninstall.sh",
+    "docs/usage.md",
     "models.json",
     "package-lock.json",
     "package.json",
