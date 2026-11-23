@@ -16,6 +16,8 @@ Owner DMs now read one saved `owner_dm` profile per turn. Its Pi/Base, Character
 
 Selected group text routing and LightCone recovery now run on the enrolled connection. Offline tests simulate downtime, manual replies, an expired request and restart after provider failure. They do not certify Telegram network delivery. Panel Save can restore the reviewed code and bundled Notes to a new directory; it is not a runtime-state backup.
 
-Still incomplete: group attachments and role-specific tools, exact message-window handling, owner request inspection, the reference browser privilege boundary, and end-to-end boot/recovery on a blank Linux host. The card is not yet a verified replica.
+The default Linux installer now applies a real browser turn privilege boundary using a dedicated UID, a Bubblewrap workspace and a checked in-memory admin switch. This achieves off/on/off execution with the stock root-owned web controller, not the reference web service account layout. Test the installed worker with `tests/browser-root-live.mjs` using its offline fixture; no model subscription call is needed.
+
+Still incomplete: group attachments and role-specific tools, exact message-window handling, owner request inspection, and end-to-end boot/recovery on a blank Linux host. The card is not yet a verified replica.
 
 Before claiming parity: verify on an empty supported Linux server using the card command, then enroll a separate account and authorize its provider. Check profile independence, actual execution UID off/on/off, group address/reply handling and missed-question recovery, empty archives before enrollment, Notes, image and science jobs, Save/restore and post-reboot operation. Repeat installation without resetting state. For subsequent reference changes import the reviewed diff rather than syncing a live workspace, home directory, unit environment or machine image to GitHub.

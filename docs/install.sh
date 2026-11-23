@@ -31,6 +31,8 @@ managed="$base/pi-cli/node_modules/.bin/pi"; launcher="$base/bin/pi"
 pi_bin=${PI_WEB_PI_BIN:-$(type -P pi || true)}
 if [[ -z $pi_bin && -x $HOME/.pi/agent/bin/pi ]]; then pi_bin="$HOME/.pi/agent/bin/pi"; fi
 if [[ -n $pi_bin && $pi_bin -ef $launcher ]]; then pi_bin=$managed; fi
+# Only this immutable CLI tree is mounted into stock Linux workspaces.
+if [[ $os == linux && $EUID == 0 && $base == /root/PiWebRuntime && -n ${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-} ]]; then pi_bin=$managed; fi
 if [[ -z $pi_bin || $pi_bin == "$managed" ]]; then
   pi_bin=$managed
   if [[ ! -x $managed ]]; then
@@ -96,6 +98,9 @@ if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
       echo 'Existing application predates Telegram support; preserving it. Fresh installations include Telegram.'
     fi
   fi
+  if [[ $os == linux && $EUID == 0 && $base == /root/PiWebRuntime && -f $base/app/services/browser/install.sh ]]; then
+    bash "$base/app/services/browser/install.sh" "$base" </dev/null
+  fi
   if [[ $os == linux && -f $base/app/services/science/install.sh ]]; then
     if [[ $EUID == 0 && -d /run/systemd/system && $base == /root/PiWebRuntime ]]; then
       bash "$base/app/services/science/install.sh" </dev/null
@@ -113,6 +118,9 @@ if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
   fi
   if [ ! -f "$helper" ] || [ "$(sha "$helper")" = 12828ac39ec247591a1465e1458312c6f0298a961f6c05e114ec2762e1911bb8 ]; then fetch 'https://dimko33-lang.github.io/pi-web/server-start.sh' "$tmp/server-start.sh"; helper="$tmp/server-start.sh"; fi
   [ "$(sha "$helper")" = 0bfc64713fc75749d3ec5856a658b5e53c699e51f06f1cd9110168068b7a4c06 ] || { echo 'HTTPS launcher checksum mismatch.' >&2; exit 1; }
+  if [[ $os == linux && $EUID == 0 && $base == /root/PiWebRuntime && -f $base/app/services/browser/reload-stock.py ]]; then
+    /usr/bin/python3 -I "$base/app/services/browser/reload-stock.py"
+  fi
   bash "$helper" "$base" "$os" "$arch"; exit
 fi
 cd "$base/app"; rm -rf "$tmp"; trap - EXIT; export PI_WEB_OPEN_LOCAL=1; exec node --import tsx server/main.ts

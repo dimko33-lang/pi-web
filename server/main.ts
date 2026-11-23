@@ -683,6 +683,7 @@ app.post('/api/settings', requireAuth, (req, res) => {
       && req.body?.personalitySchema !== 1) {
     return res.status(409).json({ error: 'Reload this page before changing shared personality settings' });
   }
+  if (req.body?.root !== undefined && typeof req.body.root !== 'boolean') return res.status(400).json({ error: 'Invalid Root switch' });
   if (req.body?.root === true && !rootAvailable) {
     return res.status(403).json({ error: 'Server administration is unavailable' });
   }
@@ -708,6 +709,7 @@ app.post('/api/settings', requireAuth, (req, res) => {
     }
     res.json({ ok: true, capabilities: { root: rootAvailable, tools: true }, settings });
   } catch (e) {
+    if (req.body?.root === true) { try { setRootMode(false); } catch { /* The stock switch already defaults to off on failure. */ } }
     res.status(500).json({ error: (e as Error).message });
   }
 });
