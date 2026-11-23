@@ -1,43 +1,57 @@
-"""Install a pinned offline Russian recognizer in the Telegram venv, never in the app Save."""
+"""Provision pinned offline GigaAM assets outside the app/save, under the Telegram venv."""
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import shutil
 import sys
+import tarfile
 import tempfile
 import urllib.request
 import zipfile
 
-NAME='nikita-voice-ru-v1'
-MODEL='vosk-model-small-ru-0.22'
-MODEL_SHA='961d5ff98a17f4aa6de69864d0aa71fa5bac682301d2b5d17a3f24c5c99a46d4'
-WHEELS={
- 'x86_64':('fc/ca/83398cfcd557360a3d7b2d732aee1c5f6999f68618d1645f38d53e14c9ff/vosk-0.3.45-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.whl','25e025093c4399d7278f543568ed8cc5460ac3a4bf48c23673ace1e25d26619f'),
- 'aarch64':('a4/23/3130a69fa0bf4f5566a52e415c18cd854bf561547bb6505666a6eb1bb625/vosk-0.3.45-py3-none-manylinux2014_aarch64.whl','54efb47dd890e544e9e20f0316413acec7f8680d04ec095c6140ab4e70262704')}
+NAME = 'nikita-gigaam-v3-q8-tc042'
+RELEASE = 'https://github.com/handy-computer/transcribe.cpp/releases/download/v0.4.2/'
+MODEL = 'https://huggingface.co/handy-computer/gigaam-v3-e2e-rnnt-gguf/resolve/3efd5b39882ceadca5570a8fb9fa1a2c801d6d6d/gigaam-v3-e2e-rnnt-Q8_0.gguf'
+MODEL_SHA = '78d63b47723b7f8d78c6113a6ef983b5a86e2a86f6c273e1f5cb6967b1c4467a'
+WRAPPER_SHA = '2e4a5d3e7ba78918969ccb1ee06f3d5c6c79664e0626d0da0ffe832f465e6d51'
+NATIVE = {'x86_64':'4fe87db8919ea34e461db7987713b580f54e6f3ed610457c5d8fb8eac1a15046',
+          'aarch64':'5e9cc7b244949fc686d1272e796e965411e80cc768533f1704c3c53e4c7d695e'}
 
-def fetch(url,digest,dest):
-    h=hashlib.sha256()
-    with urllib.request.urlopen(url,timeout=90) as src,dest.open('xb') as dst:
-        while block:=src.read(256*1024):
-            dst.write(block);h.update(block)
-            if dst.tell()>64*1024**2:raise ValueError('Unexpected voice asset size')
-    if h.hexdigest()!=digest:raise ValueError('Voice asset checksum mismatch')
+
+def fetch(url, digest, dest, limit):
+    h = hashlib.sha256()
+    with urllib.request.urlopen(url, timeout=120) as src, dest.open('xb') as dst:
+        while block := src.read(512*1024):
+            dst.write(block); h.update(block)
+            if dst.tell() > limit: raise ValueError('Unexpected speech asset size')
+    if h.hexdigest() != digest: raise ValueError('Speech asset checksum mismatch')
+
 
 def install():
-    base=Path(sys.prefix);target=base/NAME
-    wheel,digest=WHEELS[platform.machine()];version=[MODEL_SHA,digest]
-    if target.is_dir() and json.loads((target/'installed.json').read_text())==version and (target/'libvosk.so').is_file() and (target/MODEL/'am/final.mdl').is_file():return
-    if target.exists():raise RuntimeError('Unrecognized voice runtime, not replacing it')
-    print('Downloading offline Russian speech model and engine…',flush=True)
-    with tempfile.TemporaryDirectory(dir=base,prefix='.voice-install-') as tmp:
-        root=Path(tmp);stage=root/'ready';stage.mkdir(mode=0o755)
-        fetch('https://files.pythonhosted.org/packages/'+wheel,digest,root/'engine.zip')
-        fetch('https://alphacephei.com/vosk/models/'+MODEL+'.zip',MODEL_SHA,root/'model.zip')
-        with zipfile.ZipFile(root/'engine.zip') as z, z.open('vosk/libvosk.so') as src,(stage/'libvosk.so').open('xb') as dst:shutil.copyfileobj(src,dst)
-        with zipfile.ZipFile(root/'model.zip') as z:z.extractall(stage) # exact trusted archive checked above
-        (stage/'installed.json').write_text(json.dumps(version));os.rename(stage,target)
-    print('Offline voice recognition ready.',flush=True)
+    arch = platform.machine(); native_sha = NATIVE[arch]
+    target = Path(sys.prefix)/NAME; manifest = [MODEL_SHA, WRAPPER_SHA, native_sha]
+    if target.exists():
+        if (json.loads((target/'installed.json').read_text()) == manifest and
+            (target/'model.gguf').stat().st_size == 273724832 and (target/'native/libtranscribe.so').is_file() and
+            (target/'wrapper/transcribe_cpp/__init__.py').is_file()): return
+        raise RuntimeError('Unrecognized speech assets; not replacing them')
+    print('Downloading GigaAM v3 Russian speech model (274 MB) and CPU runtime…', flush=True)
+    with tempfile.TemporaryDirectory(dir=sys.prefix, prefix='.voice-install-') as tmp:
+        root = Path(tmp); stage = root/'ready'; stage.mkdir(); native = stage/'native'; native.mkdir()
+        fetch(MODEL, MODEL_SHA, stage/'model.gguf', 273724832)
+        fetch(RELEASE+f'transcribe-native-0.4.2-linux-{arch}-cpu-vulkan.tar.gz', native_sha, root/'runtime.tgz', 32*1024**2)
+        fetch(RELEASE+'transcribe_cpp-0.4.2-py3-none-any.whl', WRAPPER_SHA, root/'wrapper.zip', 100000)
+        with tarfile.open(root/'runtime.tgz') as tar:
+            for m in tar:
+                parts = PurePosixPath(m.name).parts
+                if not m.isfile() or len(parts)<2 or parts[0]!=f'transcribe-native-linux-{arch}-cpu-vulkan' or '..' in parts: continue
+                p = native.joinpath(*parts[1:]); p.parent.mkdir(parents=True, exist_ok=True)
+                with tar.extractfile(m) as src, p.open('xb') as dst: shutil.copyfileobj(src, dst)
+        with zipfile.ZipFile(root/'wrapper.zip') as z: z.extractall(stage/'wrapper')  # exact verified wheel
+        if not (native/'libtranscribe.so').is_file(): raise ValueError('Missing native speech runtime')
+        (stage/'installed.json').write_text(json.dumps(manifest)); os.rename(stage, target)
+    print('Offline GigaAM speech recognition ready.', flush=True)
 
-if __name__=='__main__':install()
+if __name__ == '__main__': install()

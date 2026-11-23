@@ -13,6 +13,14 @@ class VoiceRouting(unittest.IsolatedAsyncioTestCase):
         e=self.event();self.assertTrue(instance.owner_dm(e,17));self.assertFalse(instance.owner_dm(e,19))
         e.is_private=False;self.assertFalse(instance.owner_dm(e,17));e.is_private=True;e.message.voice=None
         self.assertFalse(instance.owner_dm(e,17))
+    def test_asr_windows_preserve_samples(self):
+        from array import array
+        from io import BytesIO
+        from voice_recognize import windows,WINDOW
+        original=array('h',range(20000))*64
+        pieces=list(windows(BytesIO(original.tobytes())))
+        self.assertGreater(len(pieces),1);self.assertTrue(all(0<len(p)<=WINDOW for p in pieces))
+        self.assertEqual(b''.join(p.tobytes() for p in pieces),original.tobytes())
     def test_audio_documents(self):
         for mime,name,fmt in [('audio/ogg',None,'ogg'),('application/octet-stream','Poem.Opus','ogg'),('audio/mpeg',None,'mp3'),('audio/x-wav','test','wav'),('video/mp4','fake.ogg',None),('application/octet-stream','x.py',None)]:
             self.assertEqual(audio_format(NS(file=NS(mime_type=mime,name=name))),fmt)
