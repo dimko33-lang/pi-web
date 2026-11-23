@@ -133,7 +133,7 @@ def selected_model(profile):
     return os.environ.get('PI_WEB_MODEL', '')  # Otherwise let the enrolled Pi choose.
 
 
-async def answer(text, profile=None, group=None, addressing=''):
+async def answer(text, profile=None, group=None, addressing='', *, inspect_owner=False):
     if profile is None: profile = owner_profile()
     pi = os.environ.get('PI_WEB_PI_BIN') or shutil.which('pi')
     if not pi:
@@ -144,6 +144,11 @@ async def answer(text, profile=None, group=None, addressing=''):
         cwd = BASE / f'conversation-group-{group}'
     cwd.mkdir(mode=0o700, exist_ok=True)
     args = [pi, '--print', '--no-context-files', '--no-extensions', '--no-mcp', '--no-skills', '--no-prompt-templates', '--no-tools']
+    env = os.environ.copy(); env.pop('NIKITA_OWNER_INSPECTION_DIR', None)
+    if (inspect_owner and group is None and text.strip().lower() == 'ok' and not profile.get('toolsOn', True)
+            and not profile.get('memory', True) and not profile.get('tailOn', True) and (BASE/'inspection/armed').is_file()):
+        args.extend(['--extension', str(APP/'telegram/request-inspection.ts')])
+        env['NIKITA_OWNER_INSPECTION_DIR'] = str(BASE/'inspection')
     if profile.get('memory', True) and profile.get('memoryLimit', 100) > 0:
         since = int(profile.get('memoryResetAt') or 0)
         sessions = cwd / ('after-' + str(since)) if since > 0 else cwd
@@ -170,7 +175,7 @@ async def answer(text, profile=None, group=None, addressing=''):
         if parts or not native:
             prompt.write('\n\n'.join(parts) or ' '); prompt.flush()
             args.extend(['--append-system-prompt' if native else '--system-prompt', prompt.name])
-        p = await asyncio.create_subprocess_exec(*args, cwd=cwd, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
+        p = await asyncio.create_subprocess_exec(*args, cwd=cwd, env=env, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
         try:
             data, _ = await asyncio.wait_for(p.communicate(text.encode()), 360)
         finally:
@@ -190,7 +195,10 @@ async def tool_turn(e):
         action = {'nikita_tool':'image','prompt':direct[2]} if direct[1]=='image' else {'nikita_tool':'python','code':direct[2]}
         text = ''
     else:
-        text = await answer(e.raw_text, profile)
+        # Only serve()'s enrolled-owner DM path reaches here. Replies/forwards/media are not inspection tests.
+        test = (e.raw_text.strip().lower() == 'ok' and not e.message.reply_to_msg_id
+                and not e.message.fwd_from and not e.message.media)
+        text = await answer(e.raw_text, profile, inspect_owner=test)
         if not tools: return text, None
         try: action = json.loads(text)
         except ValueError: return text, None

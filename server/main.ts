@@ -32,6 +32,7 @@ import { DEFAULT_MODEL, loadSaved, setModel, availableModels, probeProviders, pr
 import { piContextStatus } from './pi-context.ts';
 import { ChatThinking, chatThinking } from './chat-thinking.ts';
 import { createConversationProfiles } from './conversation-profiles.ts';
+import { createOwnerRequestInspection } from './owner-request-inspection.ts';
 import { getSession, setSession, getMessages, pushMessage, pushNote, updateLastAgent, clearMessages, fillMessages, restoreMessage, deleteMessage, deleteMessageByMatch, deleteMessageByAt, wipeAllMessages } from './history.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -611,6 +612,16 @@ function writeSettings(body: any) {
   }
   return next;
 }
+
+// Only the authenticated card panel may arm or read an inspection. A bare local panel is not an owner session.
+let inspection: ReturnType<typeof createOwnerRequestInspection>;
+app.use('/api/owner-request-inspection', (req,res,next) => {
+  if (!ticketFile || !isAuthenticated(req)) return res.sendStatus(401);
+  try {
+    inspection ??= createOwnerRequestInspection(path.resolve(process.env.NIKITA_INSTANCE_DIR || path.join(ROOT_DIR,'..','telegram-state')));
+  } catch { return res.status(503).json({error:'Inspection is unavailable.'}); }
+  return inspection.router(req,res,next);
+});
 
 app.use('/api/conversation-profiles', requireAuth, createConversationProfiles({
   directory: TG_DATA_DIR,
