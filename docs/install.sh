@@ -91,7 +91,7 @@ if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
   helper="$base/app/docs/server-start.sh"
   # Upgrade only the known unmodified access-link pair. Preserve profiles, keys and chats.
   if [[ -f $helper && ( $(sha "$base/app/server/main.ts"):$(sha "$helper") == 6d6eef81212ed1da395ace43976609b12b9bc1b5f37b646def14011d0ca57721:56809476d2752223e33cd1554c161493151c0b1aa11c11dfadb6261a4f311933 || $(sha "$base/app/server/main.ts"):$(sha "$helper") == 3b699caeda151994c8bbea66eea5d3738ea8ef92eea9f294221adae2cf8bcf6e:dc56783f5d248099b6de1745501d83bf07fb9768c8f04996a77cd6a6305e1e8b ) ]]; then
-    for file in server/main.ts docs/server-start.sh; do fetch "https://raw.githubusercontent.com/dimko33-lang/pi-web/main/$file" "$tmp/${file##*/}"; done
+    for file in server/main.ts docs/server-start.sh; do fetch "https://raw.githubusercontent.com/dimko33-lang/pi-web/117cf5f/$file" "$tmp/${file##*/}"; done
     [[ $(sha "$tmp/main.ts") == 4a889bcd040d7865a15155b786a35e9499a39e91808c6ea19639f1957ef77127 && $(sha "$tmp/server-start.sh") == 0bfc64713fc75749d3ec5856a658b5e53c699e51f06f1cd9110168068b7a4c06 ]] || { echo 'Access-link update checksum mismatch.' >&2; exit 1; }
     mv "$tmp/main.ts" "$base/app/server/main.ts"; mv "$tmp/server-start.sh" "$helper"
   fi

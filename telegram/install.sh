@@ -26,8 +26,9 @@ case "${1:-status}" in
            if [[ -d /run/systemd/system && $EUID == 0 ]]; then exec "$base/telegram-venv/bin/python" "$base/app/telegram/service.py" "$base"; fi
            printf 'Start the connected account with: %q run\n' "$base/bin/nikita-telegram";;
   start) exec "$base/telegram-venv/bin/python" "$base/app/telegram/service.py" "$base";;
+  bind) exec "$base/telegram-venv/bin/python" "$base/app/telegram/instance.py" "$@";;
   run|status) exec "$base/telegram-venv/bin/python" "$base/app/telegram/instance.py" "${1:-status}";;
-  *) echo 'Usage: nikita-telegram {connect|start|run|status}' >&2; exit 2;;
+  *) echo 'Usage: nikita-telegram {connect|start|run|status|bind TAB CHAT_ID}' >&2; exit 2;;
 esac
 SH
 } >"$tmp"

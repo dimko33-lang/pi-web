@@ -1,6 +1,6 @@
 # Pi Web
 
-A self-hosted browser interface and Nikita salon for the Pi coding agent. The starter includes seven editable profiles, offline model and thinking selectors, and eighteen illustrated or mathematical notes. Open `/profiles` for settings and `/nikita/` for Notes. No Telegram sessions, message histories, author archives or API credentials are included. Fresh Linux server installations include the Telegram owner-DM transport. It stays offline until you explicitly connect a new agent account. It is not the complete reference deployment: group routing/recovery, privileged browser execution and reference workers are not installed by this transport.
+A self-hosted browser interface and Nikita salon for the Pi coding agent. The starter includes seven editable profiles, offline model and thinking selectors, and eighteen illustrated or mathematical notes. Open `/profiles` for settings and `/nikita/` for Notes. No Telegram sessions, message histories, author archives or API credentials are included. Fresh Linux server installations include the Telegram owner-DM transport. It stays offline until you explicitly connect a new agent account. It is not the complete reference deployment: group reply routing/recovery, privileged browser execution and image/science workers are not installed by this transport.
 
 ## Run locally
 
@@ -27,6 +27,12 @@ Open http://127.0.0.1:5070. The interface starts without an account. For model r
 Use the `nikita-telegram connect` command with the full path printed by the installer. Enter your Telegram application API ID/hash, your personal numeric owner ID, then scan the login QR with the **separate agent account**. Nothing is requested during the web installation. Each installation creates fresh private authorization under its own `telegram-state/`. Never copy that directory to a second running instance. Check `~/PiWebRuntime/bin/nikita-telegram status` without connecting to Telegram.
 
 On a standard root-owned systemd server, enrollment enables a dedicated unit; after reboot it resumes using the same authorization. If enrollment succeeded but service registration failed, use `nikita-telegram start` with the same full path. Other users can run `nikita-telegram run` in the foreground. Only incoming private text messages from the configured owner are answered. Pi uses its configured provider, the panel model when selected, and a separate Telegram conversation. Host tools and extensions are disabled on this transport. Groups and other users do not trigger replies. On Debian/Ubuntu a root install can install `python3-venv` if missing; other Linux hosts need Python 3.9+ with venv. The uninstaller removes this local Telegram login along with the installation, not the Telegram account itself.
+
+## Salon and author archives
+
+The Telegram service also collects history on its existing connection. During enrollment you can choose groups for the salon tabs directly from your account's dialog list. No group is guessed from its name. The owner DM tab is bound automatically. Salon tabs collect **only outgoing text/captions and photos** in the selected chats. The LightCone tab optionally also collects participants' text in a separate authenticated author reader (`/go/lightcone`). This requires an explicit opt-in, and never includes other chats. An empty installation contains no Telegram history.
+
+You can also bind a tab later, e.g. `~/PiWebRuntime/bin/nikita-telegram bind lake -1001234567890` (replace the example ID). Use `bind lightcone CHAT_ID --authors` to opt in to the author reader. New bindings are picked up within about three minutes without restarting Telegram. A new binding starts at its current Telegram tip. After initialization, events wake the collector; a three-minute fallback catches missed updates. The checkpoint advances only after archive files have been written, and replay deduplicates entries. Private data lives under `telegram-state/`, never under `public/`. Source Save does not export conversations or images. This is not a Debri history importer or a guest-DM collector.
 
 ## Remove the default Linux test installation
 

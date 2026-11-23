@@ -882,6 +882,25 @@ app.get('/api/project/download/source', async (req, res) => {
 
 app.get('/api/version', (_req, res) => res.json({ version: 'standalone-chat' }));
 app.get(["/nikita/", "/nikita/piwep/", "/nikita/curvelab/", "/nikita/arri/", "/nikita/lightcone/", "/nikita/lake/", "/nikita/owner_dm/", "/nikita/guest_dm/"], requireAuth, (_req,res) => res.sendFile(path.join(PUBLIC, 'nikita/index.html')));
+// Live salon history is private instance data, never part of the static export.
+const salonHistory = path.resolve(process.env.NIKITA_INSTANCE_DIR || path.join(ROOT_DIR, '..', 'telegram-state'), 'archive');
+app.get(/^\/nikita\/archive\/(owner_dm|guest_dm|lake|lightcone|curvelab|piwep|arri)\/(messages\.json|[0-9]+-[0-9]+\.jpg)$/, requireAuth, (req,res) => {
+  const name = req.params[1];
+  res.set('Cache-Control','private, no-store');
+  res.sendFile(path.join(salonHistory,req.params[0],name), {cacheControl:false}, error => {
+    if (!error || res.headersSent) return;
+    if (error.code === 'ENOENT' && name === 'messages.json') { res.status(200).json([]); return; }
+    res.sendStatus(error.code === 'ENOENT' ? 404 : 500);
+  });
+});
+app.get(/^\/go\/lightcone\/data\/(index|(?:user|channel)[0-9]+)\.json$/, requireAuth, (req,res) => {
+  const name = req.params[0]; res.set('Cache-Control','private, no-store');
+  res.sendFile(path.resolve(salonHistory,'../authors',name+'.json'), {cacheControl:false}, error => {
+    if (!error || res.headersSent) return;
+    if (error.code === 'ENOENT' && name === 'index') { res.status(200).json([]); return; }
+    res.sendStatus(error.code === 'ENOENT' ? 404 : 500);
+  });
+});
 app.get(['/go/lightcone','/go/debri'], requireAuth, (req,res) => res.sendFile(path.join(PUBLIC, req.path.slice(1), 'index.html')));
 app.use(express.static(PUBLIC, { index: false, etag: false, lastModified: false }));
 app.get('/', (req, res) => {

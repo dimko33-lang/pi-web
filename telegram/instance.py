@@ -16,6 +16,7 @@ import tempfile
 from telethon import TelegramClient, errors, events
 from telethon.sessions import StringSession
 from telegram_blocks import message_parts, verify_blocks
+from salon_archive import SalonArchive, bind, GROUPS
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -63,6 +64,19 @@ async def enroll():
             await c.log_out(); raise SystemExit('Use a separate agent account, not the owner account.')
         if input(f'Connect account {me.id} to owner {owner}? [y/N] ').strip().lower() != 'y':
             await c.log_out(); raise SystemExit('Cancelled. Nothing saved.')
+        if input('Bind salon archive tabs to Telegram groups now? [y/N] ').strip().lower() == 'y':
+            dialogs = [d async for d in c.iter_dialogs() if d.id < 0 and (d.is_group or d.is_channel)]
+            for i, dialog in enumerate(dialogs, 1): print(f'{i}: {dialog.name}')
+            for profile in GROUPS:
+                while True:
+                    pick = input(f'{profile} — group number (Enter to skip): ').strip()
+                    if not pick: break
+                    if not pick.isdigit() or not 1 <= int(pick) <= len(dialogs):
+                        print('Choose a listed number.'); continue
+                    collect = profile == 'lightcone' and input('Collect participant text in the private author reader? [y/N] ').strip().lower() == 'y'
+                    try: bind(BASE, profile, dialogs[int(pick)-1].id, collect)
+                    except ValueError as e: print(e); continue
+                    break
         with tempfile.NamedTemporaryFile('w', dir=BASE, delete=False) as out:
             json.dump(dict(api=api, secret=secret, owner=owner, account=me.id, session=c.session.save()), out)
             out.flush(); os.fsync(out.fileno())
@@ -102,6 +116,17 @@ async def serve():
         raise SystemExit('Telegram not connected; run connect first.')
     conf = json.loads(CONFIG.read_text()); owner = conf['owner']
     c = TelegramClient(StringSession(conf['session']), conf['api'], conf['secret'], sequential_updates=True)
+    archive = SalonArchive(BASE, owner)
+    archive_task = None
+    @c.on(events.NewMessage(incoming=True))
+    async def archive_incoming(e):
+        # Incoming text wakes only the explicitly enrolled author-reader group.
+        if e.chat_id == archive.reader_peer: archive.notify(e.chat_id, e.id)
+
+    @c.on(events.NewMessage(outgoing=True))
+    async def archive_outgoing(e):
+        archive.notify(e.chat_id, e.id)
+
     @c.on(events.NewMessage(incoming=True, from_users=[owner]))
     async def incoming(e):
         if not owner_dm(e, owner):
@@ -113,22 +138,33 @@ async def serve():
             await e.reply('Pi could not complete this reply. Check provider login and selected model.'); return
         for body, entities in message_parts(text, formatted=True):
             sent = await e.reply(body, formatting_entities=entities, link_preview=False)
+            archive.notify(owner, sent.id)
             await verify_blocks(c, owner, sent, entities)
     try:
         await c.connect()
         me = await c.get_me()
         if not me or me.id != conf['account']:
             raise SystemExit('Telegram account mismatch or expired authorization.')
+        archive_task = asyncio.create_task(archive.run(c))
         await c.run_until_disconnected()
     finally:
+        if archive_task:
+            archive_task.cancel(); await asyncio.gather(archive_task, return_exceptions=True)
         await c.disconnect()
 
 
 if __name__ == '__main__':
     os.umask(0o077)
-    parser = argparse.ArgumentParser(); parser.add_argument('action', choices=['connect', 'run', 'status'])
-    action = parser.parse_args().action
-    if action == 'status':
+    parser = argparse.ArgumentParser(); sub = parser.add_subparsers(dest='action', required=True)
+    for name in ('connect','run','status'): sub.add_parser(name)
+    route = sub.add_parser('bind'); route.add_argument('profile',choices=GROUPS); route.add_argument('peer',type=int)
+    route.add_argument('--authors',action='store_true',help='Also archive participant text in the authenticated LightCone reader')
+    args = parser.parse_args(); action = args.action
+    if action == 'bind':
+        try: bind(BASE, args.profile, args.peer, args.authors)
+        except ValueError as e: parser.error(str(e))
+        print('Archive tab bound:', args.profile)
+    elif action == 'status':
         print('Connected' if CONFIG.is_file() else 'Installed; not connected')
     else:
         with exclusive():
