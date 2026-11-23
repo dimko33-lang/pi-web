@@ -8,13 +8,14 @@ need_python(){ command -v python3 >/dev/null && python3 -c 'import ensurepip,ven
 if ! need_python; then
   if [[ $(uname -s) == Linux && $EUID == 0 ]] && command -v apt-get >/dev/null; then
     echo 'Installing Python and venv for Telegram…'; export DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=l
-    apt-get -qq update; apt-get -y -qq install python3 python3-venv
+    echo 'Refreshing Linux package lists for Telegram…'; apt-get update
+    echo 'Installing Python packages…'; apt-get -o DPkg::Lock::Timeout=180 -y install python3 python3-venv
   fi
   need_python || { echo 'Telegram requires Python 3.9+ with venv.' >&2; exit 1; }
 fi
-if [[ ! -x $venv/bin/python ]]; then python3 -m venv "$venv"; fi
+if [[ ! -x $venv/bin/python ]]; then echo 'Creating the Telegram Python environment…'; python3 -m venv "$venv"; fi
 if ! cmp -s "$src/requirements.lock" "$venv/.installed-lock" || ! "$venv/bin/python" -c 'import telethon,qrcode' 2>/dev/null; then
-  echo 'Installing Telegram transport…'; "$venv/bin/python" -m pip --disable-pip-version-check install --no-input -q -r "$src/requirements.lock"
+  echo 'Installing Telegram transport…'; "$venv/bin/python" -m pip --disable-pip-version-check install --no-input -r "$src/requirements.lock"
   "$venv/bin/python" -c 'import telethon,qrcode'; cp "$src/requirements.lock" "$venv/.installed-lock"
 fi
 mkdir -p "$base/bin"; tmp=$(mktemp "$base/bin/.telegram.XXXXXX"); trap 'rm -f "$tmp"' EXIT

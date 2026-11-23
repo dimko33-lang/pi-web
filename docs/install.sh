@@ -15,7 +15,15 @@ version=22.23.4
 case "$(uname -s)" in Darwin) os=darwin;; Linux) os=linux;; *) echo 'Supported: macOS and Linux.' >&2; exit 1;; esac
 case "$(uname -m)" in x86_64|amd64) arch=x64;; arm64|aarch64) arch=arm64;; *) echo 'Unsupported processor.' >&2; exit 1;; esac
 mkdir -p "$base"; tmp=$(mktemp -d "$base/.install.XXXXXX"); trap 'rm -rf "$tmp"' EXIT
-fetch(){ curl -fsSL --retry 2 "$1" -o "$2"; }
+fetch(){
+  if [[ -t 2 ]]; then curl -fSL --progress-bar --retry 2 "$1" -o "$2";
+  else curl -fsSL --retry 2 "$1" -o "$2"; fi
+}
+run_stage(){
+  local label=$1; shift
+  if [[ -f $base/app/docs/install-progress.mjs ]]; then node "$base/app/docs/install-progress.mjs" "$label" "$@";
+  else "$@" </dev/null; fi  # Older installs/archives may not include the reporter.
+}
 # Reuse the private runtime on later launches. Never depend on a terminal's PATH for npm.
 node_dir="$base/node-v$version-$os-$arch"
 if [ ! -x "$node_dir/bin/node" ]; then
@@ -121,7 +129,7 @@ KNOWN
 if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
   if [[ $os == linux ]]; then
     if [[ -f $base/app/telegram/install.sh ]]; then
-      bash "$base/app/telegram/install.sh" "$base" "$PI_WEB_PI_BIN" "$node_dir/bin"
+      run_stage 'Telegram setup' bash "$base/app/telegram/install.sh" "$base" "$PI_WEB_PI_BIN" "$node_dir/bin"
     else
       echo 'Existing application predates Telegram support; preserving it. Fresh installations include Telegram.'
     fi
@@ -131,7 +139,7 @@ if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
   fi
   if [[ $os == linux && -f $base/app/services/science/install.sh ]]; then
     if [[ $EUID == 0 && -d /run/systemd/system && $base == /root/PiWebRuntime ]]; then
-      bash "$base/app/services/science/install.sh" </dev/null
+      run_stage 'Scientific computation setup' bash "$base/app/services/science/install.sh"
     else
       echo 'Image support uses Pi credentials. The host science service is auto-installed only on a standard root/systemd Linux installation.'
     fi

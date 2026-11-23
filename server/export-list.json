@@ -3,6 +3,7 @@
     "README.md",
     "RESTORE.md",
     "docs/index.html",
+    "docs/install-progress.mjs",
     "docs/install.sh",
     "docs/reference-install.md",
     "docs/restore-source.mjs",

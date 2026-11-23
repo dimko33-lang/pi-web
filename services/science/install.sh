@@ -14,7 +14,8 @@ if [[ ! -x /usr/bin/podman ]]; then
   command -v apt-get >/dev/null || { echo 'Install Podman on this Linux distribution first.' >&2; exit 1; }
   export DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=l
   echo 'Installing the daemonless container runtime for scientific jobs…'
-  apt-get -qq update; apt-get -y -qq install podman
+  echo 'Refreshing Linux package lists for Podman…'; apt-get update
+  echo 'Installing Podman packages…'; apt-get -o DPkg::Lock::Timeout=180 -y install podman
 fi
 install -d -m 700 "$state" "$lib"; printf '%s\n' stock-v1 >"$state/.pi-web-managed"
 version=$(cd "$src" && sha256sum Dockerfile requirements.lock | sha256sum | cut -c1-20)
