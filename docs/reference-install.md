@@ -1,6 +1,6 @@
 # Reference install — status on main
 
-The running Nikita implementation is the source for `main`, which the card installer downloads on a fresh installation. Do not reimplement its behavior against screenshots. Import reviewed source from the deployment, then adapt only machine addresses, accounts, filesystem layout and generated instance state. Keep a source-file digest comparison and document functional differences with each import.
+The running Nikita implementation is the source for `main`. Fresh installations download the versioned release archive advertised on the card, not the moving branch head. Do not reimplement its behavior against screenshots. Import reviewed source from the deployment, then adapt only machine addresses, accounts, filesystem layout and generated instance state. Keep a source-file digest comparison and document functional differences with each import.
 
 ## Keeping the running instance and new installs in sync
 

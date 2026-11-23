@@ -94,7 +94,11 @@ if [ ! -d "$base/app" ]; then
     echo 'Verifying and restoring the saved application...'
     node "$PI_WEB_RESTORE_SOURCE/docs/restore-source.mjs" "$PI_WEB_RESTORE_SOURCE" "$tmp/app"
   else
-    echo 'Downloading Pi Web...'; fetch https://codeload.github.com/dimko33-lang/pi-web/tar.gz/refs/heads/main "$tmp/app.tar.gz"; mkdir "$tmp/app"; tar -xzf "$tmp/app.tar.gz" -C "$tmp/app" --strip-components=1
+    release=v0.1.0; asset="pi-web-$release.tar.gz"; url="https://github.com/dimko33-lang/pi-web/releases/download/$release/$asset"
+    echo "Downloading Pi Web $release..."; fetch "$url.sha256" "$tmp/expected"; fetch "$url" "$tmp/app.tar.gz"
+    expected=$(<"$tmp/expected"); actual=$(node -e 'console.log(require("crypto").createHash("sha256").update(require("fs").readFileSync(process.argv[1])).digest("hex"))' "$tmp/app.tar.gz")
+    [[ $expected == "$actual" ]] || { echo 'Release archive checksum mismatch.' >&2; exit 1; }
+    mkdir "$tmp/app"; tar -xzf "$tmp/app.tar.gz" -C "$tmp/app" --strip-components=1
   fi
   (cd "$tmp/app"; npm ci --no-audit --no-fund); mv "$tmp/app" "$base/app"
 fi

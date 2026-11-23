@@ -897,7 +897,8 @@ app.get('/api/project/download/source', async (req, res) => {
   }
 });
 
-app.get('/api/version', (_req, res) => res.json({ version: 'standalone-chat' }));
+const releaseVersion = JSON.parse(fs.readFileSync(path.join(ROOT_DIR,'package.json'), 'utf8')).version;
+app.get('/api/version', (_req, res) => res.json({ version: releaseVersion }));
 app.get(["/nikita/", "/nikita/piwep/", "/nikita/curvelab/", "/nikita/arri/", "/nikita/lightcone/", "/nikita/lake/", "/nikita/owner_dm/", "/nikita/guest_dm/"], requireAuth, (_req,res) => res.sendFile(path.join(PUBLIC, 'nikita/index.html')));
 // Live salon history is private instance data, never part of the static export.
 const salonHistory = path.resolve(process.env.NIKITA_INSTANCE_DIR || path.join(ROOT_DIR, '..', 'telegram-state'), 'archive');
