@@ -2,7 +2,7 @@
 
 Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
-The current installable release is [v0.1.0](https://github.com/dimko33-lang/pi-web/releases/tag/v0.1.0). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+The current installable release is [v0.1.1](https://github.com/dimko33-lang/pi-web/releases/tag/v0.1.1). Fresh installs use its archive; rerunning the card is not a general upgrade command.
 
 ## Try it
 

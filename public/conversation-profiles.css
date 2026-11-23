@@ -105,6 +105,10 @@ header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-st
 .profile-toolbar .actions button + button {position:relative}
 #profile-tabs a,.field-heading .toggle:has(input:not(:checked)),.profile-toolbar .profile-picker-option:not([aria-selected=true]):not(:hover):not(.is-focused) {color:var(--inactive-ink)} #profile-tabs a[aria-current=page],#profile-tabs a:hover,#profile-tabs a:focus-visible {color:#eee}
 form .profile-picker .profile-picker-trigger {padding-left:0}
+/* The reference profiles page receives these theme rules from its host. */
+html[data-reader-theme] header #profile-tabs a:is([aria-current=page],:hover,:focus-visible),
+html[data-reader-theme] .profile-toolbar :is(.profile-picker-option[aria-selected=true],.profile-picker-option.is-focused,.profile-picker-option:hover,input[type=number]:focus) {color:var(--ink)}
+html[data-reader-theme=light] .error {color:#933328}
 
 .profile-picker-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .profile-picker { position: relative; min-width: 0; }

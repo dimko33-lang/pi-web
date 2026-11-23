@@ -193,6 +193,7 @@
     "tests/instance-tools.mjs",
     "tests/personality.mjs",
     "tests/profile-install.mjs",
+    "tests/profile-theme.mjs",
     "tests/reply-recovery.py",
     "tests/request-inspection.mjs",
     "tests/science-live.mjs",
