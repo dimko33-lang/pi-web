@@ -21,6 +21,7 @@ from telethon.sessions import StringSession
 from telegram_blocks import message_parts, verify_blocks
 from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
+from motion_frames import motion_type, sampled_inputs
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -93,7 +94,7 @@ async def enroll():
 
 
 def owner_dm(e, owner):
-    return bool(e.is_private and not e.out and e.sender_id == owner and e.chat_id == owner and (e.raw_text or '').strip())
+    return bool(e.is_private and not e.out and e.sender_id == owner and e.chat_id == owner and ((e.raw_text or '').strip() or motion_type(getattr(e, 'message', None))))
 
 
 def conversation_profile(name):
@@ -133,7 +134,7 @@ def selected_model(profile):
     return os.environ.get('PI_WEB_MODEL', '')  # Otherwise let the enrolled Pi choose.
 
 
-async def answer(text, profile=None, group=None, addressing='', *, inspect_owner=False):
+async def answer(text, profile=None, group=None, addressing='', *, inspect_owner=False, frames=()):
     if profile is None: profile = owner_profile()
     pi = os.environ.get('PI_WEB_PI_BIN') or shutil.which('pi')
     if not pi:
@@ -175,6 +176,7 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
         if parts or not native:
             prompt.write('\n\n'.join(parts) or ' '); prompt.flush()
             args.extend(['--append-system-prompt' if native else '--system-prompt', prompt.name])
+        args.extend('@'+str(path) for path in frames)
         p = await asyncio.create_subprocess_exec(*args, cwd=cwd, env=env, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
         try:
             data, _ = await asyncio.wait_for(p.communicate(text.encode()), 360)
@@ -189,16 +191,24 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
 async def tool_turn(e):
     profile = owner_profile()  # Pin one settings snapshot for inference and dispatch.
     tools = profile.get('toolsOn', True)
-    direct = re.fullmatch(r'/(image|science)\s+([\s\S]+)', e.raw_text)
+    direct = re.fullmatch(r'/(image|science)\s+([\s\S]+)', e.raw_text or '')
     if direct and not tools: return 'Tools are off for this conversation.', None
     if direct:
         action = {'nikita_tool':'image','prompt':direct[2]} if direct[1]=='image' else {'nikita_tool':'python','code':direct[2]}
         text = ''
     else:
         # Only serve()'s enrolled-owner DM path reaches here. Replies/forwards/media are not inspection tests.
-        test = (e.raw_text.strip().lower() == 'ok' and not e.message.reply_to_msg_id
+        test = ((e.raw_text or '').strip().lower() == 'ok' and not e.message.reply_to_msg_id
                 and not e.message.fwd_from and not e.message.media)
-        text = await answer(e.raw_text, profile, inspect_owner=test)
+        quoted = None
+        if getattr(e.message, 'reply_to_msg_id', None):
+            candidate = await e.get_reply_message()
+            if candidate and candidate.chat_id == e.chat_id: quoted = candidate
+        if motion_type(e.message) or motion_type(quoted):
+            async with sampled_inputs(e.message, quoted) as (frames, note):
+                text = await answer((e.raw_text or '')+'\n\n'+note, profile, frames=frames)
+        else:
+            text = await answer(e.raw_text, profile, inspect_owner=test)
         if not tools: return text, None
         try: action = json.loads(text)
         except ValueError: return text, None

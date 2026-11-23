@@ -18,6 +18,11 @@ if ! cmp -s "$src/requirements.lock" "$venv/.installed-lock" || ! "$venv/bin/pyt
   echo 'Installing Telegram transport…'; "$venv/bin/python" -m pip --disable-pip-version-check install --no-input -r "$src/requirements.lock"
   "$venv/bin/python" -c 'import telethon,qrcode'; cp "$src/requirements.lock" "$venv/.installed-lock"
 fi
+# Older retained app trees do not have a decoder; do not mutate those on resume.
+if [[ -f $src/media-decoder/package-lock.json && ! -f $src/media-decoder/node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.wasm ]]; then
+  echo 'Installing isolated GIF/video frame decoder…'
+  npm ci --prefix "$src/media-decoder" --ignore-scripts --no-audit --no-fund
+fi
 mkdir -p "$base/bin"; tmp=$(mktemp "$base/bin/.telegram.XXXXXX"); trap 'rm -f "$tmp"' EXIT
 {
   printf '#!/bin/bash\nset -eu\nbase=%q\nexport PI_WEB_PI_BIN=%q PATH=%q:"$PATH"\n' "$base" "$pi" "$node_bin"

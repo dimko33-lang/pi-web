@@ -1,0 +1,5 @@
+{
+  "name": "nikita-motion-decoder",
+  "private": true,
+  "dependencies": { "@ffmpeg/core": "0.12.10" }
+}

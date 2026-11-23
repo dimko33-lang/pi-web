@@ -2,7 +2,7 @@
 
 Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
-The current installable release is [v0.1.1](https://github.com/dimko33-lang/pi-web/releases/tag/v0.1.1). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+The current installable release is [v0.2.0](https://github.com/dimko33-lang/pi-web/releases/tag/v0.2.0). Fresh installs use its archive; rerunning the card is not a general upgrade command.
 
 ## Try it
 
@@ -19,7 +19,7 @@ No provider or Telegram login is needed to install or read the Notes. For model 
 ## What you can try today
 
 - **Browser chat and salon.** Choose a model and thinking level, edit seven conversation profiles at `/profiles`, or read the 18 bundled Notes at `/nikita/`.
-- **Telegram.** Connect your agent with `nikita-telegram connect`, set the owner, then choose the chats. Archiving a group does not give Nikita permission to speak there. Group text replies and the LightCone author archive are separate opt-ins. You start with empty archives, not someone else’s conversations.
+- **Telegram.** Connect your agent with `nikita-telegram connect`, set the owner, then choose the chats. Archiving a group does not give Nikita permission to speak there. Group text replies and the LightCone author archive are separate opt-ins. You start with empty archives, not someone else’s conversations. Tag Nikita on a GIF or short video and a vision-capable model can see an ordered set of stills, without audio.
 - **Science and images.** On the standard Linux server install, try `/science print(2 ** 32)` to run Python in an offline container. Ask for an image or a photo edit if your selected provider supports it. Nikita won’t switch to another billing provider to make it work.
 - **Request JSON.** In `My DM`, you can explicitly arm a one-shot check to see what Pi prepares to send to the provider for a test `ok`. It’s off by default, never watches groups, and expires after ten minutes. Anyone with panel access can see the captured body until it is cleared or expires.
 - **Save.** Export a restorable copy of the application, including the 18 Notes. It’s not a server backup: it doesn’t include chat history, personal settings, Telegram sessions or provider credentials.

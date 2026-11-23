@@ -63,6 +63,19 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
         self.mode='all';g=await self.boot();await g.step();self.assertFalse(self.calls)
         self.mode='off';self.c.add('@my_agent muted',10000);await g.step();self.assertFalse(self.calls)
         self.mode='addressed';self.c.add('Nikita?',10000);await g.step();self.assertTrue(self.calls[-1][2]);self.assertEqual(self.calls[-1][1],-7)
+    async def test_only_addressed_group_turn_samples_reply(self):
+        g=await self.boot(); gif=self.c.add('',10000); gif.file=NS(mime_type='image/gif',size=20)
+        seen=[]
+        @asynccontextmanager
+        async def sample(*messages):
+            seen.append(messages); yield ['sample.jpg'],'ordered samples'
+        async def infer(text,profile,peer,address,*,frames):
+            self.assertEqual(frames,['sample.jpg']); self.assertIn('ordered samples',text); return 'ok'
+        g.infer=infer
+        with patch('group_replies.sampled_inputs',sample):
+            await g.step(); self.assertFalse(seen)
+            ask=self.c.add('@my_agent what happened?',10000,reply=gif.id);await g.step()
+            self.assertEqual(seen,[(ask,gif)]);self.assertEqual(self.sent,[ask.id])
     def test_archive_does_not_grant_replies(self):
         bind(self.base,'lightcone',-7,True);p=self.base/'reply-bindings.json';self.assertFalse(p.exists())
         bind(self.base,'lightcone',-7,replies=True);self.assertEqual(read(p,{}),{'lightcone':-7})
