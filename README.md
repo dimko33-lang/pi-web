@@ -2,9 +2,11 @@
 
 Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
-The current installable release is [v0.9.3](https://github.com/dimko33-lang/pi-web/releases/tag/v0.9.3). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+The current installable release is [v0.10.0](https://github.com/dimko33-lang/pi-web/releases/tag/v0.10.0). Fresh installs use its archive; rerunning the card is not a general upgrade command.
 
 [Nikita on Telegram](https://t.me/+n4lYVtZb0RE4NGE6)
+
+**Need to recover the voice name, connect Telegram or maintain the installation?** Open the [local operator handbook](server/handbook/START-HERE.md). The installer prints its path (normally `~/PiWebRuntime/app/server/handbook/START-HERE.md`). In the stock isolated Linux browser workspace the same index is readable at `/opt/app/server/handbook/START-HERE.md` without Root. Ask the maintenance agent to open the index and read only the matching note; these files are not automatically loaded into conversations.
 
 ## Try it
 

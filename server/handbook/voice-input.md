@@ -1,0 +1,7 @@
+# Listen: local Russian speech recognition
+
+Incoming speech is not Gacrux. Nikita decodes a recording locally, recognizes **words** with **GigaAM v3 E2E RNNT Q8_0** via `transcribe.cpp`, then sends the transcript through the ordinary conversation model. No Google key, cloud ASR or GPU is required. It does not infer tone of voice or listen to a video's soundtrack.
+
+- The standard supported Linux Telegram install provisions the decoder, pinned native runtime and model. First check the actual Telegram venv for `nikita-gigaam-v3-q8-tc042/model.gguf` and `nikita-gigaam-v3-q8-tc042/native/libtranscribe.so`. Exact upstream URLs, byte counts and checksums are in `telegram/voice_assets.py`; the installer is `telegram/install.sh`. Do not download a similarly named model from an arbitrary mirror or reinstall a working Telegram account to repair ASR.
+- Start small: ask the owner to send a short Russian microphone note, e.g. `Сколько будет семь плюс пять?`. In a group, address Nikita or reply directly to her where replies count. A transcript-based answer verifies incoming speech even if the reply is text. Silence can prompt a request to repeat.
+- Ogg/Opus, Ogg/Vorbis, MP3 and PCM WAV speech files are supported. A supported audio document is not a microphone note for matching the response format. Only the current attachment or its direct same-chat reply target is in scope; do not scan private history for a sample.

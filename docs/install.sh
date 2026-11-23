@@ -94,7 +94,7 @@ if [ ! -d "$base/app" ]; then
     echo 'Verifying and restoring the saved application...'
     node "$PI_WEB_RESTORE_SOURCE/docs/restore-source.mjs" "$PI_WEB_RESTORE_SOURCE" "$tmp/app"
   else
-    release=v0.9.3; asset="pi-web-$release.tar.gz"; url="https://github.com/dimko33-lang/pi-web/releases/download/$release/$asset"
+    release=v0.10.0; asset="pi-web-$release.tar.gz"; url="https://github.com/dimko33-lang/pi-web/releases/download/$release/$asset"
     echo "Downloading Pi Web $release..."; fetch "$url.sha256" "$tmp/expected"; fetch "$url" "$tmp/app.tar.gz"
     expected=$(<"$tmp/expected"); actual=$(node -e 'console.log(require("crypto").createHash("sha256").update(require("fs").readFileSync(process.argv[1])).digest("hex"))' "$tmp/app.tar.gz")
     [[ $expected == "$actual" ]] || { echo 'Release archive checksum mismatch.' >&2; exit 1; }
@@ -150,6 +150,8 @@ KNOWN
   done
   echo 'Updated stock application files. Restart an already running server to load the new code.'
 ;; esac
+handbook="$base/app/server/handbook/START-HERE.md"
+if [[ -r $handbook ]]; then printf 'Local operator handbook: %s\n' "$handbook"; fi
 if [ -n "${SSH_CONNECTION:-}${PI_WEB_PUBLIC_HOST:-}" ]; then
   if [[ $os == linux ]]; then
     if [[ -f $base/app/telegram/install.sh ]]; then
