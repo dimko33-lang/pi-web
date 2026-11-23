@@ -75,7 +75,7 @@ header #profile-tabs {flex:1;min-width:0;flex-wrap:wrap;gap:0 .75em;align-items:
 header #profile-tabs::-webkit-scrollbar {display:none}
 header #profile-tabs a {position:relative;flex:none;padding:0;line-height:32px}
 header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-start:-.375em;top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
-.profile-toolbar {display:grid;align-items:center;grid-template-columns:minmax(0,calc(11.45em + 2 * var(--tool-gap))) auto auto auto;justify-content:start;--tool-gap:clamp(6px,1.8vw,.75em);gap:0 var(--tool-gap)}
+.profile-toolbar {display:grid;align-items:center;grid-template-columns:minmax(0,calc(12.85em + 2 * var(--tool-gap))) auto auto auto;justify-content:start;--tool-gap:clamp(6px,1.8vw,.75em);gap:0 var(--tool-gap)}
 .profile-toolbar>.grid:first-child {display:grid;align-items:center;gap:var(--tool-gap);width:100%;min-width:0;grid-template-columns:minmax(0,1fr) 2.5em}
 .profile-toolbar .profile-picker-trigger {width:100%;max-width:100%}
 .profile-toolbar .profile-picker .profile-picker-trigger {padding:4px 0;height:auto;min-height:32px;background:none;box-shadow:none;text-align:center}

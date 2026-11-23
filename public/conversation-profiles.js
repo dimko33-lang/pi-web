@@ -193,8 +193,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       'New Chat starts a fresh context separately for every guest. Old Chat reopens each guest\'s own retained history within the saved limits and Memory switch. People never share history. Neither action deletes logs or cancels active replies; removed messages cannot be restored.';
     for (const model of catalog) {
       const label = model.label || model.name || model.id;
-      const flash = /deepseek.*flash/i.test(`${label} ${model.id}`);
-      form.elements.model.add(new Option(flash ? 'Flash' : label, model.id));
+      form.elements.model.add(new Option(label, model.id));
     }
     const tab = document.createElement('a'); tab.className = 'nav-button'; tab.textContent = item.label;
     tab.href = '/profiles?chat=' + encodeURIComponent(item.id);
