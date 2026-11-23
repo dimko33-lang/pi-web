@@ -103,9 +103,10 @@ header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-st
 .profile-toolbar .feedback {flex-basis:100%;min-width:0;overflow-wrap:anywhere}
 body {--switch-off:#55534f}
 html:is([data-theme=light],[data-reader-theme=light]) body {--switch-off:#a4a19b}
-/* Waiting tabs and unchecked switches share one tone. Only the current tab is underlined. */
+/* Emphasize the current label without changing its measured width. */
+html body header #profile-tabs a {text-decoration:none}
 html body header #profile-tabs a:not([aria-current=page]) {color:var(--switch-off)}
-html body header #profile-tabs a[aria-current=page] {color:var(--ink,#eee);font-weight:650;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:.24em}
+html body header #profile-tabs a[aria-current=page] {color:var(--ink,#eee);-webkit-text-stroke:.35px currentColor}
 html body header #profile-tabs a:focus-visible {outline:1px solid var(--ink,#eee);outline-offset:2px}
 form :is(.field-heading,.format-switches) .toggle:has(input:not(:checked)),form .field-heading .instruction-show[aria-expanded=false] {color:var(--switch-off)}
 form .toggle:has(input:checked) {color:var(--ink,#eee);font-weight:600}
