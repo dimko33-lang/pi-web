@@ -14,10 +14,13 @@ body.is-fullscreen #profile-fullscreen { opacity: 1; }
 .nav-button[aria-current="page"] { color: rgba(255,255,255,.94); border-color: #444448; background: #202023; }
 .notice { margin: 0 0 16px; }
 [hidden] { display: none !important; }
+.request-inspector { margin-top:1em; }
+.request-inspector summary { cursor:pointer; }
+.request-inspector pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:0.9em; }
 .field-heading .instruction-show { background:none; border:0; padding:5px 0 5px 12px; color:var(--inactive-ink); cursor:pointer; }
 .field-heading .instruction-show[aria-expanded=true] { color:#eee; }
-#browser-pi-reference pre { white-space:pre-wrap; overflow-wrap:anywhere; font:inherit; }
-#browser-pi small { color:var(--inactive-ink); }
+[data-pi-reference] pre { white-space:pre-wrap; overflow-wrap:anywhere; font:inherit; }
+[data-pi-reference] small { color:var(--inactive-ink); }
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; }
 main { max-width: 1060px; margin: auto; padding: 8px 28px 64px; }

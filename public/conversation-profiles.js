@@ -15,7 +15,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     if (active instanceof HTMLTextAreaElement && active !== event.target) active.blur();
   });
   const endpoint = '/api/conversation-profiles';
-  const fields = ['model', 'thinking', 'replyMode', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn',
+  const fields = ['piOn', 'model', 'thinking', 'replyMode', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn',
     'tail', 'tailOn', 'memory', 'memoryLimit', 'backgroundLimit'];
   const status = document.querySelector('#status');
   const editors = new Map();
@@ -64,7 +64,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   const selectProfile = (id, push = false) => {
     if (!editors.has(id)) id = editors.keys().next().value;
     if (!id) return;
-    const salon=document.querySelector('#salon-link');if(salon)salon.href='/nikita/?chat='+encodeURIComponent(id);
+    const salon=document.querySelector('#salon-link');if(salon)salon.href='/go/hub?chat='+encodeURIComponent(id);
     for (const [key, editor] of editors) {
       editor.section.hidden = key !== id;
       if (key === id) editor.tab.setAttribute('aria-current', 'page');
@@ -126,41 +126,53 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     for (const picker of editor.pickers) picker.refresh();
     void updateThinking(editor, item.settings.thinking);
   }
-  function bindShow(button, area, key, onOpen) {
-    const display = open => {
-      area.hidden = !open; button.setAttribute('aria-expanded', String(open));
-      if (open && onOpen) onOpen();
-    };
-    let open = false; try { open = localStorage.getItem(key) === '1'; } catch {}
-    display(open);
-    button.addEventListener('click', () => { display(area.hidden); try { localStorage.setItem(key, area.hidden ? '0' : '1'); } catch {} });
-  }
+  let reference;
   function addShowControls(form, id) {
-    for (const [toggle, name] of Object.entries({baseOn:'basePrompt', systemPrompt:'character', customOn:'customPrompt', tailOn:'tail'})) {
-      const heading = form.elements[toggle].closest('.field-heading'), area = form.elements[name];
+    for (const [toggle, name] of Object.entries({piOn: 'pi', baseOn: 'basePrompt', systemPrompt: 'character', customOn: 'customPrompt', tailOn: 'tail'})) {
+      const heading = form.elements[toggle].closest('.field-heading');
+      const area = name === 'pi' ? form.querySelector('[data-pi-reference]') : form.elements[name];
       area.id = 'block-' + id + '-' + name;
-      const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Show'; button.className = 'instruction-show';
-      button.setAttribute('aria-label', 'Show ' + heading.textContent.trim() + ' text'); button.setAttribute('aria-controls', area.id); heading.append(button);
-      bindShow(button, area, 'profiles.show.' + id + '.' + name);
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Show';
+      button.className = 'instruction-show'; button.setAttribute('aria-controls', area.id);
+      button.setAttribute('aria-label', 'Show ' + heading.textContent.trim() + ' text'); heading.append(button);
+      const key = 'profiles.show.' + id + '.' + name;
+      const display = open => {
+        area.hidden = !open; button.setAttribute('aria-expanded', String(open));
+        if (open && name === 'pi') {
+          const pre = area.querySelector('pre'); pre.textContent = 'Loading…';
+          reference ??= request(endpoint + '/pi-reference').catch(error => { reference = null; throw error; });
+          reference.then(data => { pre.textContent = data.text; }, error => { pre.textContent = error.message; });
+        }
+      };
+      let initial = false; try { initial = localStorage.getItem(key) === '1'; } catch {}
+      display(initial);
+      button.addEventListener('click', () => { display(area.hidden); try { localStorage.setItem(key, area.hidden ? '0' : '1'); } catch {} });
     }
   }
-  async function initBrowserPi() {
-    const row = document.querySelector('#browser-pi'), toggle = row.querySelector('input'), area = row.querySelector('[id=browser-pi-reference]');
-    bindShow(row.querySelector('button'), area, 'profiles.show.browser.pi', async () => {
-      const pre = area.querySelector('pre'); pre.textContent = 'Loading…';
-      try { pre.textContent = (await request('/api/browser-pi-reference')).text; } catch (error) { pre.textContent = error.message; }
-    });
-    const saved = await request('/api/settings'); toggle.checked = saved.settings.piOn === true; toggle.disabled = false;
-    toggle.addEventListener('change', async () => {
-      const next = toggle.checked; toggle.disabled = true;
-      try { toggle.checked = (await request('/api/settings', {piOn:next})).settings.piOn === true; }
-      catch (error) { toggle.checked = !next; window.alert(error.message); }
-      finally { toggle.disabled = false; }
-    });
+  function addRequestInspector(section) {
+    const details = document.createElement('details'); details.className = 'request-inspector';
+    details.innerHTML = '<summary>Request JSON</summary><p>One test in My DM. Turn off Tools, Memory and Response style; send a new message containing only ok. Expires after 10 minutes.</p><button type="button" data-arm>Capture next ok</button> <button type="button" data-clear>Clear</button><p role="status"></p><pre></pre>';
+    section.append(details);
+    const api = '/api/owner-request-inspection', status = details.querySelector('[role=status]'), pre = details.querySelector('pre');
+    let seq = 0, busy = false;
+    const update = async action => {
+      if (busy || !details.open || section.hidden || document.hidden) return;
+      busy = true; const id = ++seq;
+      try {
+        const data = await request(api, action ? {action} : undefined);
+        if (id !== seq || !details.open) return;
+        status.textContent = ({armed:'Waiting for the next ok in My DM.',captured:'Captured before sending to the provider.',off:'Not recording.'})[data.state];
+        pre.textContent = data.state === 'captured' ? JSON.stringify(data.body,null,2) : '';
+      } catch (error) { status.textContent = error.message; pre.textContent = ''; } finally { busy = false; }
+    };
+    details.querySelector('[data-arm]').onclick = () => update('arm'); details.querySelector('[data-clear]').onclick = () => update('clear');
+    details.ontoggle = () => { if (details.open) void update(); else { seq++; pre.textContent = ''; } };
+    setInterval(() => { if (details.open && !document.hidden && !section.hidden) void update(); else pre.textContent = ''; }, 2000);
   }
   function createEditor(item) {
     const section = document.querySelector('#profile-template').content.firstElementChild.cloneNode(true);
     section.dataset.profile = item.id;
+    if (item.id === 'owner_dm') addRequestInspector(section);
     section.querySelector('h2').textContent = item.label;
     const privateConversation = item.kind === 'private' || item.kind === 'private_default';
     section.querySelector('.identity').textContent = item.kind === 'private_default'
@@ -213,7 +225,10 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     revision = data.revision;
     addressingNames = Array.isArray(data.addressingNames) ? data.addressingNames : null;
     document.querySelector('#title').textContent = data.title; document.title = data.title;
-    for (const item of data.profiles) fill(editors.get(item.id) || createEditor(item), item);
+    for (const item of data.profiles) {
+      if (item.id === 'lake') item.label = 'Soul Lake';
+      fill(editors.get(item.id) || createEditor(item), item);
+    }
     selectProfile(new URL(location.href).searchParams.get('chat'));
   }
   async function save(editor, action) {
@@ -261,6 +276,5 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   window.addEventListener('beforeunload', event => {
     if (pending || [...editors.values()].some(editor => editor.dirty)) { event.preventDefault(); event.returnValue = ''; }
   });
-  void initBrowserPi().catch(error => message(status, error.message, true));
   void start();
 })();

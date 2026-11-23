@@ -8,21 +8,16 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Conversations</title>
 <link rel="stylesheet" href="/surface-colors.css">
-<link rel="stylesheet" href="/conversation-profiles.css?v=41">
-<link rel="stylesheet" href="/reader-theme.css"><script defer src="/reader-theme.js"></script>
-<script type="module" src="/conversation-profiles.js?v=19"></script>
+<link rel="stylesheet" href="/conversation-profiles.css?v=42">
+<script type="module" src="/conversation-profiles.js?v=20"></script>
 <style>.reader-nav,header .reader-nav{position:fixed;top:4px;right:132px;height:24px;display:inline-flex;align-items:center;gap:10px;margin:0;padding:0;z-index:270}.reader-nav .reader-link{display:inline-flex;align-items:center;font:500 11.5px/24px system-ui;color:inherit;opacity:.70;text-decoration:none;white-space:nowrap}.reader-nav .reader-link:hover,.reader-nav .reader-link:focus-visible{opacity:1;text-decoration:underline}body.chat-focus .reader-nav{z-index:9200}@media(pointer:coarse){.reader-nav,header .reader-nav{top:2px;right:142px}}</style>
 </head>
 <body>
-<header><h1 id="title">Conversations</h1><button hidden type="button" id="profile-fullscreen" aria-label="Full screen" title="Full screen" aria-pressed="false"></button><nav id="profile-tabs" aria-label="Conversations"><a id="salon-link" class="nav-button" href="/nikita/">nikita</a><a id="salon-notes" class="nav-button" href="/nikita/">Notes</a><a id="back-to-chat" class="nav-button" href="/">Chat</a><a class="nav-button" title="LightCone authors" href="/go/lightcone">LC</a><a class="nav-button" title="Debri Physics authors" href="/go/debri">DB</a></nav></header>
+<header><h1 id="title">Conversations</h1><button hidden type="button" id="profile-fullscreen" aria-label="Full screen" title="Full screen" aria-pressed="false"></button><nav id="profile-tabs" aria-label="Conversations"><a id="salon-link" class="nav-button" href="/go/hub">nikita</a><a id="salon-notes" class="nav-button" href="/go/hub">Notes</a><a id="back-to-chat" class="nav-button" href="/">Chat</a><a class="nav-button" title="LightCone authors" href="/go/lightcone">LC</a><a class="nav-button" title="Debri Physics authors" href="/go/debri">DB</a></nav></header>
 <main>
 <p id="fullscreen-status" class="hint" role="status" hidden></p>
 <p class="intro">Independent settings for each conversation. Tabs keep unsaved edits. Saved changes sync across devices without overwriting your drafts.</p>
 <p id="status" role="status" aria-live="polite">Loading...</p>
-<div id="browser-pi" aria-label="Browser chat instructions">
-<div class="field-heading"><label class="toggle" title="Use Pi's native instructions in the browser chat"><input type="checkbox" id="browser-pi-on" disabled>Pi <small>· Browser chat</small></label><button type="button" class="instruction-show" aria-controls="browser-pi-reference" aria-expanded="false">Show</button></div>
-<div id="browser-pi-reference" hidden><small>Original English reference from the installed Pi. Actual tools and working directory vary by turn.</small><pre></pre></div>
-</div>
 <div id="profiles"></div>
 </main>
 <template id="profile-template">
@@ -42,8 +37,10 @@
 </div>
 <div class="field-heading"><label class="toggle"><input type="checkbox" name="toolsOn">Tools</label></div>
 <p class="hint">Off removes tool definitions and execution access for future replies. Existing permissions and approval checks remain enforced.</p>
+<div class="field-heading"><label class="toggle"><input type="checkbox" name="piOn">Pi</label></div>
+<div data-pi-reference hidden><small>Installed Pi · original English reference. Tools, tool rules and working directory depend on each turn.</small><pre></pre></div>
 <div class="field-heading"><label class="toggle"><input type="checkbox" name="baseOn">Base</label></div>
-<p class="hint">The shared base instructions currently used instead of Pi's coding prompt. Editable per conversation. Off or empty sends no base instructions and never restores Pi's default prompt. Character and Custom follow in that order; Response style follows the current question. No hidden working-directory prompt is added after saving.</p>
+<p class="hint">Per-conversation instructions. With Pi on, these are added to its native instructions. With Pi off, only enabled profile instructions are used. Character and Custom follow in that order; Response style follows the current question. No hidden working-directory prompt is added after saving.</p>
 <textarea name="basePrompt" rows="6" maxlength="30000" spellcheck="false" aria-label="Base system prompt" placeholder="Base instructions"></textarea>
 <p class="hint">Memory and explicit replies may still add conversation context. Addressed mode adds participation instructions for name-only triggers; select Direct or All for a prompt-free test. Provider-owned instructions are outside these controls.</p>
 <div class="field-heading"><label class="toggle"><input type="checkbox" name="systemPrompt">Character</label></div>

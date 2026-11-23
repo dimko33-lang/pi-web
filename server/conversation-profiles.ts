@@ -5,7 +5,7 @@ import { Router } from 'express';
 
 type Profile = {
   model: string; thinking: string; systemPrompt: boolean; character: string;
-  customPrompt: string; customOn?: boolean; basePrompt?: string; baseOn?: boolean; toolsOn?: boolean; tail: string; tailOn: boolean; memory: boolean;
+  customPrompt: string; customOn?: boolean; basePrompt?: string; baseOn?: boolean; piOn?: boolean; toolsOn?: boolean; tail: string; tailOn: boolean; memory: boolean;
   memoryLimit: number; backgroundLimit: number; replyMode: string;
   memoryEpoch: string; memoryResetAt: number;
 };
@@ -52,14 +52,15 @@ export function createConversationProfiles(options: {
     profiles: catalog.map(entry => ({ id: entry.id, label: entry.label, chatId: entry.chatId,
       chatIds: entry.chatIds || (entry.chatId ? [entry.chatId] : []), kind: entry.kind || 'group',
       notice: options.notice?.(entry) || '',
-      independent: !!data.profiles[entry.id], settings: { customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
+      independent: !!data.profiles[entry.id], settings: { piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
         ...(data.profiles[entry.id] || options.defaults(entry)) } }))
   });
   const validate = async (input: any, entry: CatalogEntry): Promise<Profile> => {
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('Invalid profile');
-    const allowed = ['model', 'thinking', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn', 'tail', 'tailOn',
+    const allowed = ['piOn', 'model', 'thinking', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn', 'tail', 'tailOn',
       'memory', 'memoryLimit', 'backgroundLimit', 'replyMode'];
     if (Object.keys(input).some(key => !allowed.includes(key))) throw Error('Unknown profile field');
+    if (input.piOn !== undefined && typeof input.piOn !== 'boolean') throw Error('Invalid piOn');
     for (const key of ['systemPrompt', 'customOn', 'baseOn', 'toolsOn', 'tailOn', 'memory']) if (typeof input[key] !== 'boolean') throw Error('Invalid ' + key);
     for (const [key, limit] of [['basePrompt', 30000], ['character', 8000], ['customPrompt', 20000], ['tail', 4000]] as const) {
       if (typeof input[key] !== 'string' || input[key].length > limit) throw Error('Invalid ' + key);
@@ -76,6 +77,16 @@ export function createConversationProfiles(options: {
   router.get('/', (_req, res) => {
     try { res.setHeader('Cache-Control', 'no-store'); res.json(view(read())); }
     catch (error) { res.status(503).json({ error: (error as Error).message }); }
+  });
+  router.get('/pi-reference', async (_req, res) => {
+    try {
+      const core = '/opt/pi-web-runtime/node_modules/@earendil-works/pi-coding-agent/dist/core/';
+      const [{ buildSystemPrompt }, { createCodingToolDefinitions }] = await Promise.all([import(core + 'system-prompt.js'), import(core + 'tools/index.js')]);
+      const cwd = '<working directory for this turn>';
+      const tools = createCodingToolDefinitions(cwd);
+      const options = { cwd, selectedTools: tools.map((t: any) => t.name), toolSnippets: Object.fromEntries(tools.map((t: any) => [t.name, t.promptSnippet])), toolGuidelines: Object.fromEntries(tools.map((t: any) => [t.name, t.promptGuidelines || []])) };
+      res.setHeader('Cache-Control', 'no-store'); res.json({ text: buildSystemPrompt(options) });
+    } catch { res.status(503).json({ error: 'Installed Pi instructions are unavailable.' }); }
   });
   router.get('/thinking', async (req, res) => {
     try {
@@ -103,6 +114,7 @@ export function createConversationProfiles(options: {
       if (req.body.revision !== data.revision) return res.status(409).json({ error: 'Settings changed in another tab. Reload before saving.' });
       const previous = data.profiles[entry.id] || inherited || options.defaults(entry);
       if (!next) next = { ...previous };
+      else if (next.piOn === undefined) next.piOn = previous.piOn ?? false; // Older panel tabs preserve the setting.
       const reset = req.body.action === 'reset';
       const restore = req.body.action === 'restore';
       // Both history actions rotate the generation so Telegram repins its local floor.
