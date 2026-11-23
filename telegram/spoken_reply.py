@@ -1,4 +1,4 @@
-"""Opt-in, one-turn speech delivery after the normal conversation admission checks. Local by default; cloud only on an explicit current-turn request."""
+"""Opt-in, one-turn speech delivery after the normal conversation admission checks. Qwen for requested voice replies; ordinary turns stay text."""
 import asyncio
 from array import array
 import io
@@ -22,8 +22,9 @@ HINT='\n\n[Delivery: this one reply will be spoken aloud. Answer the user direct
 
 def requested(message,text,*,transcribed=False):
     if getattr(message,'fwd_from',None):return False
-    if CLOUD.match(text or '') and (not transcribed or getattr(message,'voice',None)):return 'qwen'
-    return bool(TRIGGER.match(text or ''))
+    if transcribed and not getattr(message,'voice',None):return False
+    if TRIGGER.match(text or '') or CLOUD.match(text or ''):return 'qwen'
+    return False
 
 def requested_turn(message,text,heard=()):
     return requested(message,text) or next((v for s in heard if (v:=requested(message,s,transcribed=True))),False)
@@ -69,7 +70,7 @@ async def prepare(text,*,cloud=False):
                 return stream,types.DocumentAttributeAudio(duration=max(1,round(n/rate)),voice=True,waveform=waveform)
         except (OSError,ValueError,EOFError,wave.Error,asyncio.TimeoutError):return None
 
-async def send_spoken(client,peer,mid,text,*,mode=True):
+async def send_spoken(client,peer,mid,text,*,mode='qwen'):
     prepared=await prepare(text,cloud=True) if mode=='qwen' else await prepare(text)
     if not prepared:return None
     stream,attr=prepared

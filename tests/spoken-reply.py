@@ -11,7 +11,7 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
     async def test_phrase(self):
         m=NS(fwd_from=None)
         for s in ('Поговори со мной','Никита, поговори со мной. Почему идёт дождь?','поговори со мной!'):
-            self.assertTrue(tts.requested(m,s))
+            self.assertEqual(tts.requested(m,s),'qwen')
         for s in ('не поговори со мной','Она сказала: «поговори со мной».','поговори со мною','поговори со мнойкой','привет'):
             self.assertFalse(tts.requested(m,s))
         self.assertFalse(tts.requested(NS(fwd_from=True),'Поговори со мной'))
@@ -19,7 +19,8 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
         phrase='Ответь облачным голосом. Как дела?';m=NS(fwd_from=None,voice=True)
         self.assertEqual(tts.requested_turn(m,'',[phrase]),'qwen')
         self.assertEqual(tts.requested_turn(m,'@nikita Ответь голосом Qwen!'),'qwen')
-        self.assertIs(tts.requested_turn(m,'Поговори со мной'),True)
+        self.assertEqual(tts.requested_turn(m,'Поговори со мной'),'qwen')
+        self.assertFalse(tts.requested_turn(NS(voice=None),'',['Поговори со мной']))
         self.assertFalse(tts.requested_turn(m,'Она сказала: «Ответь голосом Qwen»'))
         m.voice=None;self.assertFalse(tts.requested_turn(m,'',[phrase]))
         m.fwd_from=True;self.assertFalse(tts.requested_turn(m,phrase))
@@ -43,7 +44,7 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
         for voice,raw,expected in [(False,'Поговори со мной: зачем?',True),(True,'',True),(False,'а дальше?',False)]:
             m=NS(voice=voice,fwd_from=None,reply_to_msg_id=None,media=voice);out={}
             with patch.object(instance,'owner_profile',return_value={'toolsOn':False}),patch.object(instance,'recognize',new=AsyncMock(return_value='Никита, поговори со мной.')),patch.object(instance,'answer',new=AsyncMock(return_value='ответ')) as turn:
-                self.assertEqual(await instance.tool_turn(NS(raw_text=raw,message=m),delivery=out),('ответ',None));self.assertEqual(bool(out.get('spoken')),expected);self.assertEqual(tts.HINT in turn.await_args.args[0],expected)
+                self.assertEqual(await instance.tool_turn(NS(raw_text=raw,message=m),delivery=out),('ответ',None));self.assertEqual(out.get('spoken'),'qwen' if expected else None);self.assertEqual(tts.HINT in turn.await_args.args[0],expected)
     async def test_fallback_and_uncertain_delivery(self):
         client=NS(send_file=AsyncMock(side_effect=ConnectionError()))
         self.assertIsNone(await tts.send_spoken(client,9,1,'x'*1500));client.send_file.assert_not_awaited()

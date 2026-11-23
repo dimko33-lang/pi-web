@@ -97,7 +97,7 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
             q=self.c.add('@my_agent о чём запись?',10000,reply=v.id);await g.step()
             f=self.c.add('@my_agent поговори со мной',10000);f.fwd_from=True;await g.step()
             m=self.c.add('другой разговор',10000);m.voice=True;await g.step()
-            self.assertEqual(sent,[(a.id,True),(v.id,True),(q.id,False),(f.id,False)]);self.assertEqual(asr.await_count,2)
+            self.assertEqual(sent,[(a.id,'qwen'),(v.id,'qwen'),(q.id,False),(f.id,False)]);self.assertEqual(asr.await_count,2)
     def test_archive_does_not_grant_replies(self):
         bind(self.base,'lightcone',-7,True);p=self.base/'reply-bindings.json';self.assertFalse(p.exists())
         bind(self.base,'lightcone',-7,replies=True);self.assertEqual(read(p,{}),{'lightcone':-7})

@@ -7,7 +7,7 @@ import urllib.request as http
 HOST='https://qwen-qwen3-tts.hf.space'
 CALL=HOST+'/gradio_api/call/generate_voice_design'
 FILE=re.compile(re.escape(HOST)+r'/gradio_api/file=/tmp/gradio/[a-f0-9]{64}/audio\.wav')
-STYLE='A warm adult female voice, speaking fluent native Russian in casual conversation. Brief pauses, quiet humour when appropriate; not an announcer.'
+STYLE='An adult woman speaking fluent native Russian to a friend. A clear, grounded, conversational voice at a natural pace. Let the meaning guide the intonation and pauses. No breathiness, coyness, forced smile or announcer delivery.'
 MAX_WAV=9*1024**2
 
 class NoRedirect(http.HTTPRedirectHandler):
