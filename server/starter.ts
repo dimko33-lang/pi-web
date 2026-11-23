@@ -8,7 +8,13 @@ if (process.env.PI_WEB_CONVERSATION_PROFILES === undefined && !process.env.PI_WE
   const data = path.join(root, 'data');
   fs.mkdirSync(data, { recursive: true, mode: 0o700 });
   const dest = path.join(data, 'conversation-profiles.json');
-  try { fs.copyFileSync(path.join(seed, 'profiles.json'), dest, fs.constants.COPYFILE_EXCL); }
+  // Provider selection is instance state. Do not pin a fresh DM to the builder's provider.
+  const initial = JSON.parse(fs.readFileSync(path.join(seed, 'profiles.json'), 'utf8'));
+  for (const profile of Object.values(initial.profiles) as Record<string, unknown>[]) {
+    delete profile.model;
+    delete profile.thinking;
+  }
+  try { fs.writeFileSync(dest, JSON.stringify(initial), { flag: 'wx', mode: 0o600 }); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error; }
   process.env.PI_WEB_CONVERSATION_PROFILES = fs.readFileSync(path.join(seed, 'catalog.json'), 'utf8');
   process.env.PI_WEB_SHARED_SYSTEM_PROMPT ??= path.join(seed, 'system.md');

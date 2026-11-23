@@ -94,36 +94,81 @@ def owner_dm(e, owner):
     return bool(e.is_private and not e.out and e.sender_id == owner and e.chat_id == owner and (e.raw_text or '').strip())
 
 
-async def answer(text):
+def owner_profile():
+    data = Path(os.environ.get('PI_WEB_TELEGRAM_DATA') or APP / 'data')
+    try:
+        saved = json.loads((data / 'conversation-profiles.json').read_text())
+    except FileNotFoundError:
+        return {}
+    if saved.get('version') != 1 or not isinstance(saved.get('profiles'), dict):
+        raise ValueError('Invalid conversation profiles')
+    profile = saved['profiles'].get('owner_dm', {})
+    if not isinstance(profile, dict): raise ValueError('Invalid owner profile')
+    return profile
+
+
+def selected_model(profile):
+    if profile.get('model'): return profile['model']
+    data = Path(os.environ.get('PI_WEB_TELEGRAM_DATA') or APP / 'data')
+    for file in (data / 'model.txt', APP / 'data/browser-model.txt'):
+        if file.is_file() and file.read_text().strip(): return file.read_text().strip()
+    return os.environ.get('PI_WEB_MODEL', '')  # Otherwise let the enrolled Pi choose.
+
+
+async def answer(text, profile=None):
+    if profile is None: profile = owner_profile()
     pi = os.environ.get('PI_WEB_PI_BIN') or shutil.which('pi')
     if not pi:
         raise RuntimeError('Pi CLI not found')
     cwd = BASE / 'conversation'; cwd.mkdir(mode=0o700, exist_ok=True)
-    args = [pi, '--print', '--no-context-files', '--no-extensions', '--no-skills', '--no-prompt-templates', '--no-tools', '--session-dir', str(cwd), '--continue']
+    args = [pi, '--print', '--no-context-files', '--no-extensions', '--no-skills', '--no-prompt-templates', '--no-tools']
+    if profile.get('memory', True) and profile.get('memoryLimit', 100) > 0:
+        since = int(profile.get('memoryResetAt') or 0)
+        sessions = cwd / ('after-' + str(since)) if since > 0 else cwd
+        sessions.mkdir(mode=0o700, exist_ok=True)
+        args.extend(['--session-dir', str(sessions), '--continue'])
+    else:
+        args.append('--no-session')
+    model = selected_model(profile)
+    if model: args.extend(['--model', model])
+    if profile.get('thinking'): args.extend(['--thinking', profile['thinking']])
+    parts = []
+    if profile.get('baseOn', True) and profile.get('basePrompt'): parts.append(profile['basePrompt'])
+    if profile.get('systemPrompt') and profile.get('character'): parts.append('Shared character instructions:\n' + profile['character'])
+    if profile.get('customOn', True) and profile.get('customPrompt'):
+        parts.append('Manner instructions. These are required in every reply and take precedence over any default tone:\n' + profile['customPrompt'])
     policy = APP / 'services/tool-policy.txt'
-    if policy.is_file(): args.extend(['--append-system-prompt',policy.read_text()])
-    model = APP / 'data/browser-model.txt'
-    if model.is_file() and model.read_text().strip():
-        args.extend(['--model', model.read_text().strip()])
-    # Use stdin, never interpret Telegram text as a path, shell or CLI option.
-    p = await asyncio.create_subprocess_exec(*args, cwd=cwd, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
-    try:
-        data, _ = await asyncio.wait_for(p.communicate(text.encode()), 360)
-    finally:
-        if p.returncode is None:
-            p.kill(); await p.wait()
+    if profile.get('toolsOn', True) and policy.is_file(): parts.append(policy.read_text())
+    if profile.get('tailOn') and profile.get('tail', '').strip():
+        text += '\n\n[Приписка владельца, не сообщение и не просьба ответить на неё: ' + profile['tail'].strip() + ']'
+    native = profile.get('piOn') is True
+    # Keep literal prompts out of argv and never treat user text as a file path.
+    with tempfile.NamedTemporaryFile('w', dir=cwd) as prompt:
+        if parts or not native:
+            prompt.write('\n\n'.join(parts) or ' '); prompt.flush()
+            args.extend(['--append-system-prompt' if native else '--system-prompt', prompt.name])
+        p = await asyncio.create_subprocess_exec(*args, cwd=cwd, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
+        try:
+            data, _ = await asyncio.wait_for(p.communicate(text.encode()), 360)
+        finally:
+            if p.returncode is None:
+                p.kill(); await p.wait()
     if p.returncode or not data.strip():
         raise RuntimeError('Pi returned no reply')
     return data.decode(errors='replace').strip()
 
 
 async def tool_turn(e):
+    profile = owner_profile()  # Pin one settings snapshot for inference and dispatch.
+    tools = profile.get('toolsOn', True)
     direct = re.fullmatch(r'/(image|science)\s+([\s\S]+)', e.raw_text)
+    if direct and not tools: return 'Tools are off for this conversation.', None
     if direct:
         action = {'nikita_tool':'image','prompt':direct[2]} if direct[1]=='image' else {'nikita_tool':'python','code':direct[2]}
         text = ''
     else:
-        text = await answer(e.raw_text)
+        text = await answer(e.raw_text, profile)
+        if not tools: return text, None
         try: action = json.loads(text)
         except ValueError: return text, None
     if not isinstance(action,dict) or action.get('nikita_tool') not in ('image','python'): return text, None
@@ -147,8 +192,7 @@ async def tool_turn(e):
             db.execute('create table if not exists attempts(chat integer, id integer, primary key(chat,id))')
             if not db.execute('insert or ignore into attempts values(?,?)',(e.chat_id,e.id)).rowcount: return '',None
     finally: db.close()
-    model = APP / 'data/browser-model.txt'
-    payload=json.dumps({'request':request,'model':model.read_text().strip() if model.exists() else ''}).encode()
+    payload=json.dumps({'request':request,'model':selected_model(profile)}).encode()
     proc=await asyncio.create_subprocess_exec('node','--import','tsx','services/tools.mjs',cwd=APP,stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.DEVNULL)
     try: data,_=await asyncio.wait_for(proc.communicate(payload),335)
     finally:

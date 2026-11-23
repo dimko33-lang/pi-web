@@ -19,7 +19,7 @@ const modes = ['mention_reply', 'addressed', 'mentions', 'all', 'off'];
 
 export function createConversationProfiles(options: {
   directory: string; defaults: (entry: CatalogEntry) => Profile;
-  basePrompt: () => string;
+  basePrompt: () => string; piReference: () => Promise<string>;
   models: () => string[]; thinking: (model: string) => Promise<{ levels: string[]; level: string }>;
   notice?: (entry: CatalogEntry) => string;
 }) {
@@ -53,7 +53,7 @@ export function createConversationProfiles(options: {
       chatIds: entry.chatIds || (entry.chatId ? [entry.chatId] : []), kind: entry.kind || 'group',
       notice: options.notice?.(entry) || '',
       independent: !!data.profiles[entry.id], settings: { piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
-        ...(data.profiles[entry.id] || options.defaults(entry)) } }))
+        ...options.defaults(entry), ...data.profiles[entry.id] } }))
   });
   const validate = async (input: any, entry: CatalogEntry): Promise<Profile> => {
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('Invalid profile');
@@ -80,12 +80,7 @@ export function createConversationProfiles(options: {
   });
   router.get('/pi-reference', async (_req, res) => {
     try {
-      const core = '/opt/pi-web-runtime/node_modules/@earendil-works/pi-coding-agent/dist/core/';
-      const [{ buildSystemPrompt }, { createCodingToolDefinitions }] = await Promise.all([import(core + 'system-prompt.js'), import(core + 'tools/index.js')]);
-      const cwd = '<working directory for this turn>';
-      const tools = createCodingToolDefinitions(cwd);
-      const options = { cwd, selectedTools: tools.map((t: any) => t.name), toolSnippets: Object.fromEntries(tools.map((t: any) => [t.name, t.promptSnippet])), toolGuidelines: Object.fromEntries(tools.map((t: any) => [t.name, t.promptGuidelines || []])) };
-      res.setHeader('Cache-Control', 'no-store'); res.json({ text: buildSystemPrompt(options) });
+      res.setHeader('Cache-Control', 'no-store'); res.json({ text: await options.piReference() });
     } catch { res.status(503).json({ error: 'Installed Pi instructions are unavailable.' }); }
   });
   router.get('/thinking', async (req, res) => {
@@ -112,7 +107,7 @@ export function createConversationProfiles(options: {
       // Validation awaits metadata. Re-read only afterwards so concurrent saves cannot win silently.
       const data = read();
       if (req.body.revision !== data.revision) return res.status(409).json({ error: 'Settings changed in another tab. Reload before saving.' });
-      const previous = data.profiles[entry.id] || inherited || options.defaults(entry);
+      const previous = { ...(inherited || options.defaults(entry)), ...data.profiles[entry.id] };
       if (!next) next = { ...previous };
       else if (next.piOn === undefined) next.piOn = previous.piOn ?? false; // Older panel tabs preserve the setting.
       const reset = req.body.action === 'reset';

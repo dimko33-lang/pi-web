@@ -28,7 +28,7 @@ import { createSourceArchive } from './source-archive.ts';
 import { createFilesRouter } from './files.ts';
 import { askAgent, browserPiReference, isBusy, clearBusy, resetSession, useSession, currentSession, sessionsDir, modelId, piContextConfig } from './agent.ts';
 import { sessionFile, sessionFiles, readSession, sumFiles, usageForSession, costAsSonnet, listChats, readSessionMessages } from './usage.ts';
-import { MODELS, DEFAULT_MODEL, loadSaved, setModel, availableModels, probeProviders, probeModels, startAutoRefresh } from './models.ts';
+import { DEFAULT_MODEL, loadSaved, setModel, availableModels, probeProviders, probeModels, startAutoRefresh } from './models.ts';
 import { piContextStatus } from './pi-context.ts';
 import { ChatThinking, chatThinking } from './chat-thinking.ts';
 import { createConversationProfiles } from './conversation-profiles.ts';
@@ -614,15 +614,13 @@ function writeSettings(body: any) {
 
 app.use('/api/conversation-profiles', requireAuth, createConversationProfiles({
   directory: TG_DATA_DIR,
+  piReference: browserPiReference,
   basePrompt: () => {
     const source = process.env.PI_WEB_TELEGRAM_BASE || process.env.PI_WEB_SHARED_SYSTEM_PROMPT;
     if (!source) throw Error('Shared base prompt is not configured');
     return fs.readFileSync(source, 'utf8');
   },
-  models: () => {
-    const enabled: string[] = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'models.json'), 'utf8'));
-    return MODELS.map(model => model.id).filter(id => enabled.includes(id));
-  },
+  models: () => availableModels().map(model => model.id),
   thinking: async model => {
     try { return await tgThinking.get(model, piContextConfig()); }
     catch (error) {
@@ -637,7 +635,8 @@ app.use('/api/conversation-profiles', requireAuth, createConversationProfiles({
     ? 'The main chat switch is off. Enable it in Chat to allow replies.' : '',
   defaults: entry => {
     const saved = { ...SETTINGS_DEF, ...(readSettings(TG_DEFAULTS_FILE) || {}) };
-    const tgModel = loadSaved(path.join(TG_DATA_DIR, 'model.txt'));
+    const tgModelPath = path.join(TG_DATA_DIR, 'model.txt');
+    const tgModel = fs.existsSync(tgModelPath) ? loadSaved(tgModelPath) : modelId();
     let thinking: Record<string, string> = {};
     try { thinking = JSON.parse(fs.readFileSync(path.join(TG_DATA_DIR, 'chat-thinking.json'), 'utf8')); } catch { /* No saved effort. */ }
     const privateConversation = entry.kind === 'private' || entry.kind === 'private_default';
@@ -653,6 +652,10 @@ app.use('/api/conversation-profiles', requireAuth, createConversationProfiles({
       memoryEpoch: saved.memoryEpoch || 'initial', memoryResetAt: saved.memoryResetAt || 0 };
   }
 }));
+app.get('/go/hub', requireAuth, (req, res) => {
+  const chat = typeof req.query.chat === 'string' ? '?chat=' + encodeURIComponent(req.query.chat) : '';
+  res.redirect('/nikita/' + chat);
+});
 app.get('/profiles', requireAuth, (_req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.sendFile(path.join(PUBLIC, 'conversation-profiles.html'));

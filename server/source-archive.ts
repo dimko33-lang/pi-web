@@ -6,7 +6,7 @@ import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
 const roots = ['server', 'public', 'tests', 'deploy', 'docs'];
-const telegramFiles = ['install.sh','instance.py','service.py','salon_archive.py','telegram_blocks.py','requirements.lock'];
+const telegramFiles = ['install.sh','instance.py','service.py','salon_archive.py','telegram_blocks.py','lc_recovery.py','requirements.lock'];
 const files = ['package.json', 'package-lock.json', 'models.json', 'README.md'];
 const optionalFiles = ['AGENTS.md', 'INTERACTIVE-CARDS.md', 'RESTORE.md', 'start.sh'];
 const sourceExtension = /\.(?:ts|js|mjs|cjs|html|css|svg|json|md|sh|service|png|jpg|webp|woff2?|ttf|otf|map)$/i;
