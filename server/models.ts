@@ -126,6 +126,12 @@ export const MODELS: ModelInfo[] = [
     tier: 'top', inUsd: 2.00, provider: 'openai', outUsd: 10.00, vision: true
   },
   {
+    id: 'openai/gpt-6.2-sol',
+    label: 'GPT-6.2 Sol',
+    hint: 'General-purpose reasoning and coding model',
+    tier: 'top', inUsd: 2.00, provider: 'openai', outUsd: 10.00, vision: true
+  },
+  {
     id: 'openai/gpt-6.1-sol',
     label: 'GPT-6.1 Sol',
     hint: 'Recommended for UI work: CSS, buttons and panels; cheaper than Astra',
