@@ -21,6 +21,7 @@ from telethon.sessions import StringSession
 from telegram_blocks import message_parts, verify_blocks
 from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
+from private_profiles import guests, private_profile_key
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
 from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
 from spoken_reply import voice_policy, owner_voice_command, send_spoken, HINT as SPOKEN_HINT
@@ -136,7 +137,7 @@ def selected_model(profile):
     return os.environ.get('PI_WEB_MODEL', '')  # Otherwise let the enrolled Pi choose.
 
 
-async def answer(text, profile=None, group=None, addressing='', *, inspect_owner=False, frames=()):
+async def answer(text, profile=None, group=None, addressing='', *, inspect_owner=False, frames=(), guest=None):
     if profile is None: profile = owner_profile()
     pi = os.environ.get('PI_WEB_PI_BIN') or shutil.which('pi')
     if not pi:
@@ -145,10 +146,13 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
     if group is not None:
         if type(group) is not int or group >= 0: raise ValueError('Invalid group peer')
         cwd = BASE / f'conversation-group-{group}'
+    if guest is not None:
+        if type(guest) is not int or guest <= 0 or group is not None: raise ValueError('Invalid DM peer')
+        cwd = BASE / f'conversation-dm-{guest}'
     cwd.mkdir(mode=0o700, exist_ok=True)
     args = [pi, '--print', '--no-context-files', '--no-extensions', '--no-mcp', '--no-skills', '--no-prompt-templates', '--no-tools']
     env = os.environ.copy(); env.pop('NIKITA_OWNER_INSPECTION_DIR', None)
-    if (inspect_owner and group is None and text.strip().lower() == 'ok' and not profile.get('toolsOn', True)
+    if (inspect_owner and guest is None and group is None and text.strip().lower() == 'ok' and not profile.get('toolsOn', True)
             and not profile.get('memory', True) and not profile.get('tailOn', True) and (BASE/'inspection/armed').is_file()):
         args.extend(['--extension', str(APP/'telegram/request-inspection.ts')])
         env['NIKITA_OWNER_INSPECTION_DIR'] = str(BASE/'inspection')
@@ -168,7 +172,7 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
     if profile.get('customOn', True) and profile.get('customPrompt'):
         parts.append('Manner instructions. These are required in every reply and take precedence over any default tone:\n' + profile['customPrompt'])
     policy = APP / 'services/tool-policy.txt'
-    if group is None and profile.get('toolsOn', True) and policy.is_file(): parts.append(policy.read_text())
+    if group is None and guest is None and profile.get('toolsOn', True) and policy.is_file(): parts.append(policy.read_text())
     if addressing: parts.append(addressing)
     if profile.get('tailOn') and profile.get('tail', '').strip():
         text += '\n\n[Приписка владельца, не сообщение и не просьба ответить на неё: ' + profile['tail'].strip() + ']'
@@ -190,8 +194,8 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
     return data.decode(errors='replace').strip()
 
 
-async def tool_turn(e, *, delivery=None):
-    profile = owner_profile()  # Pin one settings snapshot for inference and dispatch.
+async def tool_turn(e, *, delivery=None, guest=None):
+    profile = owner_profile() if guest is None else (conversation_profile(f'dm_{guest}') or conversation_profile('guest_dm'))  # Pin one settings snapshot for inference and dispatch.
     tools = profile.get('toolsOn', True)
     prepared_edit = None
     raw=e.raw_text or ''
@@ -204,7 +208,7 @@ async def tool_turn(e, *, delivery=None):
         except VoiceError as exc: return str(exc),None
         heard.append(spoken)
         raw=(raw+'\n\n' if raw else '')+voice_prompt(spoken)
-    speak=voice_policy(BASE,getattr(e,'message',None),original,heard,owner_dm=True,profile=profile)
+    speak=voice_policy(BASE,getattr(e,'message',None),original,heard,owner_dm=guest is None,profile=profile)
     if speak and delivery is not None:
         delivery['spoken']=speak;raw+=SPOKEN_HINT
     direct = None if voice else re.fullmatch(r'/(image|science)\s+([\s\S]+)', raw)
@@ -223,17 +227,18 @@ async def tool_turn(e, *, delivery=None):
         if is_voice(quoted):raw+='\n\n'+await audio_context(quoted,download,quoted=True)
         if attachment_type(e.message) or attachment_type(quoted):
             async with sampled_inputs(e.message, quoted) as (frames, note):
-                text = await answer(raw+'\n\n'+note, profile, frames=frames)
+                text = await answer(raw+'\n\n'+note, profile, frames=frames, **({'guest': guest} if guest is not None else {}))
                 if tools and text.lstrip().startswith('{'):
                     photo=next((p for p in frames if p.name.startswith('photo-')),None)
                     if photo: prepared_edit=base64.b64encode(photo.read_bytes()).decode()
         else:
-            text = await answer(raw, profile, inspect_owner=test)
+            text = await answer(raw, profile, inspect_owner=test and guest is None, **({'guest': guest} if guest is not None else {}))
         if not tools: return text, None
         try: action = json.loads(text)
         except ValueError: return text, None
     if not isinstance(action,dict) or action.get('nikita_tool') not in ('image','python'): return text, None
     image = action['nikita_tool']=='image'; field = 'prompt' if image else 'code'
+    if guest is not None and not image: return 'This tool is available only to the owner.', None
     if not isinstance(action.get(field), str): raise RuntimeError('Invalid tool request')
     request = {'action':action['nikita_tool'],field:action[field]}
     if image and prepared_edit:
@@ -298,18 +303,21 @@ async def serve():
     async def archive_outgoing(e):
         archive.notify(e.chat_id, e.id)
 
-    @c.on(events.NewMessage(incoming=True, from_users=[owner]))
+    @c.on(events.NewMessage(incoming=True))
     async def incoming(e):
-        if not owner_dm(e, owner):
-            return
-        voice_setting=owner_voice_command(BASE,e,owner)
+        if not e.is_private or e.out: return
+        peer = e.chat_id
+        key = private_profile_key(peer, e.sender_id, owner, {} if peer == owner else guests())
+        if not key or not owner_dm(e, peer): return
+        guest = None if peer == owner else peer
+        voice_setting=owner_voice_command(BASE,e,owner) if guest is None else None
         if voice_setting is not None:await e.reply(voice_setting);return
         delivery={}
         try:
-            async with c.action(owner, 'typing'):
-                text, photo = await tool_turn(e,delivery=delivery)
+            async with c.action(peer, 'typing'):
+                text, photo = await tool_turn(e,delivery=delivery,guest=guest)
                 if photo is not None:
-                    sent = await e.reply(file=photo,force_document=False); archive.notify(owner,sent.id); return
+                    sent = await e.reply(file=photo,force_document=False); archive.notify(peer,sent.id); return
         except (RuntimeError, OSError, ValueError, KeyError, asyncio.TimeoutError):
             await e.reply('Could not complete the request. Check the selected provider, its image access, or the science service.'); return
         await deliver_answer(c,archive,e,text,delivery.get('spoken'))

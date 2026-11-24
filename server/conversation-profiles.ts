@@ -25,6 +25,14 @@ export function createConversationProfiles(options: {
   notice?: (entry: CatalogEntry) => string;
 }) {
   const catalog: CatalogEntry[] = JSON.parse(process.env.PI_WEB_CONVERSATION_PROFILES || '[]');
+  const enrollment = path.join(options.directory, 'individual-dms.json');
+  if (fs.existsSync(enrollment)) {
+    const entries = JSON.parse(fs.readFileSync(enrollment, 'utf8'));
+    for (const [peer, label] of Object.entries(entries)) {
+      if (!/^[1-9]\d*$/.test(peer) || !Number.isSafeInteger(Number(peer)) || typeof label !== 'string') throw Error('Invalid DM enrollment');
+      if (!catalog.some(entry => entry.chatId === Number(peer))) catalog.push({ id: 'dm_' + peer, label, chatId: Number(peer), kind: 'private', tailKey: 'tailDirect' });
+    }
+  }
   const file = path.join(options.directory, 'conversation-profiles.json');
   const router = Router();
   const read = () => {
@@ -54,7 +62,7 @@ export function createConversationProfiles(options: {
       chatIds: entry.chatIds || (entry.chatId ? [entry.chatId] : []), kind: entry.kind || 'group',
       notice: options.notice?.(entry) || '',
       independent: !!data.profiles[entry.id], settings: { textOutput: false, voiceOutput: false, piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
-        ...options.defaults(entry), ...data.profiles[entry.id] } }))
+        ...options.defaults(entry), ...(entry.id.startsWith('dm_') && !data.profiles[entry.id] ? data.profiles.guest_dm : {}), ...data.profiles[entry.id] } }))
   });
   const validate = async (input: any, entry: CatalogEntry): Promise<Profile> => {
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('Invalid profile');

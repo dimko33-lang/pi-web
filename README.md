@@ -2,7 +2,9 @@
 
 Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
-The current installable release is [v0.10.7](https://github.com/dimko33-lang/pi-web/releases/tag/v0.10.7). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+The current installable release is [v0.11.0](https://github.com/dimko33-lang/pi-web/releases/tag/v0.11.0). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+
+**Individual Telegram DMs:** From the installed app directory, run `python3 telegram/private_profiles.py USER_ID "Display name"` and restart the panel. This explicitly allows that user to contact the agent and adds a private profile tab. Set its character, base and custom prompts, response style, model, thinking, memory and tools switch on `/profiles`. Until saved, it uses the Other DMs profile. Each guest has a separate session directory. Guests may request image generation with `/image` when tools are enabled; Python execution and request inspection remain owner-only in private chats. To revoke access, rerun the command with just the ID. Restart the panel to refresh the tabs. Local enrollments, personal prompts and messages are not distributed.
 
 [Salon Niki — public Telegram demo](https://t.me/SalonNikiChat)
 
