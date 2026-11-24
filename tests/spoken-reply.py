@@ -77,18 +77,25 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(hashlib.sha256(fixture).hexdigest(),'9237a7fb29d1630ec9348bfe3e0b2e7e79f35496b1fcf46840238afc2d29a2c2')
             data={'mimeType':'audio/l16; rate=24000; channels=1','data':base64.b64encode(b'\0\1'*100).decode()};return BytesIO(json.dumps({'candidates':[{'content':{'parts':[{'inlineData':data}]}}]}).encode())
         with wave.open(BytesIO(google.render('test','example-key',post))) as audio:self.assertEqual((audio.getframerate(),audio.getnframes()),(24000,100))
-        self.assertIn('Gacrux',tts.cloud_failure('gacrux'))
     async def test_spoken_then_reset(self):
         for voice,raw,expected in [(False,'Поговори со мной: зачем?',True),(True,'',True),(False,'а дальше?',False)]:
             m=NS(voice=voice,fwd_from=None,reply_to_msg_id=None,media=voice);out={}
             with patch.object(instance,'owner_profile',return_value={'toolsOn':False}),patch.object(instance,'recognize',new=AsyncMock(return_value='Никита, поговори со мной.')),patch.object(instance,'answer',new=AsyncMock(return_value='ответ')) as turn:
                 self.assertEqual(await instance.tool_turn(NS(raw_text=raw,message=m),delivery=out),('ответ',None));self.assertEqual(out.get('spoken'),'qwen' if expected else None);self.assertEqual(tts.HINT in turn.await_args.args[0],expected)
+    async def test_plain_text_when_voice_not_sent(self):
+        for peer,mode,text in [(17,'gacrux','я'*608),(-17,'qwen','Ответ без предисловия.')]:
+            event=NS(id=8,chat_id=peer,reply=AsyncMock(return_value=NS(id=9)))
+            with patch.object(instance,'send_spoken',new=AsyncMock(return_value=None)),patch.object(instance,'verify_blocks',new=AsyncMock()):
+                await instance.deliver_answer(None,NS(notify=lambda *args:None),event,text,mode)
+            event.reply.assert_awaited_once();self.assertEqual(event.reply.await_args.args,(text,))
     async def test_fallback_and_uncertain_delivery(self):
         client=NS(send_file=AsyncMock(side_effect=ConnectionError()))
         self.assertIsNone(await tts.send_spoken(client,9,1,'x'*1500));client.send_file.assert_not_awaited()
         with patch.object(tts,'prepare',new=AsyncMock(return_value=(object(),object()))):
             with self.assertRaises(ConnectionError):await tts.send_spoken(client,9,1,'ok')
             client.send_file.assert_awaited_once()
+            client.send_file=AsyncMock(side_effect=tts.ChatSendVoicesForbiddenError(request=None))
+            self.assertIsNone(await tts.send_spoken(client,9,1,'ok',mode='gacrux'));client.send_file.assert_awaited_once()
 
 async def loopback(mode=True):
     calls=[]

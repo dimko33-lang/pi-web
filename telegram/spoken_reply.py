@@ -10,6 +10,7 @@ import sys
 import tempfile
 import wave
 from telethon import types,utils
+from telethon.errors import ChatSendVoicesForbiddenError
 
 ASSETS=Path(sys.prefix)/'nikita-speech-irina-v1'
 ENCODER=Path(__file__).resolve().parent/'media-decoder/voice-pack.cjs'
@@ -21,11 +22,7 @@ PREFIX=r'^\s*(?:@[\w]+[\s,!:—–-]+)?(?:никита[\s,!:—–-]+|[а-яё]{
 END=r'(?=$|[\s,.!?:;…—–-])'
 TRIGGER=re.compile(PREFIX+r'поговори\s+со\s+мной'+END,re.I)
 CLOUD=re.compile(PREFIX+r'ответь\s+(?:облачным\s+голосом|голосом\s+(?:qwen|квен))'+END,re.I)
-CLOUD_FAILED='Не удалось озвучить ответ через Qwen. Вот он текстом:\n\n'
 HINT='\n\n[Delivery: this one reply will be spoken aloud. Answer the user directly in a few natural sentences, without markup.]'
-
-def cloud_failure(mode):
-    return CLOUD_FAILED.replace('Qwen','Google Gacrux') if mode=='gacrux' else CLOUD_FAILED
 
 async def google_wave(line,path):
     reader,writer=await asyncio.open_unix_connection(str(GOOGLE_SOCKET))
@@ -125,5 +122,6 @@ async def send_spoken(client,peer,mid,text,*,mode='qwen'):
     prepared=await prepare(text,cloud=mode) if mode in ('qwen','gacrux') else await prepare(text)
     if not prepared:return None
     stream,attr=prepared
-    # A transport error after submission is uncertain: never retry it as text here.
-    return await client.send_file(peer,stream,reply_to=mid,voice_note=True,attributes=[attr],mime_type='audio/ogg')
+    # Only a definitive voice rejection can safely fall through to ordinary text.
+    try:return await client.send_file(peer,stream,reply_to=mid,voice_note=True,attributes=[attr],mime_type='audio/ogg')
+    except ChatSendVoicesForbiddenError:return None

@@ -23,7 +23,7 @@ from salon_archive import SalonArchive, bind, GROUPS, read
 from group_replies import GroupService
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
 from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
-from spoken_reply import voice_policy, owner_voice_command, send_spoken, cloud_failure, HINT as SPOKEN_HINT
+from spoken_reply import voice_policy, owner_voice_command, send_spoken, HINT as SPOKEN_HINT
 
 APP = Path(__file__).resolve().parent.parent
 BASE = Path(os.environ.get('NIKITA_INSTANCE_DIR', str(APP.parent / 'telegram-state'))).resolve()
@@ -267,6 +267,17 @@ async def tool_turn(e, *, delivery=None):
     return '\n'.join(filter(None,['Scientific result:' if result.get('ok') else 'Calculation did not complete:',result['stdout']['text'],result['stderr']['text']])),None
 
 
+async def deliver_answer(client, archive, msg, text, spoken=False):
+    if spoken and text:
+        note=await send_spoken(client,msg.chat_id,msg.id,text,mode=spoken)
+        if note:
+            archive.notify(msg.chat_id,note.id);return
+    for body, entities in message_parts(text, formatted=True):
+        sent = await msg.reply(body, formatting_entities=entities, link_preview=False)
+        archive.notify(msg.chat_id,sent.id)
+        await verify_blocks(client,msg.chat_id,sent,entities)
+
+
 async def serve():
     if not CONFIG.is_file():
         raise SystemExit('Telegram not connected; run connect first.')
@@ -274,15 +285,7 @@ async def serve():
     c = TelegramClient(StringSession(conf['session']), conf['api'], conf['secret'], sequential_updates=True)
     archive = SalonArchive(BASE, owner)
     async def send_group(msg, text, *, spoken=False):
-        if spoken:
-            note=await send_spoken(c,msg.chat_id,msg.id,text,mode=spoken)
-            if note:
-                archive.notify(msg.chat_id,note.id);return
-            if spoken in ('qwen','gacrux'):text=cloud_failure(spoken)+text
-        for body, entities in message_parts(text, formatted=True):
-            sent = await msg.reply(body, formatting_entities=entities, link_preview=False)
-            archive.notify(msg.chat_id, sent.id)
-            await verify_blocks(c, msg.chat_id, sent, entities)
+        await deliver_answer(c,archive,msg,text,spoken)
     groups = GroupService(BASE, group_policy, answer, send_group)
     tasks = []
     @c.on(events.NewMessage(incoming=True))
@@ -309,15 +312,7 @@ async def serve():
                     sent = await e.reply(file=photo,force_document=False); archive.notify(owner,sent.id); return
         except (RuntimeError, OSError, ValueError, KeyError, asyncio.TimeoutError):
             await e.reply('Could not complete the request. Check the selected provider, its image access, or the science service.'); return
-        if delivery.get('spoken') and text:
-            note=await send_spoken(c,owner,e.id,text,mode=delivery['spoken'])
-            if note:
-                archive.notify(owner,note.id);return
-            if delivery['spoken'] in ('qwen','gacrux'):text=cloud_failure(delivery['spoken'])+text
-        for body, entities in message_parts(text, formatted=True):
-            sent = await e.reply(body, formatting_entities=entities, link_preview=False)
-            archive.notify(owner, sent.id)
-            await verify_blocks(c, owner, sent, entities)
+        await deliver_answer(c,archive,e,text,delivery.get('spoken'))
     try:
         await c.connect()
         me = await c.get_me()
