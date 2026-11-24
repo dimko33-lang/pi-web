@@ -4,7 +4,7 @@ Nikita is a personal project I’ve wanted to build for twenty years. This is my
 
 The current installable release is [v0.10.6](https://github.com/dimko33-lang/pi-web/releases/tag/v0.10.6). Fresh installs use its archive; rerunning the card is not a general upgrade command.
 
-[Nikita on Telegram](https://t.me/+n4lYVtZb0RE4NGE6)
+[Salon Niki — public Telegram demo](https://t.me/SalonNikiChat)
 
 **Need to recover the voice name, connect Telegram or maintain the installation?** Open the [local operator handbook](server/handbook/START-HERE.md). The installer prints its path (normally `~/PiWebRuntime/app/server/handbook/START-HERE.md`). In the stock isolated Linux browser workspace the same index is readable at `/opt/app/server/handbook/START-HERE.md` without Root. Ask the maintenance agent to open the index and read only the matching note; these files are not automatically loaded into conversations.
 
