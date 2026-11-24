@@ -169,6 +169,11 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     details.ontoggle = () => { if (details.open) void update(); else { seq++; pre.textContent = ''; } };
     setInterval(() => { if (details.open && !document.hidden && !section.hidden) void update(); else pre.textContent = ''; }, 2000);
   }
+  function setDirty(editor, dirty) {
+    if (editor.dirty === dirty) return;
+    editor.dirty = dirty;
+    editor.draftStatus.textContent = dirty ? editor.draftStatus.dataset.label : '';
+  }
   function createEditor(item) {
     const section = document.querySelector('#profile-template').content.firstElementChild.cloneNode(true);
     section.dataset.profile = item.id;
@@ -201,13 +206,13 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault(); selectProfile(item.id, true);
     });
-    const editor = { section, form, tab, item, pickers, feedback: form.querySelector('.feedback'), baseline: null,
-      dirty: false, conflict: false, metadataGeneration: 0, metadataPending: false };
+    const editor = { section, form, tab, item, pickers, feedback: form.querySelector('.feedback'),
+      draftStatus: form.querySelector('.draft-status'), baseline: null, dirty: false, conflict: false, metadataGeneration: 0, metadataPending: false };
     form.elements.model.addEventListener('change', () => { void updateThinking(editor, ''); });
     form.elements.replyMode.addEventListener('change', () => { updateReplyHint(editor); });
     const dirty = () => {
-      editor.dirty = true;
-      if (!editor.conflict) message(editor.feedback, 'Unsaved changes');
+      setDirty(editor, true);
+      if (!editor.conflict && editor.feedback.textContent) message(editor.feedback, '');
     };
     form.addEventListener('input', dirty); form.addEventListener('change', dirty);
     form.addEventListener('submit', event => { event.preventDefault(); void save(editor, 'save'); });
@@ -245,7 +250,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     controls.forEach(control => { control.disabled = true; });
     try {
       const data = await request(endpoint + '/' + encodeURIComponent(editor.item.id), { action, revision, settings: action === 'save' ? settings : undefined });
-      editor.dirty = false; editor.baseline = null;
+      setDirty(editor, false); editor.baseline = null;
       apply(data);
       message(editor.feedback, action === 'reset' ? 'Fresh context started.' : action === 'restore'
         ? 'Retained history restored. Saved limits and the Memory switch still apply.' : '');
