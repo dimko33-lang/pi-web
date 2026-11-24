@@ -2,7 +2,7 @@
 
 Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
-The current installable release is [v0.10.6](https://github.com/dimko33-lang/pi-web/releases/tag/v0.10.6). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+The current installable release is [v0.10.7](https://github.com/dimko33-lang/pi-web/releases/tag/v0.10.7). Fresh installs use its archive; rerunning the card is not a general upgrade command.
 
 [Salon Niki — public Telegram demo](https://t.me/SalonNikiChat)
 
@@ -31,5 +31,11 @@ No provider or Telegram login is needed to install or read the Notes. For model 
 - **Save.** Export a restorable copy of the application, including the 18 Notes. It’s not a server backup: it doesn’t include chat history, personal settings, Telegram sessions or provider credentials.
 
 This installer doesn’t yet reproduce everything on the working Nikita server. In particular, group attachments, group-specific tools and the exact choice of conversation history still differ. On the stock server install, **after a reboot, rerun the install command to bring the panel and HTTPS back**. That’s separate from the enrolled Telegram service.
+
+## Credits and license
+
+Pi Web is an independent browser and Telegram interface for [Pi](https://pi.dev/), not an official Pi release. Thank you, [Mario Zechner](https://mariozechner.at/), for building the coding agent that made Nikita possible.
+
+The original Pi Web code is [MIT licensed](LICENSE). Pi, third-party libraries, fonts and models retain their own licenses; the code license does not cover Notes articles or media. See [third-party notices](docs/licenses/README.md).
 
 [Installation card](https://dimko33-lang.github.io/pi-web/) · [Setup, permissions and removal](docs/usage.md) · [Restore from Save](RESTORE.md) · [What matches the working server](docs/reference-install.md)

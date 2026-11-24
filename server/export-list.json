@@ -1,9 +1,18 @@
 {
   "files": [
+    "LICENSE",
     "README.md",
     "RESTORE.md",
     "docs/index.html",
     "docs/install.sh",
+    "docs/licenses/README.md",
+    "docs/licenses/dompurify.txt",
+    "docs/licenses/inter-OFL.txt",
+    "docs/licenses/katex-MIT.txt",
+    "docs/licenses/katex-fonts-OFL.txt",
+    "docs/licenses/marked.txt",
+    "docs/licenses/pi-MIT.txt",
+    "docs/licenses/plotly-MIT.txt",
     "docs/reference-install.md",
     "docs/restore-source.mjs",
     "docs/server-start.sh",

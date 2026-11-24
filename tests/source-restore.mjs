@@ -20,6 +20,7 @@ try {
   const restore=dir=>execFileSync(process.execPath,[path.join(extracted,'docs/restore-source.mjs'),extracted,dir],{stdio:'pipe'});
   restore(dest);
   for(const f of list.files) assert.ok((await fs.readFile(path.join(root,f))).equals(await fs.readFile(path.join(dest,f))),f);
+  for (const file of ['LICENSE','docs/licenses/pi-MIT.txt','docs/licenses/katex-fonts-OFL.txt']) assert.ok(list.files.includes(file),`Missing license: ${file}`);
   const notes=JSON.parse(await fs.readFile(path.join(dest,'public/nikita/data/index.json'),'utf8'));assert.equal(notes.length,18);
   await fs.appendFile(path.join(extracted,'server/main.ts'),'changed');assert.throws(()=>restore(path.join(tmp,'damaged')));
   await fs.writeFile(path.join(source,'public/nikita/piwep/messages.json'),'["private"]');await assert.rejects(createSourceArchive(source),/Modified seed/);
