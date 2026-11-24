@@ -90,7 +90,8 @@ async def run(argv,*,stdin,stdout,env=None,data=None):
 
 async def prepare(text,*,cloud=False):
     # Never truncate a substantive answer to fit; fall back to its original text.
-    if not text or len(text)>(600 if cloud else 1400) or '```' in text:return None
+    limit=1500 if cloud=='gacrux' else (600 if cloud else 1400)
+    if not text or len(text)>limit or '```' in text:return None
     if cloud and re.search(r'https?://|(?:sk-|AQ\.|AIza)[A-Za-z0-9_-]{12,}|-----BEGIN .*KEY-----',text,re.I):return None
     line=' '.join(text.replace('**','').split())
     if not line:return None

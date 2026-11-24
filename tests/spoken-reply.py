@@ -82,8 +82,21 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
             m=NS(voice=voice,fwd_from=None,reply_to_msg_id=None,media=voice);out={}
             with patch.object(instance,'owner_profile',return_value={'toolsOn':False}),patch.object(instance,'recognize',new=AsyncMock(return_value='Никита, поговори со мной.')),patch.object(instance,'answer',new=AsyncMock(return_value='ответ')) as turn:
                 self.assertEqual(await instance.tool_turn(NS(raw_text=raw,message=m),delivery=out),('ответ',None));self.assertEqual(out.get('spoken'),'qwen' if expected else None);self.assertEqual(tts.HINT in turn.await_args.args[0],expected)
+    async def test_gacrux_character_limit(self):
+        import gacrux_worker as google
+        from unittest.mock import Mock
+        text='🐈'*1500
+        self.assertEqual(len(text.encode()),google.MAX_INPUT_BYTES)
+        # No external synthesis: inspect which full texts reach each boundary.
+        with patch.object(tts,'google_wave',new=AsyncMock(side_effect=EOFError)) as broker:
+            await tts.prepare(text,cloud='gacrux');broker.assert_awaited_once();self.assertEqual(broker.await_args.args[0],text)
+            await tts.prepare(text+'я',cloud='gacrux');broker.assert_awaited_once()
+        http=Mock(side_effect=EOFError)
+        with self.assertRaises(EOFError):google.render(text,'dummy',http)
+        with self.assertRaises(ValueError):google.render(text+'я','dummy',http)
+        http.assert_called_once()
     async def test_plain_text_when_voice_not_sent(self):
-        for peer,mode,text in [(17,'gacrux','я'*608),(-17,'qwen','Ответ без предисловия.')]:
+        for peer,mode,text in [(17,'gacrux','я'*1501),(-17,'qwen','Ответ без предисловия.')]:
             event=NS(id=8,chat_id=peer,reply=AsyncMock(return_value=NS(id=9)))
             with patch.object(instance,'send_spoken',new=AsyncMock(return_value=None)),patch.object(instance,'verify_blocks',new=AsyncMock()):
                 await instance.deliver_answer(None,NS(notify=lambda *args:None),event,text,mode)
