@@ -185,15 +185,17 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       ? 'Shared defaults; each person keeps a separate conversation and history.'
       : privateConversation ? 'Your private Telegram conversation.' : 'Telegram ' + (item.chatIds || [item.chatId]).join(' / ');
     const form = section.querySelector('form');
-    form.elements.voicePreset.closest('label').hidden = form.elements.voicePreset.disabled = item.kind !== 'private';
+    const voicePicker = form.elements.voicePreset.parentElement;
     const toolbar = document.createElement('div'); toolbar.className = 'profile-toolbar';
     form.prepend(toolbar);
     addShowControls(form, item.id);
     toolbar.append(form.querySelector('.grid'), form.elements.toolsOn.closest('.field-heading'), form.querySelector('.memory-grid'), form.querySelector('.actions'));
+    if (item.kind === 'private') toolbar.append(voicePicker);
+    else voicePicker.remove();
     const replyHint = section.querySelector('[data-reply-hint]');
     replyHint.id = 'reply-hint-' + item.id;
     form.elements.replyMode.setAttribute('aria-describedby', replyHint.id);
-    const pickers = ['model', 'thinking', 'replyMode'].map(name => createProfilePicker(form.elements[name]));
+    const pickers = [...toolbar.querySelectorAll('.profile-picker > select')].map(createProfilePicker);
     if (privateConversation) {
       form.elements.groupOn.closest('.number-slot').title = 'Earlier messages in this private conversation';
       form.elements.groupOn.name = 'memory'; // The existing DM gate, not a group-wide switch.

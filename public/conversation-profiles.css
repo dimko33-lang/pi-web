@@ -59,8 +59,6 @@ main section {border:0;padding-top:0}
 .field-heading {border-top:1px solid var(--divider-ink);margin-top:10px;padding-top:4px}
 .format-status,.format-switches {display:inline-flex;align-items:center;gap:var(--tool-gap)}
 .format-status {flex:1 1 min-content}
-.dm-voice-preset {flex-direction:row;align-items:center;gap:.65em;width:fit-content;max-width:100%}
-.dm-voice-preset select {width:auto;min-height:32px;height:32px;padding-block:4px;background-color:var(--surface)}
 .format-switches {flex:none}
 .draft-status {font-size:.9em;line-height:1.15;font-weight:600;color:#ff6b6b}
 html:is([data-theme=light],[data-reader-theme=light]) .draft-status {color:#b4232b}
@@ -93,7 +91,7 @@ header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-st
 .profile-toolbar .profile-picker-list {top:100%;left:0;background:var(--surface);border:0;border-radius:0;padding:0;box-shadow:none}
 .profile-toolbar .profile-picker-option {background:none;border:0;border-radius:0;padding:5px 10px 5px 0;color:#94928f}
 .profile-toolbar .profile-picker-option[aria-selected=true],.profile-toolbar .profile-picker-option:hover,.profile-toolbar .profile-picker-option.is-focused {color:#eee;background:none;outline:none}
-.profile-toolbar .profile-picker .profile-picker-trigger[data-field=model] {text-align:left}
+.profile-toolbar .profile-picker .profile-picker-trigger:is([data-field=model],[data-field=voicePreset]) {text-align:left}
 .profile-toolbar .profile-picker-option.is-focused {text-decoration:none}
 .profile-toolbar .profile-picker-option[aria-selected=true] {color:#fff;font-weight:550}
 .profile-toolbar .memory-grid {display:inline-flex;align-items:center;gap:var(--tool-gap);max-width:100%}
@@ -135,7 +133,7 @@ html[data-reader-theme=light] .error {color:#933328}
 .profile-picker-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .profile-picker { position: relative; min-width: 0; }
 .profile-picker-trigger { width: 100%; text-align: left; display: block; background-color: #141416; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* Keep all three triggers identical, independent of native OS menu geometry. */
+/* Keep picker triggers identical, independent of native OS menu geometry. */
 select, .profile-picker-trigger { -webkit-appearance: none; appearance: none; height: 39px; min-height: 39px; line-height: 17px; padding: 10px 32px 10px 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%23b5b5b8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 12px 12px; }
 /* Focus stays inside the existing border, without a bright outer ring. */
 select:hover, select:focus, .profile-picker-trigger:hover, .profile-picker-trigger:focus { border-color: rgba(255,255,255,.28); outline: none; outline-offset: 0; box-shadow: none; }
