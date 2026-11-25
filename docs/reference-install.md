@@ -10,7 +10,7 @@ Record the reference check, the published commit and the fresh-install check sep
 
 ## Current coverage
 
-After `v0.12.1`, an individual DM on the reference and on `main` can select **Gacrux** (unchanged reference) or **Charon · Quiet elder** for Google speech. The choice does not enable voice delivery, change the conversation prompt or assign a speaker to other guests or groups. The `v0.12.1` release archive predates this selector. No enrolled peer or personal settings ship in source.
+After `v0.12.1`, an individual DM on the reference and on `main` can select **Gacrux** (unchanged reference) or **Charon** for Google speech. The choice does not enable voice delivery, change the conversation prompt or assign a speaker to other guests or groups. The `v0.12.1` release archive predates this selector. No enrolled peer or personal settings ship in source.
 
 Also after `v0.12.1`: enabled Person / Group / BG windows can offer an earlier photo by message ID and caption. Only a fresh request for visual detail can open one verified same-group image, and the next turn starts with no historical image attached. This is not a gallery, cross-chat lookup or editing source. `tests/group-photos.py` checks the actual Pi payloads with synthetic images and a loopback provider.
 

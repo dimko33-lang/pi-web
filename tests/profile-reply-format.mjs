@@ -110,15 +110,15 @@ try {
       assert.deepEqual(await measure(speaker,voiceList,width),await measure(model,modelList,width),`Same picker styles at ${width}px, ${theme}`);
     }
   }
-  await speaker.click();assert.deepEqual(await voiceList.getByRole('option').allTextContents(),['Gacrux','Charon · Quiet elder']);
-  await voiceList.getByRole('option',{name:'Charon · Quiet elder',exact:true}).click();
-  assert.equal(await speaker.textContent(),'Charon · Quiet elder');assert.equal(await value.inputValue(),'charon-elder');
+  await speaker.click();assert.deepEqual(await voiceList.getByRole('option').allTextContents(),['Gacrux','Charon']);
+  await voiceList.getByRole('option',{name:'Charon',exact:true}).click();
+  assert.equal(await speaker.textContent(),'Charon');assert.equal(await value.inputValue(),'charon-elder');
   assert.equal(await voiceList.isVisible(),false);assert.equal(await dm.locator('.draft-status').textContent(),'Unsaved changes');
   const dmSaved=page.waitForResponse(r=>r.url().endsWith('/dm')&&r.request().method()==='POST');await dm.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await dmSaved).status(),200);
   const dmSettings=JSON.parse(readFileSync(path.join(dir,'conversation-profiles.json'))).profiles.dm;
   assert.equal(dmSettings.memory,true);assert.equal(dmSettings.voicePreset,'charon-elder');assert.equal(dmSettings.voiceOutput,false);
   await page.reload();await speaker.waitFor();await page.setViewportSize({width:320,height:800});
-  assert.equal(await speaker.textContent(),'Charon · Quiet elder');assert.equal(await speaker.evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);
+  assert.equal(await speaker.textContent(),'Charon');assert.equal(await speaker.evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);
   await speaker.press('ArrowDown');await speaker.press('Home');await speaker.press('Escape');
   assert.equal(await value.inputValue(),'charon-elder');assert.equal(await dm.locator('.draft-status').textContent(),'');
   await speaker.press('ArrowDown');await speaker.press('Home');await speaker.press('Enter');assert.equal(await speaker.textContent(),'Gacrux');
