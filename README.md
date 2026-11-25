@@ -2,11 +2,11 @@
 
 Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
-The current installable release is [v0.12.0 — Remember the person, not the scroll](https://github.com/dimko33-lang/pi-web/releases/tag/v0.12.0). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+The current installable release is [v0.12.1 — Bounded DM history and uninterrupted active replies](https://github.com/dimko33-lang/pi-web/releases/tag/v0.12.1). Fresh installs use its archive; rerunning the card is not a general upgrade command.
 
 **Group memory:** In `/profiles`, enable **Person** at 100 and pause **Group** and **BG** to give Nikita the current participant’s last 100 available dialogue messages in that group, even after the room has moved on. Each switch pauses its source without clearing the number. Only selected context is added to the model request. [How the three windows work, what ships for individual DMs, and the Library of Babel preview](docs/releases/v0.12.0.md).
 
-**Individual Telegram DMs:** From the installed app directory, run `python3 telegram/private_profiles.py USER_ID "Display name"` and restart the panel. This explicitly allows that user to contact the agent and adds a private profile tab. Set its character, base and custom prompts, response style, model, thinking, memory and tools switch on `/profiles`. Until saved, it uses the Other DMs profile. Each guest has a separate session directory. Guests may request image generation with `/image` when tools are enabled; Python execution and request inspection remain owner-only in private chats. To revoke access, rerun the command with just the ID. Restart the panel to refresh the tabs. Local enrollments, personal prompts and messages are not distributed.
+**Individual Telegram DMs:** From the installed app directory, run `python3 telegram/private_profiles.py USER_ID "Display name"` and restart the panel. This explicitly allows that user to contact the agent and adds a private profile tab. Set its character, base and custom prompts, response style, model, thinking, memory and tools switch on `/profiles`. Until saved, it uses the Other DMs profile. Dialogue limits how many prior messages from that DM reach the model. An explicit reply can still quote its target when automatic history is paused. See [private memory and long replies](docs/usage.md#private-dialogue-and-long-telegram-replies). Guests may request image generation with `/image` when tools are enabled; Python execution and request inspection remain owner-only in private chats. To revoke access, rerun the command with just the ID. Restart the panel to refresh the tabs. Local enrollments, personal prompts and messages are not distributed.
 
 Telegram demo: [PI-WEB Chat](https://t.me/PiWebChat) · [Salon Niki](https://t.me/SalonNikiChat)
 
@@ -35,6 +35,10 @@ No provider or Telegram login is needed to install or read the Notes. For model 
 - **Save.** Export a restorable copy of the application, including the 18 Notes. It’s not a server backup: it doesn’t include chat history, personal settings, Telegram sessions or provider credentials.
 
 This installer doesn’t yet reproduce everything on the working Nikita server. In particular, group attachments, group-specific tools and the exact choice of conversation history still differ. On the stock server install, **after a reboot, rerun the install command to bring the panel and HTTPS back**. That’s separate from the enrolled Telegram service.
+
+## Run the offline checks
+
+With Node 22.23.4, `npm ci && npm test` checks source export/restore, profile settings and the tool adapter using disposable fixtures. No Pi or Telegram login is required. For the Telegram regressions, set `TEST_TELEGRAM_PYTHON` to a Python with `telegram/requirements.lock` installed and `TEST_PI_BIN` to a compatible Pi executable, then run `npm run test:telegram`. This checks the actual provider payload on loopback, not a live account. To time a real Pi turn beyond six minutes, run `"$TEST_TELEGRAM_PYTHON" -B tests/turn-wait.py --long` with `TEST_PI_BIN` still set.
 
 ## Credits and license
 

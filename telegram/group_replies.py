@@ -8,6 +8,7 @@ import time
 import unicodedata
 
 from lc_recovery import ReplyQueue, WINDOW
+from turn_wait import PiIdleTimeout
 from participant_memory import group_context, remember_reply, uses_group_windows
 from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
@@ -158,6 +159,8 @@ class Group:
                 if not ready:
                     await self.start(); ready = True
                 await self.step()
+            except PiIdleTimeout as exc:
+                log.warning('Group %s: %s', self.tab, exc)
             except Exception as e:
                 log.warning('Group %s pass deferred: %s', self.tab, type(e).__name__)
             try: await asyncio.wait_for(self.wake.wait(), POLL)

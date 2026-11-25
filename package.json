@@ -1,14 +1,15 @@
 {
   "name": "pi-web",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "tsx server/main.ts",
-    "check:source": "node tests/source-language.mjs",
+    "check:source": "node --import tsx tests/source-restore.mjs",
     "pretest": "npm run check:source",
-    "test": "node tests/standalone.mjs"
+    "test": "node --import tsx tests/profile-install.mjs && node --import tsx tests/instance-tools.mjs",
+    "test:telegram": "node tests/telegram-suite.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

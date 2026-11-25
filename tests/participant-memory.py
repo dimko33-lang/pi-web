@@ -1,19 +1,19 @@
 """Synthetic group + SQLite. Set TEST_PI_BIN for a real Pi turn against an isolated loopback provider."""
 import asyncio
-from contextlib import asynccontextmanager, contextmanager
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
 from pathlib import Path
 import sqlite3
 import sys
 import tempfile
-import threading
 from types import SimpleNamespace as N
 import unittest
 from unittest.mock import AsyncMock, patch
 
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from loopback_provider import local_provider, user_payload
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'telegram'))
 import participant_memory as pm
 from group_replies import Group, PeerState
@@ -47,11 +47,6 @@ class Client:
 def packed(prompt):return json.loads(prompt.split('\n',1)[1]) if prompt else {}
 
 
-def user_payload(request):
-    content=next(m['content'] for m in reversed(request['messages']) if m['role']=='user')
-    return content if isinstance(content,str) else '\n'.join(part.get('text','') for part in content if isinstance(part,dict))
-
-
 async def exercise_switches(client,peer,start,profile,turn,seen):
     """Run all eight masks with nonzero saved counts, then resume Person without editing its 100."""
     profile.update(personLimit=100,memoryLimit=2,backgroundLimit=1)
@@ -67,26 +62,6 @@ async def exercise_switches(client,peer,start,profile,turn,seen):
         assert 'LEGACY_ROOM_HISTORY' not in body and profile['personLimit']==100
         if mask==0:assert not client.calls,'all paused: no history reads'
         if mask==4:assert client.calls==[(peer,None,None,1)],'BG only must not fetch a dialogue'
-
-
-@contextmanager
-def local_provider(root):
-    seen=[]
-    class Handler(BaseHTTPRequestHandler):
-        def log_message(self,*args):pass
-        def do_POST(self):
-            if self.headers.get('Authorization')!='Bearer loopback-fixture':self.send_error(401);return
-            seen.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
-            self.send_response(200);self.send_header('Content-Type','text/event-stream');self.end_headers()
-            for delta,reason in (({'role':'assistant','content':'Fixture answer'},None),({},'stop')):
-                event={'id':'local','object':'chat.completion.chunk','model':'test','choices':[{'index':0,'delta':delta,'finish_reason':reason}]}
-                self.wfile.write(('data: '+json.dumps(event)+'\n\n').encode())
-            self.wfile.write(b'data: [DONE]\n\n')
-    server=ThreadingHTTPServer(('127.0.0.1',0),Handler);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-    agent=root/'fixture-agent';agent.mkdir(mode=0o700); (agent/'models.json').write_text(json.dumps({'providers':{'fixture':{'baseUrl':f'http://127.0.0.1:{server.server_port}/v1','api':'openai-completions','models':[{'id':'test','name':'Fixture','contextWindow':200000,'maxTokens':512}]}}}));(agent/'auth.json').write_text(json.dumps({'fixture':{'type':'api_key','key':'loopback-fixture'}}))
-    try:
-        with patch.dict(os.environ,{'HOME':str(root),'PI_CODING_AGENT_DIR':str(agent)}):yield seen
-    finally:server.shutdown();server.server_close();thread.join()
 
 
 class Memory(unittest.IsolatedAsyncioTestCase):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Portable, explicitly enrolled Telegram transport for a single owner's DMs."""
+"""Portable Telegram transport for one enrolled account, its permitted DMs and bound groups."""
 import argparse
 import base64
 import io
@@ -23,6 +23,9 @@ from salon_archive import SalonArchive, bind, GROUPS, read, showcase_enabled
 from showcase_reply import deliver_showcase
 from group_replies import GroupService
 from participant_memory import uses_group_windows
+from dm_memory import dm_context
+from rich_replies import message_text
+from turn_wait import collect_pi, PiIdleTimeout, reap_pi
 from private_profiles import guests, private_profile_key
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
 from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
@@ -152,15 +155,15 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
         if type(guest) is not int or guest <= 0 or group is not None: raise ValueError('Invalid DM peer')
         cwd = BASE / f'conversation-dm-{guest}'
     cwd.mkdir(mode=0o700, exist_ok=True)
-    args = [pi, '--print', '--no-context-files', '--no-extensions', '--no-mcp', '--no-skills', '--no-prompt-templates', '--no-tools']
+    args = [pi, '--print', '--mode', 'json', '--no-context-files', '--no-extensions', '--no-mcp', '--no-skills', '--no-prompt-templates', '--no-tools']
     env = os.environ.copy(); env.pop('NIKITA_OWNER_INSPECTION_DIR', None)
     if (inspect_owner and guest is None and group is None and text.strip().lower() == 'ok' and not profile.get('toolsOn', True)
             and not profile.get('memory', True) and not profile.get('tailOn', True) and (BASE/'inspection/armed').is_file()):
         args.extend(['--extension', str(APP/'telegram/request-inspection.ts')])
         env['NIKITA_OWNER_INSPECTION_DIR'] = str(BASE/'inspection')
-    # Explicit group windows have already been selected; a shared Pi continuation would leak other turns.
-    scoped = group is not None and uses_group_windows(profile)
-    if not scoped and profile.get('memory', True) and profile.get('memoryLimit', 100) > 0:
+    # Only untouched legacy groups continue a session. Every DM and every scoped group already
+    # selected its prior messages before this call, including when its history window is empty.
+    if group is not None and not uses_group_windows(profile) and profile.get('memory', True) and profile.get('memoryLimit', 100) > 0:
         since = int(profile.get('memoryResetAt') or 0)
         sessions = cwd / ('after-' + str(since)) if since > 0 else cwd
         sessions.mkdir(mode=0o700, exist_ok=True)
@@ -187,18 +190,19 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
             prompt.write('\n\n'.join(parts) or ' '); prompt.flush()
             args.extend(['--append-system-prompt' if native else '--system-prompt', prompt.name])
         args.extend('@'+str(path) for path in frames)
-        p = await asyncio.create_subprocess_exec(*args, cwd=cwd, env=env, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
+        p = await asyncio.create_subprocess_exec(*args, cwd=cwd, env=env, stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL, start_new_session=True, limit=4_000_000)
         try:
-            data, _ = await asyncio.wait_for(p.communicate(text.encode()), 360)
+            result = await collect_pi(p, text)
         finally:
-            if p.returncode is None:
-                p.kill(); await p.wait()
-    if p.returncode or not data.strip():
-        raise RuntimeError('Pi returned no reply')
-    return data.decode(errors='replace').strip()
+            await reap_pi(p)
+    if p.returncode or result.failed or not result.settled or not result.text:
+        raise RuntimeError('Pi did not complete a reply')
+    return result.text
 
 
 async def tool_turn(e, *, delivery=None, guest=None):
+    if guest is not None and not owner_dm(e, guest): return '', None
     profile = owner_profile() if guest is None else (conversation_profile(f'dm_{guest}') or conversation_profile('guest_dm'))  # Pin one settings snapshot for inference and dispatch.
     tools = profile.get('toolsOn', True)
     prepared_edit = None
@@ -221,13 +225,17 @@ async def tool_turn(e, *, delivery=None, guest=None):
         action = {'nikita_tool':'image','prompt':direct[2]} if direct[1]=='image' else {'nikita_tool':'python','code':direct[2]}
         text = ''
     else:
-        # Only serve()'s enrolled-owner DM path reaches here. Replies/forwards/media are not inspection tests.
+        # Both admitted DM paths reach here; only a plain owner message can consume the inspection ticket.
         test = (not voice and raw.strip().lower() == 'ok' and not e.message.reply_to_msg_id
                 and not e.message.fwd_from and not e.message.media)
         quoted = None
         if getattr(e.message, 'reply_to_msg_id', None):
             candidate = await e.get_reply_message()
-            if candidate and candidate.chat_id == e.chat_id: quoted = candidate
+            if candidate and candidate.chat_id == e.chat_id and candidate.id == e.message.reply_to_msg_id: quoted = candidate
+        if quoted and message_text(quoted):
+            raw += '\n\n[Reply target, quoted context]:\n' + message_text(quoted)[:12000]
+        history = await dm_context(e, profile, quoted.id if quoted else None)
+        if history: raw = history + '\n\nCurrent request:\n' + raw
         if is_voice(quoted):raw+='\n\n'+await audio_context(quoted,download,quoted=True)
         if attachment_type(e.message) or attachment_type(quoted):
             async with sampled_inputs(e.message, quoted) as (frames, note):
@@ -329,6 +337,8 @@ async def serve():
                 text, photo = await tool_turn(e,delivery=delivery,guest=guest)
                 if photo is not None:
                     sent = await e.reply(file=photo,force_document=False); archive.notify(peer,sent.id); return
+        except PiIdleTimeout as exc:
+            await e.reply(str(exc)); return
         except (RuntimeError, OSError, ValueError, KeyError, asyncio.TimeoutError):
             await e.reply('Could not complete the request. Check the selected provider, its image access, or the science service.'); return
         await deliver_answer(c,archive,e,text,delivery.get('spoken'))

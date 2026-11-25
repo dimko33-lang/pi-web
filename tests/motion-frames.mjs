@@ -37,7 +37,7 @@ from motion_frames import sampled_inputs
 base=Path(os.environ['HOME']); incoming=NS(raw_text='What changed?',chat_id=1)
 class Clip:
     def __init__(self,ext):
-        self.data=(base/('test.'+ext)).read_bytes();self.file=NS(size=len(self.data),mime_type={'mp4':'video/mp4','gif':'image/gif'}[ext]);self.reply_to_msg_id=None;self.chat_id=1
+        self.id=500;self.data=(base/('test.'+ext)).read_bytes();self.file=NS(size=len(self.data),mime_type={'mp4':'video/mp4','gif':'image/gif'}[ext]);self.reply_to_msg_id=None;self.chat_id=1
     async def download_media(self,file):file.write(self.data)
 async def go():
     for ext in ['gif','mp4','text','foreign']:
