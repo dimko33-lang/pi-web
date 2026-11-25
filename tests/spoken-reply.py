@@ -8,6 +8,11 @@ import instance, spoken_reply as tts
 from voice_notes import recognize
 
 class Spoken(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        # Test the fresh default even if this Python's deployment enrolled a real speech service.
+        disabled = patch.object(tts, 'GOOGLE_ENABLED', NS(is_file=lambda: False))
+        disabled.start(); self.addCleanup(disabled.stop)
+
     async def test_phrase(self):
         m=NS(fwd_from=None)
         for s in ('Поговори со мной','Никита, поговори со мной. Почему идёт дождь?','поговори со мной!'):
