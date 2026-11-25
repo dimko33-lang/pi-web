@@ -19,7 +19,7 @@ TG = '/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent'
 WEB = '/srv/pi-workspaces/browser/rootfs/opt/pi-web'
 # No recursive workspace copies. New filenames require a deliberate review.
 GROUPS = [
-    ('telegram', TG, ('agent_runtime.py agent_server.py agent_tools.ts approval_state.py archive_sync.py conversation_profiles.py debri_archive.py image_delivery.py lc_recovery.py lightcone_archive.py lightcone_context.py live_archive.py model_settings.py piweb_recall.py public_site.py recent_context.py reply_delivery.py restart_checked.py rich_replies.py telegram_blocks.py telegram_search.py telegraph_publish.py tool_policy.py tool-policy.json typing_client.py web_client.py requirements.lock mathrender/package.json mathrender/package-lock.json mathrender/render.js').split()),
+    ('telegram', TG, ('agent_runtime.py agent_server.py agent_tools.ts approval_state.py archive_sync.py conversation_profiles.py debri_archive.py image_delivery.py lc_recovery.py lightcone_archive.py lightcone_context.py live_archive.py model_settings.py piweb_recall.py public_site.py recent_context.py reply_delivery.py restart_checked.py rich_replies.py showcase_reply.py telegram_blocks.py telegram_search.py telegraph_publish.py tool_policy.py tool-policy.json typing_client.py web_client.py requirements.lock mathrender/package.json mathrender/package-lock.json mathrender/render.js').split()),
     ('bridge', '/srv/pi-workspaces/browser/rootfs/opt/site-entry', ['main.mjs', 'navigation.js']),
     ('workers/web', '/opt/nikita-web', ['web_service.py', 'web_worker.py', 'requirements.lock', 'reader-door.py']),
     ('workers/image', '/opt/nikita-image', ['image_worker.py', 'requirements.lock']),

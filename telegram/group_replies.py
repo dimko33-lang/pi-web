@@ -11,7 +11,7 @@ from lc_recovery import ReplyQueue, WINDOW
 from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
 from spoken_reply import voice_policy, HINT as SPOKEN_HINT
-from salon_archive import GROUPS, read
+from salon_archive import GROUPS, read, showcase_enabled
 
 log = logging.getLogger(__name__)
 POLL = 5
@@ -71,9 +71,15 @@ class Group:
                 if older: self.queue.advance(min(older[0].id, tip))
             self.cursor = self.queue.cursor
 
+    def text(self, msg):
+        if not msg.raw_text and getattr(msg, 'rich_message', None) and showcase_enabled(self.state.base, self.peer):
+            from rich_replies import message_text
+            return message_text(msg)
+        return msg.raw_text or ''
+
     async def handle(self, msg, retry=False):
         if not msg or msg.chat_id != self.peer or msg.out or not msg.sender_id: return
-        text = (msg.raw_text or '').strip()
+        text = self.text(msg).strip()
         if (not text and not attachment_type(msg) and not is_voice(msg)) or text.startswith('/'): return
         profile, mode, names = self.policy(self.tab, self.peer)
         if mode not in ('mention_reply', 'mentions', 'addressed', 'all'): return
@@ -101,7 +107,7 @@ class Group:
             elif not q.begin(msg.id, msg.sender_id, expires): return
         elif not self.state.claim(msg.id): return
         prompt = f'[Current message from user (id {msg.sender_id})]:\n{text}'
-        if quoted: prompt += '\n\n[Reply target, quoted context]:\n' + (quoted.raw_text or '')[:12000]
+        if quoted: prompt += '\n\n[Reply target, quoted context]:\n' + self.text(quoted)[:12000]
         async with self.client.action(self.peer, 'typing'):
             address = ADDRESSING if candidate else ''
             heard=[]

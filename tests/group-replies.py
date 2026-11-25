@@ -35,12 +35,12 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup); self.base = Path(tmp.name)
         clock = patch('time.time', return_value=10000); self.now = clock.start(); self.addCleanup(clock.stop)
-        self.c = Client(); self.sent = []; self.calls = []; self.mode = 'mention_reply'; self.fail = False
+        self.c = Client(); self.sent = []; self.calls = []; self.mode = 'mention_reply'; self.fail_model = False
     async def boot(self):
         state = PeerState(self.base,-7); self.addCleanup(state.db.close)
         async def infer(text, profile, peer, addressing):
             self.calls.append((text,peer,addressing))
-            if self.fail: raise RuntimeError('provider offline')
+            if self.fail_model: raise RuntimeError('provider offline')
             return 'answer'
         async def send(msg, text): self.sent.append(msg.id); self.c.add(text,10000,out=True,reply=msg.id)
         g = Group(self.c,NS(id=9,username='my_agent'),-7,'lightcone',state,
@@ -54,9 +54,9 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
         g.state.db.close(); g=await self.boot();await g.step();self.assertEqual(self.sent,[2])
         self.c.add('reply to account',10000,reply=5);await g.step();self.assertEqual(self.sent,[2,7])
     async def test_bounded_retry_survives_restart(self):
-        g=await self.boot();self.c.add('@my_agent first',10000);self.fail=True
+        g=await self.boot();self.c.add('@my_agent first',10000);self.fail_model=True
         with self.assertRaises(RuntimeError):await g.step()
-        g.state.db.close();self.now.return_value=10031;self.fail=False;g=await self.boot();await g.step();await g.step()
+        g.state.db.close();self.now.return_value=10031;self.fail_model=False;g=await self.boot();await g.step();await g.step()
         self.assertEqual(self.sent,[1]);self.assertEqual(len(self.calls),2)
     async def test_expiry_mode_and_silence(self):
         g=await self.boot();g.state.db.close();self.c.add('@my_agent expired',6000);self.c.add('ordinary',10000)
@@ -91,7 +91,8 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
         async def send(m,text,*,spoken=False):sent.append((m.id,spoken))
         g.send=send
         from unittest.mock import AsyncMock
-        with patch('voice_notes.recognize',new=AsyncMock(return_value='Никита, поговори со мной.')) as asr:
+        # This fixture exercises the default voice, not the host's enrolled Gacrux socket.
+        with patch('spoken_reply.GOOGLE_ENABLED', self.base/'no-cloud-enrollment'), patch('voice_notes.recognize',new=AsyncMock(return_value='Никита, поговори со мной.')) as asr:
             a=self.c.add('@my_agent поговори со мной, пожалуйста',10000);await g.step()
             v=self.c.add('@my_agent',10000);v.voice=True;await g.step()
             q=self.c.add('@my_agent о чём запись?',10000,reply=v.id);await g.step()

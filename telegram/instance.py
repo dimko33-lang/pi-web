@@ -19,7 +19,8 @@ import tempfile
 from telethon import TelegramClient, errors, events
 from telethon.sessions import StringSession
 from telegram_blocks import message_parts, verify_blocks
-from salon_archive import SalonArchive, bind, GROUPS, read
+from salon_archive import SalonArchive, bind, GROUPS, read, showcase_enabled
+from showcase_reply import deliver_showcase
 from group_replies import GroupService
 from private_profiles import guests, private_profile_key
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
@@ -272,11 +273,15 @@ async def tool_turn(e, *, delivery=None, guest=None):
     return '\n'.join(filter(None,['Scientific result:' if result.get('ok') else 'Calculation did not complete:',result['stdout']['text'],result['stderr']['text']])),None
 
 
-async def deliver_answer(client, archive, msg, text, spoken=False):
+async def deliver_answer(client, archive, msg, text, spoken=False, *, showcase=False):
     if spoken and text:
         note=await send_spoken(client,msg.chat_id,msg.id,text,mode=spoken)
         if note:
             archive.notify(msg.chat_id,note.id);return
+    if showcase:
+        mid = await deliver_showcase(client, msg.chat_id, msg.id, text)
+        archive.notify(msg.chat_id, mid)
+        return
     for body, entities in message_parts(text, formatted=True):
         sent = await msg.reply(body, formatting_entities=entities, link_preview=False)
         archive.notify(msg.chat_id,sent.id)
@@ -290,7 +295,7 @@ async def serve():
     c = TelegramClient(StringSession(conf['session']), conf['api'], conf['secret'], sequential_updates=True)
     archive = SalonArchive(BASE, owner)
     async def send_group(msg, text, *, spoken=False):
-        await deliver_answer(c,archive,msg,text,spoken)
+        await deliver_answer(c,archive,msg,text,spoken,showcase=showcase_enabled(BASE,msg.chat_id))
     groups = GroupService(BASE, group_policy, answer, send_group)
     tasks = []
     @c.on(events.NewMessage(incoming=True))
@@ -343,10 +348,13 @@ if __name__ == '__main__':
     permission = route.add_mutually_exclusive_group()
     permission.add_argument('--replies', dest='replies', action='store_true', help='Allow group text replies')
     permission.add_argument('--no-replies', dest='replies', action='store_false', help='Stop group replies, retaining the archive')
-    route.set_defaults(replies=None)
+    presentation = route.add_mutually_exclusive_group()
+    presentation.add_argument('--showcase', dest='showcase', action='store_true', help='Prefer full text and native Telegram articles for this group')
+    presentation.add_argument('--no-showcase', dest='showcase', action='store_false', help='Restore standard delivery without changing reply permission')
+    route.set_defaults(replies=None, showcase=None)
     args = parser.parse_args(); action = args.action
     if action == 'bind':
-        try: bind(BASE, args.profile, args.peer, args.authors, args.replies)
+        try: bind(BASE, args.profile, args.peer, args.authors, args.replies, args.showcase)
         except ValueError as e: parser.error(str(e))
         print('Archive tab bound:', args.profile)
     elif action == 'status':

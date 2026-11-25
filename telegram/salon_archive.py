@@ -30,7 +30,18 @@ def atomic(path, value):
         Path(tmp).unlink(missing_ok=True)
 
 
-def bind(base, profile, peer, authors=False, replies=None):
+def showcase_enabled(base, peer):
+    if type(peer) is not int or peer >= 0:
+        return False
+    selected = read(base / 'showcase-bindings.json', {})
+    for tab, bound in selected.items():
+        if tab in GROUPS and bound == peer:
+            return all(read(base / filename, {}).get(tab) == peer
+                       for filename in ('archive-bindings.json', 'reply-bindings.json'))
+    return False
+
+
+def bind(base, profile, peer, authors=False, replies=None, showcase=None):
     if authors and profile != 'lightcone':
         raise ValueError('The author reader can only use the LightCone tab.')
     if profile not in GROUPS or peer >= 0:
@@ -51,6 +62,11 @@ def bind(base, profile, peer, authors=False, replies=None):
             if replies: allowed[profile] = peer
             else: allowed.pop(profile, None)
             atomic(base / 'reply-bindings.json', allowed)
+        if showcase is not None:
+            formats = read(base / 'showcase-bindings.json', {})
+            if showcase: formats[profile] = peer
+            else: formats.pop(profile, None)
+            atomic(base / 'showcase-bindings.json', formats)
         if authors:
             atomic(base / 'authors-binding.json', {'peer': peer})
 
@@ -106,7 +122,11 @@ class SalonArchive:
             if not m.out: continue
             # Use the salon's existing feed schema; do not export the whole Telegram object.
             key = f'{abs(peer)}-{m.id}'
-            row = {'key': key, 'original': {'id': m.id, 'date_unixtime': int(m.date.timestamp())}, 'text': m.message or ''}
+            text = m.message or ''
+            if not text and getattr(m, 'rich_message', None) and showcase_enabled(self.base, peer):
+                from rich_replies import message_text
+                text = message_text(m)
+            row = {'key': key, 'original': {'id': m.id, 'date_unixtime': int(m.date.timestamp())}, 'text': text}
             if str(peer).startswith('-100'):
                 row['link'] = f'https://t.me/c/{str(peer)[4:]}/{m.id}'
             if m.photo:

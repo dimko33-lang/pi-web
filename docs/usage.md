@@ -72,6 +72,12 @@ On a fresh Debian/Ubuntu systemd server with the default root install, the same 
 
 Use ordinary requests in the browser or the connected owner's Telegram DM, or `/science print(2 ** 32)` and `/image A watercolor owl` for explicit tool selection. In Telegram, an image request can use an attached photo or a photo in a direct same-chat reply as its edit source. The selected provider must support the requested operation. The image adapter runs on demand with Pi's credential store (not a second copy of its refresh token). It uses the selected provider's image catalog, or the Codex image endpoint for a connected `openai-codex` OAuth account. Provider subscriptions and quotas vary; a text-only provider does not gain image access, and there is no automatic switch to another billing provider. Fresh web sessions follow a provider/model explicitly selected in the native Pi settings unless a panel model override is saved. No credentials, user images, messages or subscriptions are distributed.
 
+## Showcase replies
+
+For a demo group, add `--showcase` to `nikita-telegram bind TAB CHAT_ID`. This chooses presentation only, not permission to reply. The setting is inactive without a matching reply binding. `--no-showcase` restores the default without changing other groups or DMs.
+
+Prose fits in one open message up to the account's Telegram text limit. Math (`$…$`, `$$…$$`, `\(…\)`, `\[…\]` outside code) and longer prose go in one native Telegram article. There is no 6,000-character answer cap or automatic collapsed quotation. A deployment with a verified Notes publisher may link to the individual answer for interactive figures or if Telegram explicitly rejects the article's size or format. The standalone installation has no public Notes publisher by default and keeps the complete Markdown in the same chat as a file instead. An uncertain send is never repeated.
+
 ## Salon and author archives
 
 The Telegram service also collects history on its existing connection. During enrollment you can choose groups for the salon tabs directly from your account's dialog list. No group is guessed from its name. The owner DM tab is bound automatically. Salon tabs collect **only outgoing text/captions and photos** in the selected chats. The LightCone tab optionally also collects participants' text in a separate authenticated author reader (`/go/lightcone`). This requires an explicit opt-in, and never includes other chats. An empty installation contains no Telegram history.
