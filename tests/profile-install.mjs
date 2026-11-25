@@ -14,6 +14,17 @@ try {
   await fs.copyFile(path.join(root,'server/starter.ts'),path.join(dir,'server/starter.mts'));
   delete process.env.PI_WEB_TELEGRAM_DATA; delete process.env.PI_WEB_CONVERSATION_PROFILES;
   await import(pathToFileURL(path.join(dir,'server/starter.mts')).href);
+  const store=path.join(dir,'data/conversation-profiles.json'), fresh=JSON.parse(await fs.readFile(store,'utf8'));
+  const flags=['personOn','groupOn','backgroundOn'];
+  for(const entry of JSON.parse(process.env.PI_WEB_CONVERSATION_PROFILES)) {
+    const p=fresh.profiles[entry.id];
+    if(entry.kind==='group') assert.deepEqual(flags.map(k=>p[k]),[false,p.memoryLimit>0,p.backgroundLimit>0]);
+    else assert.ok(flags.every(k=>!(k in p)));
+  }
+  // Booting against a pre-switch store must not migrate it, even when new seeds have explicit flags.
+  for(const k of [...flags,'personLimit'])delete fresh.profiles.lake[k];
+  const legacyStore=JSON.stringify(fresh);await fs.writeFile(store,legacyStore);delete process.env.PI_WEB_CONVERSATION_PROFILES;
+  await import(pathToFileURL(path.join(dir,'server/starter.mts')).href+'?second-boot');assert.equal(await fs.readFile(store,'utf8'),legacyStore);
   const app=express(); app.use(express.json()); const model='fixture/subscription';
   app.use('/profiles',createConversationProfiles({directory:path.join(dir,'data'),
     defaults:()=>({model,thinking:'low',memoryEpoch:'initial',memoryResetAt:0}), basePrompt:()=>'',
@@ -30,7 +41,7 @@ try {
   assert.equal(saved.profiles.owner_dm.toolsOn,false);assert.notEqual(saved.profiles.guest_dm.piOn,true);
   let current=await save.json();
   const change=(id,action,values)=>fetch(url+'/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,revision:current.revision,settings:values})});
-  const group=current.profiles.find(p=>p.id==='lake'), flags=['personOn','groupOn','backgroundOn'];
+  const group=current.profiles.find(p=>p.id==='lake');
   assert.deepEqual(flags.map(k=>group.settings[k]),[false,true,true]);assert.equal(group.settings.personLimit,0);
   assert.equal(saved.profiles.lake.personOn,undefined,'GET must not migrate the store');
   const edit={...group.settings,personOn:false,groupOn:true,backgroundOn:false,personLimit:100,memoryLimit:42,backgroundLimit:9};

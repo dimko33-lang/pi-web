@@ -2,11 +2,13 @@
 
 Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
-The current installable release is [v0.11.0](https://github.com/dimko33-lang/pi-web/releases/tag/v0.11.0). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+The current installable release is [v0.12.0 — Remember the person, not the scroll](https://github.com/dimko33-lang/pi-web/releases/tag/v0.12.0). Fresh installs use its archive; rerunning the card is not a general upgrade command.
+
+**Group memory:** In `/profiles`, enable **Person** at 100 and pause **Group** and **BG** to give Nikita the current participant’s last 100 available dialogue messages in that group, even after the room has moved on. Each switch pauses its source without clearing the number. Only selected context is added to the model request. [How the three windows work, what ships for individual DMs, and the Library of Babel preview](docs/releases/v0.12.0.md).
 
 **Individual Telegram DMs:** From the installed app directory, run `python3 telegram/private_profiles.py USER_ID "Display name"` and restart the panel. This explicitly allows that user to contact the agent and adds a private profile tab. Set its character, base and custom prompts, response style, model, thinking, memory and tools switch on `/profiles`. Until saved, it uses the Other DMs profile. Each guest has a separate session directory. Guests may request image generation with `/image` when tools are enabled; Python execution and request inspection remain owner-only in private chats. To revoke access, rerun the command with just the ID. Restart the panel to refresh the tabs. Local enrollments, personal prompts and messages are not distributed.
 
-[Salon Niki — public Telegram demo](https://t.me/SalonNikiChat)
+Telegram demo: [PI-WEB Chat](https://t.me/PiWebChat) · [Salon Niki](https://t.me/SalonNikiChat)
 
 **Need to recover the voice name, connect Telegram or maintain the installation?** Open the [local operator handbook](server/handbook/START-HERE.md). The installer prints its path (normally `~/PiWebRuntime/app/server/handbook/START-HERE.md`). In the stock isolated Linux browser workspace the same index is readable at `/opt/app/server/handbook/START-HERE.md` without Root. Ask the maintenance agent to open the index and read only the matching note; these files are not automatically loaded into conversations.
 
