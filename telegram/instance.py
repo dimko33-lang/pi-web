@@ -22,6 +22,7 @@ from telegram_blocks import message_parts, verify_blocks
 from salon_archive import SalonArchive, bind, GROUPS, read, showcase_enabled
 from showcase_reply import deliver_showcase
 from group_replies import GroupService
+from participant_memory import uses_group_windows
 from private_profiles import guests, private_profile_key
 from motion_frames import attachment_type, sampled_inputs, PHOTOS
 from voice_notes import is_voice, recognize, voice_prompt, audio_context, VoiceError
@@ -158,7 +159,7 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
         args.extend(['--extension', str(APP/'telegram/request-inspection.ts')])
         env['NIKITA_OWNER_INSPECTION_DIR'] = str(BASE/'inspection')
     # Explicit group windows have already been selected; a shared Pi continuation would leak other turns.
-    scoped = group is not None and profile.get('personLimit', 0) > 0
+    scoped = group is not None and uses_group_windows(profile)
     if not scoped and profile.get('memory', True) and profile.get('memoryLimit', 100) > 0:
         since = int(profile.get('memoryResetAt') or 0)
         sessions = cwd / ('after-' + str(since)) if since > 0 else cwd

@@ -52,6 +52,23 @@ def user_payload(request):
     return content if isinstance(content,str) else '\n'.join(part.get('text','') for part in content if isinstance(part,dict))
 
 
+async def exercise_switches(client,peer,start,profile,turn,seen):
+    """Run all eight masks with nonzero saved counts, then resume Person without editing its 100."""
+    profile.update(personLimit=100,memoryLimit=2,backgroundLimit=1)
+    for i,mask in enumerate([*range(8),0,1]):
+        mid=start+i*4;client.post(peer,mid-1,B,'AMBIENT_ONLY')
+        flags=[bool(mask & (1<<bit)) for bit in range(3)]
+        profile.update(zip(('personOn','groupOn','backgroundOn'),flags));profile['memory']=any(flags)
+        n=len(seen);client.calls=[];await turn(mid);assert len(seen)==n+1
+        text=user_payload(seen[-1]);body=json.dumps(seen[-1],ensure_ascii=False)
+        rows=json.JSONDecoder().raw_decode(text[len(pm.HEADER):])[0] if text.startswith(pm.HEADER) else {}
+        for enabled,key,marker in zip(flags,('person','group','background'),('SIMPLEX_ANSWER_109','VENICE_ANSWER_2149','AMBIENT_ONLY')):
+            assert (key in rows)==enabled and (marker in body)==enabled,(mask,key)
+        assert 'LEGACY_ROOM_HISTORY' not in body and profile['personLimit']==100
+        if mask==0:assert not client.calls,'all paused: no history reads'
+        if mask==4:assert client.calls==[(peer,None,None,1)],'BG only must not fetch a dialogue'
+
+
 @contextmanager
 def local_provider(root):
     seen=[]
@@ -105,6 +122,12 @@ class Memory(unittest.IsolatedAsyncioTestCase):
         self.assertIn('old_QUESTION',await self.get(memoryResetAt=0));c.calls=[]
         self.assertFalse(await self.get(memory=False));self.assertFalse(await self.get(personLimit=0));self.assertFalse(c.calls)
         with patch.object(c,'get_messages',new=AsyncMock(side_effect=OSError())):self.assertFalse(await self.get())
+    async def test_paused_counts_and_stale_legacy_gate(self):
+        p=dict(DEFAULT,memoryLimit=2,backgroundLimit=1,personOn=False,groupOn=False,backgroundOn=False)
+        self.assertTrue(pm.uses_group_windows(p));self.assertEqual(pm.group_limits(p),(0,0,0));self.assertEqual(p['personLimit'],100)
+        self.assertFalse(await pm.group_context(self.client,self.db,ROOM,A,100,None,p));self.assertEqual(self.client.calls,[])
+        p.update(memory=False,groupOn=True);self.assertEqual(pm.group_limits(p),(0,2,0))
+        del p['personOn'];self.assertRaises(ValueError,pm.group_limits,p)
     async def test_bounded_cold_start_and_payload_size(self):
         self.client.pair(self.db,ROOM,A,1,'SIMPLEX',False);self.client.pair(self.db,ROOM,B,3,'VENICE',False)
         p=await self.get();self.assertIn('SIMPLEX_ANSWER',p);self.assertNotIn('VENICE',p);self.assertLessEqual(len(self.client.calls),3)
@@ -128,6 +151,14 @@ class Memory(unittest.IsolatedAsyncioTestCase):
             # Positive Group must still not resume a shared Pi session in scoped mode.
             profile['memoryLimit']=2;await g.handle(self.client.post(ROOM,2157,A,'@nika group too'))
             self.assertIn('VENICE_ANSWER_2149',json.dumps(seen[-1]));self.assertFalse(list((base/f'conversation-group-{ROOM}').rglob('*.jsonl')))
+            # First create a real legacy Pi session. No explicit switch mask may resume it.
+            profile['personLimit']=0;await g.handle(self.client.post(ROOM,2160,A,'LEGACY_ROOM_HISTORY'))
+            self.assertIn('LEGACY_ROOM_HISTORY',user_payload(seen[-1]))
+            async def turn(mid):await g.handle(self.client.post(ROOM,mid,A,'@nika current request'))
+            await exercise_switches(self.client,ROOM,2200,profile,turn,seen)
+            profile.update(personOn=False,groupOn=False,backgroundOn=False,memory=False)
+            await g.handle(self.client.post(ROOM,2300,A,'@nika explicitly quoting',2149))
+            t=user_payload(seen[-1]);self.assertIn('VENICE_QUESTION_2149',t);self.assertNotIn('VENICE_ANSWER',t);self.assertNotIn(pm.HEADER,t)
 
 
 if __name__=='__main__':unittest.main()

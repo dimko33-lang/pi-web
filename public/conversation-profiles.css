@@ -49,10 +49,6 @@ textarea:focus-visible { outline: none; border-color: #606068; box-shadow: none;
 .toggle input { width: 15px; height: 15px; }
 .hint { font-size: 12px; margin: 0 0 10px; }
 .reply-hint { font-size: 11px; line-height: 1.45; color: #929299; margin: 0; }
-.memory-grid { grid-template-columns: 1fr 1fr; margin: 8px 0 16px; }
-.memory-grid label { display: grid; grid-template-columns: 1fr auto; }
-input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; }
-output { font-variant-numeric: tabular-nums; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 24px 0 12px; }
 .feedback { font-size: inherit; }
 .error { color: #ffb6b0; }
@@ -68,7 +64,7 @@ main section {border:0;padding-top:0}
 html:is([data-theme=light],[data-reader-theme=light]) .draft-status {color:#b4232b}
 /* Reserve the label's footprint without announcing it before an edit. */
 .draft-status:empty::before {content:attr(data-label);visibility:hidden}
-:is(.field-heading,.format-switches) .toggle {position:relative;display:inline-flex;align-items:center;min-height:36px;margin:0;font:inherit;cursor:pointer;user-select:none;-webkit-user-select:none}
+:is(.field-heading,.format-switches,.number-slot) .toggle {position:relative;display:inline-flex;align-items:center;min-height:36px;margin:0;font:inherit;cursor:pointer;user-select:none;-webkit-user-select:none}
 .toggle input {position:absolute;opacity:0;width:1px;height:1px}
 .toggle:has(:focus-visible) {outline:1px solid currentColor}
 form textarea,form textarea:focus {field-sizing:content;min-height:1.6em;height:auto;resize:none;padding:0;margin:6px 0 0;overflow:hidden;background:none;border:0;font:inherit;line-height:1.6;color:inherit}
@@ -98,14 +94,12 @@ header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-st
 .profile-toolbar .profile-picker .profile-picker-trigger[data-field=model] {text-align:left}
 .profile-toolbar .profile-picker-option.is-focused {text-decoration:none}
 .profile-toolbar .profile-picker-option[aria-selected=true] {color:#fff;font-weight:550}
-.profile-toolbar .memory-strip,.profile-toolbar .memory-grid {display:inline-flex;align-items:center;gap:var(--tool-gap);margin:0;max-width:100%}
-.memory-grid .number-slot {display:flex;flex-direction:column;min-width:0}
-.memory-grid .number-slot label {display:flex;flex-direction:row;align-items:center;gap:.2em;font-size:.92em;white-space:nowrap}
-.profile-toolbar .memory-grid input[type=range] {width:100%;min-width:0;height:13px;margin:0;cursor:pointer}
-/* Intrinsic range widths must not spread the three compact controls. */
-.memory-grid .number-slot {width:max-content;position:relative;padding-bottom:13px}
-.memory-grid .number-slot input[type=range] {position:absolute;bottom:0;left:0}
-.memory-grid .number-slot input[type=number] {min-height:24px;text-align:center}
+.profile-toolbar .memory-grid {display:inline-flex;align-items:center;gap:var(--tool-gap);max-width:100%}
+.memory-grid .number-slot {display:inline-flex;align-items:center;gap:.25em;white-space:nowrap}
+.memory-grid .number-slot input[type=number] {text-align:center}
+/* Keep the whole paused pair muted, including its saved, still-editable count. */
+form .number-slot:has(input[type=checkbox]:not(:checked)) :is(.toggle,input[type=number]) {color:var(--switch-off);-webkit-text-fill-color:currentColor}
+form .number-slot:has(input:checked) input[type=number] {color:var(--ink,#eee)}
 .memory-grid input[type=number]{width:3.5ch;min-height:32px;padding:0;border:0;background:transparent;color:inherit;font:inherit;font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
 .memory-grid input::-webkit-inner-spin-button,.memory-grid input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .memory-grid input[type=number]:focus {outline:none;box-shadow:none;color:#eee}
@@ -124,8 +118,9 @@ html body header #profile-tabs a[aria-current=page] {color:var(--ink,#eee);-webk
 html body header #profile-tabs a:focus-visible {outline:1px solid var(--ink,#eee);outline-offset:2px}
 form :is(.field-heading,.format-switches) .toggle:has(input:not(:checked)),form .field-heading .instruction-show[aria-expanded=false] {color:var(--switch-off)}
 form .toggle:has(input:checked) {color:var(--ink,#eee);font-weight:600}
+form .number-slot .toggle:has(input:checked) {font-weight:inherit;-webkit-text-stroke:.35px currentColor}
 form .toggle:has(input:focus-visible) {outline-color:var(--ink,#eee)}
-@media(max-width:480px){.profile-toolbar{font-size:inherit}.profile-toolbar>.grid:first-child{width:100%;grid-template-columns:minmax(0,1fr) 2.5em}.profile-toolbar .memory-grid input{width:3ch}}
+@media(max-width:480px){.profile-toolbar{font-size:inherit}.profile-toolbar>.grid:first-child{width:100%;grid-template-columns:minmax(0,1fr) 2.5em}.profile-toolbar .memory-grid input[type=number]{width:3.5ch}}
 .profile-toolbar .actions button {padding-inline:0}
 .profile-toolbar .actions button + button {position:relative}
 #profile-tabs a,.field-heading .toggle:has(input:not(:checked)),.profile-toolbar .profile-picker-option:not([aria-selected=true]):not(:hover):not(.is-focused) {color:var(--inactive-ink)} #profile-tabs a[aria-current=page],#profile-tabs a:hover,#profile-tabs a:focus-visible {color:#eee}

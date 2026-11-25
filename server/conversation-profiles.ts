@@ -8,6 +8,7 @@ type Profile = {
   model: string; thinking: string; systemPrompt: boolean; character: string;
   customPrompt: string; customOn?: boolean; basePrompt?: string; baseOn?: boolean; piOn?: boolean; toolsOn?: boolean; tail: string; tailOn: boolean; memory: boolean;
   personLimit?: number; memoryLimit: number; backgroundLimit: number; replyMode: string;
+  personOn?: boolean; groupOn?: boolean; backgroundOn?: boolean;
   memoryEpoch: string; memoryResetAt: number;
 };
 type CatalogEntry = {
@@ -15,6 +16,14 @@ type CatalogEntry = {
   kind?: 'group' | 'private' | 'private_default'; tailKey: string;
   backgroundLimit?: number; enabledKey?: string;
 };
+const windows = [['personOn', 'personLimit'], ['groupOn', 'memoryLimit'], ['backgroundOn', 'backgroundLimit']] as const;
+function panelSettings(settings: Profile, entry: CatalogEntry) {
+  if (!entry.kind || entry.kind === 'group') {
+    // Project old groups into the new UI without writing the store or losing paused counts.
+    for (const [on, count] of windows) settings[on] ??= settings.memory && (settings[count] ?? 0) > 0;
+  }
+  return settings;
+}
 // Keep the former tag-only value readable without silently widening old settings.
 const modes = ['mention_reply', 'addressed', 'mentions', 'all', 'off'];
 
@@ -61,17 +70,26 @@ export function createConversationProfiles(options: {
     profiles: catalog.map(entry => ({ id: entry.id, label: entry.label, chatId: entry.chatId,
       chatIds: entry.chatIds || (entry.chatId ? [entry.chatId] : []), kind: entry.kind || 'group',
       notice: options.notice?.(entry) || '',
-      independent: !!data.profiles[entry.id], settings: { personLimit: 0, textOutput: false, voiceOutput: false, piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
-        ...options.defaults(entry), ...(entry.id.startsWith('dm_') && !data.profiles[entry.id] ? data.profiles.guest_dm : {}), ...data.profiles[entry.id] } }))
+      independent: !!data.profiles[entry.id], settings: panelSettings({ personLimit: 0, textOutput: false, voiceOutput: false, piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
+        ...options.defaults(entry), ...(entry.id.startsWith('dm_') && !data.profiles[entry.id] ? data.profiles.guest_dm : {}), ...data.profiles[entry.id] }, entry) }))
   });
   const validate = async (input: any, entry: CatalogEntry): Promise<Profile> => {
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('Invalid profile');
     const allowed = ['textOutput', 'voiceOutput', 'piOn', 'model', 'thinking', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn', 'tail', 'tailOn',
-      'memory', 'personLimit', 'memoryLimit', 'backgroundLimit', 'replyMode'];
+      'memory', 'personLimit', 'memoryLimit', 'backgroundLimit', ...windows.map(([on]) => on), 'replyMode'];
     if (Object.keys(input).some(key => !allowed.includes(key))) throw Error('Unknown profile field');
     for (const key of ['textOutput','voiceOutput']) if (input[key] !== undefined && typeof input[key] !== 'boolean') throw Error('Invalid ' + key);
     if (input.piOn !== undefined && typeof input.piOn !== 'boolean') throw Error('Invalid piOn');
-    for (const key of ['systemPrompt', 'customOn', 'baseOn', 'toolsOn', 'tailOn', 'memory']) if (typeof input[key] !== 'boolean') throw Error('Invalid ' + key);
+    const explicit = windows.some(([on]) => on in input);
+    if (explicit) {
+      if (entry.kind && entry.kind !== 'group') throw Error('Private conversations use Dialogue only');
+      if (!Number.isInteger(input.personLimit)) throw Error('Missing participant window');
+      for (const [on, count] of windows) {
+        if (typeof input[on] !== 'boolean' || (input[on] && !input[count])) throw Error('Invalid ' + on);
+      }
+    }
+    if ((!explicit || 'memory' in input) && typeof input.memory !== 'boolean') throw Error('Invalid memory');
+    for (const key of ['systemPrompt', 'customOn', 'baseOn', 'toolsOn', 'tailOn']) if (typeof input[key] !== 'boolean') throw Error('Invalid ' + key);
     for (const [key, limit] of [['basePrompt', 30000], ['character', 8000], ['customPrompt', 20000], ['tail', 4000]] as const) {
       if (typeof input[key] !== 'string' || input[key].length > limit) throw Error('Invalid ' + key);
     }
@@ -84,7 +102,9 @@ export function createConversationProfiles(options: {
     if (!options.models().includes(input.model)) throw Error('Unknown model');
     const metadata = await options.thinking(input.model);
     if (!metadata.levels.includes(input.thinking)) throw Error('Unsupported thinking level');
-    return Object.fromEntries(allowed.map(key => [key, input[key]])) as Profile;
+    const profile = Object.fromEntries(allowed.map(key => [key, input[key]])) as Profile;
+    if (explicit) profile.memory = windows.some(([on]) => input[on]); // Compatibility summary, not a fourth switch.
+    return profile;
   };
   router.get('/', (_req, res) => {
     try { res.setHeader('Cache-Control', 'no-store'); res.json(view(read())); }
@@ -123,12 +143,19 @@ export function createConversationProfiles(options: {
       if (!next) next = { ...previous };
       else if (next.piOn === undefined) next.piOn = previous.piOn ?? false; // Older panel tabs preserve the setting.
       next.personLimit ??= previous.personLimit ?? 0; // Preserve saved values for older panel tabs.
+      if (previous.personOn !== undefined && next.personOn === undefined) {
+        // An old tab can edit other fields, but must not silently unpause a saved window.
+        if (next.memory !== previous.memory || windows.some(([, count]) => next![count] !== previous[count])) {
+          return res.status(409).json({ error: 'Reload this page to change individual memory windows.' });
+        }
+        for (const [on] of windows) next[on] = previous[on];
+      }
       next.textOutput ??= previous.textOutput ?? false;
       next.voiceOutput ??= previous.voiceOutput ?? false;
       const reset = req.body.action === 'reset';
       const restore = req.body.action === 'restore';
       // Both history actions rotate the generation so Telegram repins its local floor.
-      // Old Chat removes the boundary, not the saved limits or Memory switch.
+      // Old Chat removes the boundary, not the saved limits or window switches.
       // Ordinary saves and first activation preserve the existing conversation.
       next.memoryEpoch = reset || restore ? crypto.randomUUID() : previous.memoryEpoch;
       next.memoryResetAt = reset ? Date.now() : restore ? 0 : previous.memoryResetAt;

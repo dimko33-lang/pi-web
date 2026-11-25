@@ -16,7 +16,8 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   });
   const endpoint = '/api/conversation-profiles';
   const fields = ['textOutput', 'voiceOutput', 'piOn', 'model', 'thinking', 'replyMode', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn',
-    'tail', 'tailOn', 'memory', 'personLimit', 'memoryLimit', 'backgroundLimit'];
+    'tail', 'tailOn', 'personLimit', 'memoryLimit', 'backgroundLimit'];
+  const profileFields = editor => fields.concat(editor.item.kind === 'group' ? ['personOn', 'groupOn', 'backgroundOn'] : ['memory']);
   const status = document.querySelector('#status');
   const editors = new Map();
   const metadataCache = new Map();
@@ -57,7 +58,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     const hint = editor.section.querySelector('[data-reply-hint]');
     if (hint.textContent !== text) hint.textContent = text;
   };
-  const currentSettings = editor => Object.fromEntries(fields.map(name => {
+  const currentSettings = editor => Object.fromEntries(profileFields(editor).map(name => {
     const input = editor.form.elements[name];
     return [name, input.type === 'checkbox' ? input.checked : input.type === 'number' ? input.valueAsNumber : input.value];
   }));
@@ -116,13 +117,11 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     const legacy = [...editor.form.elements.replyMode.options].find(option => option.value === 'mentions');
     if (item.settings.replyMode === 'mentions' && !legacy) editor.form.elements.replyMode.add(new Option('Tag', 'mentions'));
     else if (item.settings.replyMode !== 'mentions' && legacy) legacy.remove();
-    for (const name of fields) {
+    for (const name of profileFields(editor)) {
       if (name === 'thinking') continue;
       const input = editor.form.elements[name];
       if (input.type === 'checkbox') input.checked = item.settings[name];
       else input.value = item.settings[name] ?? (name === 'personLimit' ? 0 : '');
-      const slider = editor.form.querySelector(`[data-window="${name}"]`);
-      if (slider) slider.value = input.value;
     }
     updateReplyHint(editor);
     for (const picker of editor.pickers) picker.refresh();
@@ -153,7 +152,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   }
   function addRequestInspector(section) {
     const details = document.createElement('details'); details.className = 'request-inspector';
-    details.innerHTML = '<summary>Request JSON</summary><p>One test in My DM. Turn off Tools, Memory and Response style; send a new message containing only ok. Expires after 10 minutes.</p><button type="button" data-arm>Capture next ok</button> <button type="button" data-clear>Clear</button><p role="status"></p><pre></pre>';
+    details.innerHTML = '<summary>Request JSON</summary><p>One test in My DM. Turn off Tools, Dialogue and Response style; send a new message containing only ok. Expires after 10 minutes.</p><button type="button" data-arm>Capture next ok</button> <button type="button" data-clear>Clear</button><p role="status"></p><pre></pre>';
     section.append(details);
     const api = '/api/owner-request-inspection', status = details.querySelector('[role=status]'), pre = details.querySelector('pre');
     let seq = 0, busy = false;
@@ -189,25 +188,33 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     const toolbar = document.createElement('div'); toolbar.className = 'profile-toolbar';
     form.prepend(toolbar);
     addShowControls(form, item.id);
-    const memoryStrip = document.createElement('div'); memoryStrip.className = 'memory-strip';
-    memoryStrip.append(form.elements.memory.closest('.field-heading'), form.querySelector('.memory-grid'));
-    toolbar.append(form.querySelector('.grid'), form.elements.toolsOn.closest('.field-heading'), memoryStrip, form.querySelector('.actions'));
+    toolbar.append(form.querySelector('.grid'), form.elements.toolsOn.closest('.field-heading'), form.querySelector('.memory-grid'), form.querySelector('.actions'));
     const replyHint = section.querySelector('[data-reply-hint]');
     replyHint.id = 'reply-hint-' + item.id;
     form.elements.replyMode.setAttribute('aria-describedby', replyHint.id);
     const pickers = ['model', 'thinking', 'replyMode'].map(name => createProfilePicker(form.elements[name]));
-    for (const slot of form.querySelectorAll('[data-group-only]')) slot.hidden = privateConversation;
-    if (privateConversation) form.querySelector('[data-dialogue-label]').textContent = 'Dialogue';
-    for (const slider of form.querySelectorAll('[data-window]')) {
-      const number = form.elements[slider.dataset.window];
-      number.disabled = slider.disabled = privateConversation && number.name !== 'memoryLimit';
-      const slide = () => { number.value = slider.value; };
-      slider.addEventListener('input', slide); slider.addEventListener('change', slide);
-      number.addEventListener('input', () => { if (number.validity.valid) slider.value = number.value; });
-      number.addEventListener('focus', () => number.select());
+    if (privateConversation) {
+      form.elements.groupOn.closest('.number-slot').title = 'Earlier messages in this private conversation';
+      form.elements.groupOn.name = 'memory'; // The existing DM gate, not a group-wide switch.
+      form.querySelector('[data-dialogue-label]').textContent = 'Dialogue';
+    }
+    for (const slot of form.querySelectorAll('.number-slot')) {
+      const toggle = slot.querySelector('[type=checkbox]'), count = slot.querySelector('[type=number]');
+      if (privateConversation && slot.hasAttribute('data-group-only')) {
+        slot.hidden = toggle.disabled = count.disabled = true;
+        continue;
+      }
+      count.id = `${item.id}-${count.name}`;
+      toggle.setAttribute('aria-controls', count.id);
+      toggle.addEventListener('change', () => {
+        // Pausing keeps the displayed count. A never-used window starts at one.
+        if (toggle.checked && !(count.valueAsNumber > 0)) { count.value = '1'; count.focus(); count.select(); }
+      });
+      count.addEventListener('input', () => { if (count.validity.valid) toggle.checked = count.valueAsNumber > 0; });
+      count.addEventListener('focus', () => count.select());
     }
     if (item.kind === 'private_default') section.querySelector('[data-reset-hint]').textContent =
-      'New Chat starts a fresh context separately for every guest. Old Chat reopens each guest\'s own retained history within the saved limits and Memory switch. People never share history. Neither action deletes logs or cancels active replies; removed messages cannot be restored.';
+      'New Chat starts a fresh context separately for every guest. Old Chat reopens each guest\'s own retained history within the enabled Dialogue window. People never share history. Neither action deletes logs or cancels active replies; removed messages cannot be restored.';
     for (const model of catalog) {
       const label = model.label || model.name || model.id;
       form.elements.model.add(new Option(label, model.id));
@@ -253,7 +260,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     if (action !== 'save' && editor.dirty) { message(editor.feedback, 'Save or reload your edits before changing the history scope.', true); return; }
     const confirmation = action === 'reset'
       ? 'Start a fresh context for ' + editor.item.label + '? Stored logs and Telegram messages are kept.'
-      : action === 'restore' ? 'Reopen all retained history for ' + editor.item.label + '? Saved message limits and the Memory switch still apply.' : '';
+      : action === 'restore' ? 'Reopen all retained history for ' + editor.item.label + '? Saved window counts and switches still apply.' : '';
     if (confirmation && !window.confirm(confirmation)) return;
     pending = true;
     const settings = currentSettings(editor);
@@ -265,7 +272,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       setDirty(editor, false); editor.baseline = null;
       apply(data);
       message(editor.feedback, action === 'reset' ? 'Fresh context started.' : action === 'restore'
-        ? 'Retained history restored. Saved limits and the Memory switch still apply.' : '');
+        ? 'Retained history restored. Saved window counts and switches still apply.' : '');
     } catch (error) { message(editor.feedback, error.message, true); }
     finally {
       pending = false;

@@ -54,7 +54,7 @@ In the enrolled owner DM or an addressed turn in a reply-enabled group, attach a
 
 ### Inspect one owner-DM request
 
-In the authenticated panel, open `My DM`. Turn off Tools, Memory and Response style for that profile. Under `Request JSON`, select `Capture next ok`, then send a new plain `ok` in the owner DM (not a reply, forward or caption). The inspector shows the JSON body at the provider request hook, not proof of delivery. It does not collect HTTP headers or watch other chats. Anyone with panel access can read the body until you select `Clear` or the ten-minute capture expires. Restore your usual profile settings after the test.
+In the authenticated panel, open `My DM`. Turn off Tools, Dialogue and Response style for that profile. Under `Request JSON`, select `Capture next ok`, then send a new plain `ok` in the owner DM (not a reply, forward or caption). The inspector shows the JSON body at the provider request hook, not proof of delivery. It does not collect HTTP headers or watch other chats. Anyone with panel access can read the body until you select `Clear` or the ten-minute capture expires. Restore your usual profile settings after the test.
 
 ## Browser chat instruction buttons
 
@@ -74,9 +74,11 @@ Use ordinary requests in the browser or the connected owner's Telegram DM, or `/
 
 ## Group memory: Person · Group · BG
 
-In a group profile, type a number or move its slider (0–500 **messages**, not pairs), then Save. `Person` selects earlier exchanges with the current sender in this group by Telegram user ID and verified reply target, not by name or topic. With Person on, `Group` selects Nikita’s exchanges with other participants; `BG` adds recent group posts whether or not Nikita answered them. Each message appears once; long texts may reduce the count. `100 / 0 / 0` sends only this participant’s earlier dialogue as automatic history. The current message and its explicit same-chat reply target are separate. DMs keep their own dialogue controls. Nothing crosses chat boundaries.
+Click **Person**, **Group** or **BG** to pause or resume that source, then **Save**. A paused label and its count both dim. Pausing Person at 100 keeps the displayed 100 after saving and reopening; clicking it again resumes the same count. Typing a positive count activates that window; typing 0 pauses it. Counts are 0–500 **messages**, not pairs. DMs show only **Dialogue**, with the same label and number behavior.
 
-Person starts at `0`, preserving existing delivery and history behavior. The worker indexes up to 500 confirmed reply IDs **per participant**, not the last 500 posts in the room. It reads current text and captions back from the same Telegram group; unavailable/deleted text is not reconstructed. A bounded first lookup can find verified exchanges among the account’s 48 most recent replies, not import an entire pre-upgrade history. Anonymous senders do not share a personal window. Memory off skips all automatic windows; New Chat excludes earlier messages and Old Chat reopens only retained, still-visible history. Changing these limits does not change admission or tool permissions.
+`Person` selects earlier exchanges with the current sender in this group by Telegram user ID and verified reply target, not by name or topic. `Group` selects Nikita’s exchanges with other participants, independently of Person. `BG` selects the recent group feed, which can include dialogue as ordinary posts. Messages selected by several windows are included only once. With Person at 100 and the other two paused, only this participant’s earlier dialogue is added. With all three paused, no automatic history is sent. The current message and its explicit same-chat reply target are separate. Nothing crosses chat boundaries.
+
+Opening the panel does not rewrite existing profiles. Their former switch and counts determine the initial labels; their previous history path remains in effect until saved with individual switches. The worker indexes up to 500 confirmed reply IDs **per participant**, not the last 500 posts in the room. It reads current text and captions back from the same Telegram group; unavailable/deleted text is not reconstructed. A bounded first lookup can find verified exchanges among the account’s 48 most recent replies, not import an entire pre-upgrade history. Anonymous senders do not share a personal window. New Chat excludes earlier messages and Old Chat reopens only retained, still-visible history. Changing these limits does not change admission or tool permissions.
 
 ## Showcase replies
 

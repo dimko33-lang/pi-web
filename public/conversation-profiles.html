@@ -8,10 +8,10 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Conversations</title>
 <link rel="stylesheet" href="/surface-colors.css">
-<link rel="stylesheet" href="/conversation-profiles.css?v=50">
+<link rel="stylesheet" href="/conversation-profiles.css?v=51">
 <link rel="stylesheet" href="/reader-theme.css">
 <script defer src="/reader-theme.js"></script>
-<script type="module" src="/conversation-profiles.js?v=25"></script>
+<script type="module" src="/conversation-profiles.js?v=26"></script>
 <style>.reader-nav,header .reader-nav{position:fixed;top:4px;right:132px;height:24px;display:inline-flex;align-items:center;gap:10px;margin:0;padding:0;z-index:270}.reader-nav .reader-link{display:inline-flex;align-items:center;font:500 11.5px/24px system-ui;color:inherit;opacity:.70;text-decoration:none;white-space:nowrap}.reader-nav .reader-link:hover,.reader-nav .reader-link:focus-visible{opacity:1;text-decoration:underline}body.chat-focus .reader-nav{z-index:9200}@media(pointer:coarse){.reader-nav,header .reader-nav{top:2px;right:142px}}</style>
 </head>
 <body>
@@ -54,16 +54,15 @@
 <div class="field-heading"><label class="toggle"><input type="checkbox" name="tailOn">Response style</label></div>
 <p class="hint">Appended after the conversation and current question. Plain text or JSON is passed as written.</p>
 <textarea name="tail" rows="4" maxlength="4000" spellcheck="false" aria-label="Response style" placeholder="Response style instructions"></textarea>
-<div class="field-heading"><label class="toggle"><input type="checkbox" name="memory">Memory</label></div>
-<div class="grid memory-grid" role="group" aria-label="Memory windows">
-<span class="number-slot" data-group-only title="Person: this participant’s earlier exchanges with Nikita in this group"><label>Person <input type="number" inputmode="numeric" required name="personLimit" aria-label="Earlier participant messages" min="0" max="500" step="1"></label><input type="range" data-window="personLimit" aria-label="Person memory slider" min="0" max="500" step="1"></span>
-<span class="number-slot" title="Dialogue with Nikita; with Person on, Group selects other participants"><label><span data-dialogue-label>Group</span> <input type="number" inputmode="numeric" required name="memoryLimit" aria-label="Earlier dialogue messages" min="0" max="500" step="1"></label><input type="range" data-window="memoryLimit" aria-label="Dialogue memory slider" min="0" max="500" step="1"></span>
-<span class="number-slot" data-group-only title="Background: recent messages from the group feed"><label>BG <input type="number" inputmode="numeric" required name="backgroundLimit" aria-label="Earlier group messages" min="0" max="500" step="1"></label><input type="range" data-window="backgroundLimit" aria-label="Background memory slider" min="0" max="500" step="1"></span>
+<div class="memory-grid" role="group" aria-label="Memory windows">
+<span class="number-slot" data-group-only title="This participant’s earlier exchanges with Nikita in this group"><label class="toggle"><input type="checkbox" name="personOn">Person</label><input type="number" inputmode="numeric" required name="personLimit" aria-label="Earlier participant messages" min="0" max="500" step="1"></span>
+<span class="number-slot" title="Other participants’ earlier exchanges with Nikita in this group"><label class="toggle"><input type="checkbox" name="groupOn"><span data-dialogue-label>Group</span></label><input type="number" inputmode="numeric" required name="memoryLimit" aria-label="Earlier dialogue messages" min="0" max="500" step="1"></span>
+<span class="number-slot" data-group-only title="Recent messages from the group feed"><label class="toggle"><input type="checkbox" name="backgroundOn">BG</label><input type="number" inputmode="numeric" required name="backgroundLimit" aria-label="Earlier group messages" min="0" max="500" step="1"></span>
 </div>
-<p class="hint">Each window is 0–500 earlier messages, subject to availability and a byte budget. Type a number or use its slider, then Save. Memory off sends no automatic history. An explicit reply can still quote its target.</p>
+<p class="hint">Click a label to pause or resume its window without losing the count. Enter 0–500 messages, then Save. With all windows off, only the current message and its explicit reply target are used as conversation context.</p>
 <p class="hint" data-memory-scope role="status" aria-live="polite"></p>
 <div class="actions"><button type="submit">Save</button><button type="button" data-action="reset">New Chat</button><button type="button" data-action="restore">Old Chat</button><span class="format-status"><span class="format-switches" role="group" aria-label="Reply format"><label class="toggle"><input type="checkbox" name="textOutput">Text</label><label class="toggle"><input type="checkbox" name="voiceOutput">Voice</label></span><span class="draft-status" role="status" data-label="Unsaved changes"></span></span><span class="feedback" role="status" aria-live="polite"></span></div>
-<p class="hint" data-reset-hint>New Chat starts a fresh context only here. Old Chat reopens all retained history here, including before resets; saved message limits and the Memory switch still apply. Neither deletes stored history, cancels active replies or restores messages already removed from storage.</p>
+<p class="hint" data-reset-hint>New Chat starts a fresh context only here. Old Chat reopens all retained history here, including before resets; saved window counts and switches still apply. Neither deletes stored history, cancels active replies or restores messages already removed from storage.</p>
 </form>
 </section>
 </template>

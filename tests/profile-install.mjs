@@ -30,15 +30,30 @@ try {
   assert.equal(saved.profiles.owner_dm.toolsOn,false);assert.notEqual(saved.profiles.guest_dm.piOn,true);
   let current=await save.json();
   const change=(id,action,values)=>fetch(url+'/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,revision:current.revision,settings:values})});
-  const group=current.profiles.find(p=>p.id==='lake');assert.equal(group.settings.personLimit,0);
-  const edit={...group.settings,personLimit:100,memoryLimit:0,backgroundLimit:0};delete edit.memoryEpoch;delete edit.memoryResetAt;
+  const group=current.profiles.find(p=>p.id==='lake'), flags=['personOn','groupOn','backgroundOn'];
+  assert.deepEqual(flags.map(k=>group.settings[k]),[false,true,true]);assert.equal(group.settings.personLimit,0);
+  assert.equal(saved.profiles.lake.personOn,undefined,'GET must not migrate the store');
+  const edit={...group.settings,personOn:false,groupOn:true,backgroundOn:false,personLimit:100,memoryLimit:42,backgroundLimit:9};
+  delete edit.memoryEpoch;delete edit.memoryResetAt;delete edit.memory; // New group clients have no master switch.
   for(const value of [-1,501,1.5,'100',null,true])assert.equal((await change('lake','save',{...edit,personLimit:value})).status,400);
   assert.equal((await change('owner_dm','save',{...settings,personLimit:1})).status,400);
-  current=await (await change('lake','save',edit)).json();delete edit.personLimit;
-  current=await (await change('lake','save',edit)).json(); // An older open tab must not clear Person.
-  for(const action of ['reset','restore']){
-    current=await (await change('lake',action)).json();const s=current.profiles.find(p=>p.id==='lake').settings;
-    assert.equal(s.personLimit,100);assert.equal(s.memoryLimit,0);assert.equal(s.backgroundLimit,0);assert.equal(s.memoryResetAt>0,action==='reset');
+  for(const bad of [{personOn:1},{groupOn:undefined},{backgroundOn:'off'},{personOn:true,personLimit:0}])
+    assert.equal((await change('lake','save',{...edit,...bad})).status,400);
+  assert.equal((await change('owner_dm','save',{...settings,personOn:false,groupOn:false,backgroundOn:false})).status,400);
+  const update=async(action,values)=>{const r=await change('lake',action,values);assert.equal(r.status,200);current=await r.json();return current.profiles.find(p=>p.id==='lake').settings};
+  for(let mask=0;mask<8;mask++) {
+    const bits=flags.map((_,i)=>Boolean(mask & (1<<i)));
+    const s=await update('save',{...edit,...Object.fromEntries(flags.map((k,i)=>[k,bits[i]]))});
+    assert.deepEqual(flags.map(k=>s[k]),bits);assert.equal(s.memory,bits.some(Boolean));
+    assert.deepEqual([s.personLimit,s.memoryLimit,s.backgroundLimit],[100,42,9]);
   }
-  console.log('Fresh profile isolation, legacy saves, three windows, reset boundaries and DM validation verified.');
+  await update('save',edit);
+  const legacy={...edit,memory:true};for(const k of [...flags,'personLimit'])delete legacy[k];
+  await update('save',legacy); // An older open tab can still save unrelated changes.
+  for(const bad of [{memory:false},{memoryLimit:43}])assert.equal((await change('lake','save',{...legacy,...bad})).status,409);
+  for(const action of ['reset','restore']){
+    const s=await update(action);assert.deepEqual(flags.map(k=>s[k]),[false,true,false]);
+    assert.deepEqual([s.personLimit,s.memoryLimit,s.backgroundLimit],[100,42,9]);assert.equal(s.memoryResetAt>0,action==='reset');
+  }
+  console.log('Eight independent switch states, retained counts, old clients, reset/restore and DM isolation verified.');
 } finally { if(server) await new Promise(resolve=>server.close(resolve));await fs.rm(dir,{recursive:true,force:true}); }

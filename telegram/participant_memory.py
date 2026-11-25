@@ -21,6 +21,23 @@ def window(value):
     return value
 
 
+WINDOWS = (('personOn','personLimit'), ('groupOn','memoryLimit'), ('backgroundOn','backgroundLimit'))
+
+
+def uses_group_windows(profile):
+    """Explicit switches never resume shared room history, even if all three are paused."""
+    return bool(profile) and (any(on in profile for on,_ in WINDOWS) or bool(profile.get('personLimit',0)))
+
+
+def group_limits(profile):
+    if any(on in profile for on,_ in WINDOWS):
+        if not all(type(profile.get(on)) is bool for on,_ in WINDOWS):
+            raise ValueError('Incomplete group memory switches')
+        return tuple(window(profile[count]) if profile[on] else 0 for on,count in WINDOWS)
+    if not profile.get('memory',True) or not profile.get('personLimit',0): return (0,0,0)
+    return tuple(window(profile.get(count,0)) for _,count in WINDOWS)
+
+
 def _schema(db):
     db.execute('CREATE TABLE IF NOT EXISTS participant_replies(peer INTEGER NOT NULL,actor INTEGER NOT NULL,source INTEGER NOT NULL,sent INTEGER NOT NULL,PRIMARY KEY(peer,sent)) WITHOUT ROWID')
     db.execute('CREATE INDEX IF NOT EXISTS participant_by_sender ON participant_replies(peer,actor,sent DESC)')
@@ -127,20 +144,22 @@ def _verified(edges, bodies, peer, me, before, since):
 
 async def group_context(client, db, peer, actor, before, quote, profile):
     """Build exactly the selected windows before inference. Never fall back to a shared Pi session."""
-    if not profile.get('memory',True) or not profile.get('personLimit',0): return ''
+    pn,gn,bn=group_limits(profile)
+    if not (pn or gn or bn): return ''
     if type(peer) is not int or peer>=0 or type(actor) is not int or not actor or type(before) is not int or before<=0:
         return ''
-    pn,gn,bn=(window(profile.get(k,0)) for k in ('personLimit','memoryLimit','backgroundLimit'))
     since=profile.get('memoryResetAt',0)
     if type(since) is not int or since<0: raise ValueError('Invalid memory boundary')
     personal,group,ambient=[],[],[]
     try:
-        me=(await asyncio.wait_for(client.get_me(),5)).id
-        _schema(db)
-        p=_links(db,peer,actor,before,pn,True);g=_links(db,peer,actor,before,gn,False)
-        if (actor>0 and len(p)<(pn+1)//2) or (gn and len(g)<(gn+1)//2):
-            await _seed(client,db,peer,actor,me,before,since,bool(gn))
+        p,g=[],[]
+        if pn or gn:  # BG alone never opens the dialogue index or reads personal reply pairs.
+            me=(await asyncio.wait_for(client.get_me(),5)).id
+            _schema(db)
             p=_links(db,peer,actor,before,pn,True);g=_links(db,peer,actor,before,gn,False)
+            if (actor>0 and len(p)<(pn+1)//2) or (gn and len(g)<(gn+1)//2):
+                await _seed(client,db,peer,actor,me,before,since,bool(gn))
+                p=_links(db,peer,actor,before,pn,True);g=_links(db,peer,actor,before,gn,False)
         ids = list(dict.fromkeys(mid for _,q,a in p+g for mid in (q,a)))
         if ids:
             bodies={}

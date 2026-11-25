@@ -8,7 +8,7 @@ import time
 import unicodedata
 
 from lc_recovery import ReplyQueue, WINDOW
-from participant_memory import group_context, remember_reply
+from participant_memory import group_context, remember_reply, uses_group_windows
 from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
 from spoken_reply import voice_policy, HINT as SPOKEN_HINT
@@ -110,7 +110,7 @@ class Group:
         prompt = f'[Current message from user (id {msg.sender_id})]:\n{text}'
         if quoted: prompt += '\n\n[Reply target, quoted context]:\n' + self.text(quoted)[:12000]
         async with self.client.action(self.peer, 'typing'):
-            if profile.get('personLimit', 0) and profile.get('memory', True):
+            if uses_group_windows(profile):
                 history = await group_context(self.client,self.state.db,self.peer,msg.sender_id,msg.id,msg.reply_to_msg_id,profile)
                 if history: prompt = history+'\n\nCurrent request:\n'+prompt
             address = ADDRESSING if candidate else ''
