@@ -185,13 +185,11 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       ? 'Shared defaults; each person keeps a separate conversation and history.'
       : privateConversation ? 'Your private Telegram conversation.' : 'Telegram ' + (item.chatIds || [item.chatId]).join(' / ');
     const form = section.querySelector('form');
-    const voicePicker = form.elements.voicePreset.parentElement;
+    if (item.kind !== 'private') form.elements.voicePreset.parentElement.remove();
     const toolbar = document.createElement('div'); toolbar.className = 'profile-toolbar';
     form.prepend(toolbar);
     addShowControls(form, item.id);
     toolbar.append(form.querySelector('.grid'), form.elements.toolsOn.closest('.field-heading'), form.querySelector('.memory-grid'), form.querySelector('.actions'));
-    if (item.kind === 'private') toolbar.append(voicePicker);
-    else voicePicker.remove();
     const replyHint = section.querySelector('[data-reply-hint]');
     replyHint.id = 'reply-hint-' + item.id;
     form.elements.replyMode.setAttribute('aria-describedby', replyHint.id);

@@ -103,8 +103,23 @@ try {
     const styles=[await ink(trigger),await ink(menu),await ink(menu.locator('[aria-selected=true]')),await ink(menu.locator('[aria-selected=false]').first())];
     await trigger.press('Escape');assert.equal(await menu.isVisible(),false);return styles;
   };
+  const checkDmRows=async width=>{
+    const buttons=names=>names.map(name=>dm.getByRole('button',{name,exact:true}));
+    const labels=names=>names.map(name=>dm.getByText(name,{exact:true}));
+    const first=[model,dm.getByRole('combobox',{name:'Thinking'}),dm.getByRole('combobox',{name:'Replies'}),dm.getByText('Tools',{exact:true}),dm.locator('.number-slot:visible')];
+    const second=[...buttons(['Save','New Chat','Old Chat']),...labels(['Text','Voice']),speaker];
+    const boxes=items=>Promise.all(items.map(el=>el.boundingBox()));
+    const [top,bottom]=await Promise.all([boxes(first),boxes(second)]);
+    for(const row of [top,bottom])assert.ok(row.every((b,i)=>b && b.width>0 && b.x>=0 && b.x+b.width<=width+1 && (!i || b.x>=row[i-1].x+row[i-1].width) && Math.abs(b.y+b.height/2-row[0].y-row[0].height/2)<2),`Private toolbar at ${width}px: ${JSON.stringify(row)}`);
+    assert.ok(bottom[0].y>=top[0].y+top[0].height-1);
+    const [text,voice,picker]=bottom.slice(-3);
+    assert.ok(Math.abs((picker.x-voice.x-voice.width)-(voice.x-text.x-text.width))<=1,'Speaker must sit immediately after Voice at the usual control spacing');
+    const marker=await dm.locator('.draft-status').boundingBox();
+    assert.ok(marker && marker.x>=picker.x+picker.width && marker.x+marker.width<=width+1 && Math.abs(marker.y+marker.height/2-picker.y-picker.height/2)<2,'Draft notice must fit beside the voice picker');
+  };
   for(const width of [320,390,1000]){
     await page.setViewportSize({width,height:800});
+    await checkDmRows(width);
     for(const theme of ['light','dark']){
       await page.evaluate(t=>document.documentElement.dataset.readerTheme=t,theme);
       assert.deepEqual(await measure(speaker,voiceList,width),await measure(model,modelList,width),`Same picker styles at ${width}px, ${theme}`);
@@ -118,7 +133,11 @@ try {
   const dmSettings=JSON.parse(readFileSync(path.join(dir,'conversation-profiles.json'))).profiles.dm;
   assert.equal(dmSettings.memory,true);assert.equal(dmSettings.voicePreset,'charon-elder');assert.equal(dmSettings.voiceOutput,false);
   await page.reload();await speaker.waitFor();await page.setViewportSize({width:320,height:800});
-  assert.equal(await speaker.textContent(),'Charon');assert.equal(await speaker.evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);
+  assert.equal(await speaker.textContent(),'Charon');assert.equal(await speaker.evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);await checkDmRows(320);
+  const voiceSwitch=dm.getByRole('checkbox',{name:'Voice',exact:true});
+  // macOS WebKit uses Option-Tab to include buttons with the default keyboard settings.
+  await voiceSwitch.focus();await page.keyboard.press(process.platform==='darwin' && browser.browserType()===webkit?'Alt+Tab':'Tab');
+  assert.equal(await speaker.evaluate(el=>el===document.activeElement),true);
   await speaker.press('ArrowDown');await speaker.press('Home');await speaker.press('Escape');
   assert.equal(await value.inputValue(),'charon-elder');assert.equal(await dm.locator('.draft-status').textContent(),'');
   await speaker.press('ArrowDown');await speaker.press('Home');await speaker.press('Enter');assert.equal(await speaker.textContent(),'Gacrux');
@@ -127,5 +146,7 @@ try {
   await page.locator('#profile-tabs').getByText('dm',{exact:true}).click();assert.equal(await voiceList.isVisible(),false);
   assert.equal(await speaker.textContent(),'Gacrux');assert.equal(await dm.locator('.draft-status').textContent(),'Unsaved changes');
   assert.equal(JSON.parse(readFileSync(path.join(dir,'conversation-profiles.json'))).profiles.dm.voicePreset,'charon-elder');
-  console.log('Memory windows, Save/reload and drafts verified; the private voice and model pickers share styles, dropdown geometry and keyboard behavior at 320/390/1000 px.');
+  for(const name of ['Text','Voice'])if(!await dm.getByRole('checkbox',{name,exact:true}).isChecked())await dm.getByText(name,{exact:true}).click();
+  for(const width of [320,360,375,390,1000]){await page.setViewportSize({width,height:800});await checkDmRows(width);}
+  console.log('Two private toolbar rows, speaker next to Voice, draft notice, matching pickers, keyboard, memory windows and Save/reload verified at 320/390/1000 px.');
 } finally {await browser?.close();server.close();rmSync(dir,{recursive:true,force:true});}

@@ -59,7 +59,10 @@ main section {border:0;padding-top:0}
 .field-heading {border-top:1px solid var(--divider-ink);margin-top:10px;padding-top:4px}
 .format-status,.format-switches {display:inline-flex;align-items:center;gap:var(--tool-gap)}
 .format-status {flex:1 1 min-content}
-.format-switches {flex:none}
+.format-switches,.format-status>.profile-picker {flex:none}
+/* Let the notice wrap independently of the controls if space runs out. */
+.format-status:has(>.profile-picker) {display:contents}
+.format-status:has(>.profile-picker)>.draft-status {flex:1 1 min-content}
 .draft-status {font-size:.9em;line-height:1.15;font-weight:600;color:#ff6b6b}
 html:is([data-theme=light],[data-reader-theme=light]) .draft-status {color:#b4232b}
 /* Reserve the label's footprint without announcing it before an edit. */
@@ -69,7 +72,7 @@ html:is([data-theme=light],[data-reader-theme=light]) .draft-status {color:#b423
 .toggle:has(:focus-visible) {outline:1px solid currentColor}
 form textarea,form textarea:focus {field-sizing:content;min-height:1.6em;height:auto;resize:none;padding:0;margin:6px 0 0;overflow:hidden;background:none;border:0;font:inherit;line-height:1.6;color:inherit}
 .toggle:has(:not(:checked)),form:has([name=baseOn]:not(:checked)) [name=basePrompt],form:has([name=systemPrompt]:not(:checked)) [name=character],form:has([name=customOn]:not(:checked)) [name=customPrompt],form:has([name=tailOn]:not(:checked)) [name=tail] {color:#535250}
-#profile-tabs a,form .profile-picker .profile-picker-trigger,.actions button {background:none;border:0}
+#profile-tabs a,form .profile-picker .profile-picker-trigger,.actions>button {background:none;border:0}
 body header {border-bottom:0;display:flex;align-items:center;gap:.75em;padding:0 12px;min-height:32px}
 :root {--surface:#000;--inactive-ink:#515050;--divider-ink:#383838}
 form textarea::placeholder {color:var(--inactive-ink);opacity:1}
@@ -78,15 +81,15 @@ header #profile-tabs {flex:1;min-width:0;flex-wrap:wrap;gap:0 .75em;align-items:
 header #profile-tabs::-webkit-scrollbar {display:none}
 header #profile-tabs a {position:relative;flex:none;padding:0;line-height:32px}
 header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-start:-.375em;top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
-.profile-toolbar {display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-start;--tool-gap:clamp(6px,1.8vw,.75em);gap:0 var(--tool-gap)}
-.profile-toolbar>.grid:first-child {display:grid;align-items:center;gap:var(--tool-gap);flex:0 1 calc(12.85em + 2 * var(--tool-gap));min-width:0;grid-template-columns:minmax(0,1fr) 2.5em}
+.profile-toolbar {display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-start;--tool-gap:clamp(6px,1.8vw,.75em);--picker-grid-width:calc(12.85em + 2 * var(--tool-gap));gap:0 var(--tool-gap)}
+.profile-toolbar>.grid:first-child {display:grid;align-items:center;gap:var(--tool-gap);flex:0 1 var(--picker-grid-width);min-width:0;grid-template-columns:minmax(0,1fr) 2.5em}
 .profile-toolbar .profile-picker-trigger {width:100%;max-width:100%}
 .profile-toolbar .profile-picker .profile-picker-trigger {padding:4px 0;height:auto;min-height:32px;background:none;box-shadow:none;text-align:center}
 .profile-toolbar .profile-picker-list {right:auto;min-width:max-content;max-width:85vw}
 .profile-toolbar .field-heading {margin:0;border:0;padding:0}
 /* Hairlines sit in the existing gaps, without shifting the controls. */
 .profile-toolbar :is(.profile-picker-field:not(:first-child),.field-heading,.memory-grid,.number-slot) {position:relative}
-.profile-toolbar :is(.profile-picker-field:not(:first-child),.field-heading,.number-slot)::before,.profile-toolbar .actions button + button::before,.format-switches .toggle::before {content:"";position:absolute;inset-inline-start:calc(var(--tool-gap) / -2);top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
+.profile-toolbar :is(.profile-picker-field:not(:first-child),.field-heading,.number-slot)::before,.profile-toolbar .actions>button + button::before,.format-switches .toggle::before,.format-status>.profile-picker::before {content:"";position:absolute;inset-inline-start:calc(var(--tool-gap) / -2);top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
 .model-pair {display:grid;grid-template-columns:minmax(0,1fr) 2.5em;gap:var(--tool-gap);align-items:center;min-width:0}
 .profile-toolbar .profile-picker-list {top:100%;left:0;background:var(--surface);border:0;border-radius:0;padding:0;box-shadow:none}
 .profile-toolbar .profile-picker-option {background:none;border:0;border-radius:0;padding:5px 10px 5px 0;color:#94928f}
@@ -104,10 +107,14 @@ form .number-slot:has(input:checked) input[type=number] {color:var(--ink,#eee)}
 .memory-grid input::-webkit-inner-spin-button,.memory-grid input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .memory-grid input[type=number]:focus {outline:none;box-shadow:none;color:#eee}
 .memory-grid input:disabled,.profile-toolbar button:disabled {opacity:1;color:var(--inactive-ink);-webkit-text-fill-color:var(--inactive-ink)}
-.profile-toolbar .actions {flex-basis:100%;min-width:0;flex-wrap:wrap;margin:0;gap:0 var(--tool-gap)}
+.profile-toolbar .actions {grid-column:1 / -1;flex-basis:100%;min-width:0;flex-wrap:wrap;margin:0;gap:0 var(--tool-gap)}
+/* Keep Tools and Dialogue beside the model; give the action row the full width. */
+.profile-toolbar:has(.format-status>.profile-picker) {display:grid;grid-template-columns:minmax(0,var(--picker-grid-width)) max-content max-content minmax(0,1fr)}
+@media(max-width:390px) {.profile-toolbar .actions:has(.profile-picker) {--tool-gap:.22em}}
+@media(max-width:360px) {.profile-toolbar:has(.format-status>.profile-picker) {margin-inline:-.75rem;font-size:clamp(.9rem,4vw,1rem)}}
 @media(max-width:340px) {.profile-toolbar .actions {--tool-gap:.25em}}
 .profile-toolbar .feedback:empty {display:none}
-.profile-toolbar .actions button {white-space:nowrap;flex:none}
+.profile-toolbar .actions>button {white-space:nowrap;flex:none}
 .profile-toolbar .feedback {flex-basis:100%;min-width:0;overflow-wrap:anywhere}
 body {--switch-off:#55534f}
 html:is([data-theme=light],[data-reader-theme=light]) body {--switch-off:#a4a19b}
@@ -121,8 +128,8 @@ form .toggle:has(input:checked) {color:var(--ink,#eee);font-weight:600}
 form .number-slot .toggle:has(input:checked) {font-weight:inherit;-webkit-text-stroke:.35px currentColor}
 form .toggle:has(input:focus-visible) {outline-color:var(--ink,#eee)}
 @media(max-width:480px){.profile-toolbar{font-size:inherit}.profile-toolbar>.grid:first-child{width:100%;grid-template-columns:minmax(0,1fr) 2.5em}.profile-toolbar .memory-grid input[type=number]{width:3.5ch}}
-.profile-toolbar .actions button {padding-inline:0}
-.profile-toolbar .actions button + button {position:relative}
+.profile-toolbar .actions>button {padding-inline:0}
+.profile-toolbar .actions>button + button {position:relative}
 #profile-tabs a,.field-heading .toggle:has(input:not(:checked)),.profile-toolbar .profile-picker-option:not([aria-selected=true]):not(:hover):not(.is-focused) {color:var(--inactive-ink)} #profile-tabs a[aria-current=page],#profile-tabs a:hover,#profile-tabs a:focus-visible {color:#eee}
 form .profile-picker .profile-picker-trigger {padding-left:0}
 /* The reference profiles page receives these theme rules from its host. */
