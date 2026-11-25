@@ -14,6 +14,8 @@ First import: `public/conversation-profiles.{html,js,css}`, `server/conversation
 
 Owner DMs now read one saved `owner_dm` profile per turn. Its Pi/Base, Character, Custom, response style, model, thinking and tool switches control inference and tool dispatch. New profile stores inherit the instance model unless explicitly saved; existing stores are not rewritten. The portable profile reference endpoint uses the installed Pi, and `/go/hub` preserves the selected salon tab. Offline checks cover profile save/isolation and CLI invocation, not delivery through a live account.
 
+The reference and standalone share the sender-scoped memory selector. When Person is positive both use explicit, deduplicated Person / Group / BG windows, not a continued group model session. The optional `TEST_PI_BIN` fixture in `tests/participant-memory.py` checks the actual request received by a loopback provider after 1,000 intervening exchanges. Existing zero-Person profiles retain their previous history paths.
+
 Selected group text routing and LightCone recovery now run on the enrolled connection. Offline tests simulate downtime, manual replies, an expired request and restart after provider failure. They do not certify Telegram network delivery. Panel Save can restore the reviewed code and bundled Notes to a new directory; it is not a runtime-state backup.
 
 The default Linux installer now applies a real browser turn privilege boundary using a dedicated UID, a Bubblewrap workspace and a checked in-memory admin switch. This achieves off/on/off execution with the stock root-owned web controller, not the reference web service account layout. Test the installed worker with `tests/browser-root-live.mjs` using its offline fixture; no model subscription call is needed.

@@ -8,6 +8,7 @@ import time
 import unicodedata
 
 from lc_recovery import ReplyQueue, WINDOW
+from participant_memory import group_context, remember_reply
 from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
 from spoken_reply import voice_policy, HINT as SPOKEN_HINT
@@ -109,6 +110,9 @@ class Group:
         prompt = f'[Current message from user (id {msg.sender_id})]:\n{text}'
         if quoted: prompt += '\n\n[Reply target, quoted context]:\n' + self.text(quoted)[:12000]
         async with self.client.action(self.peer, 'typing'):
+            if profile.get('personLimit', 0) and profile.get('memory', True):
+                history = await group_context(self.client,self.state.db,self.peer,msg.sender_id,msg.id,msg.reply_to_msg_id,profile)
+                if history: prompt = history+'\n\nCurrent request:\n'+prompt
             address = ADDRESSING if candidate else ''
             heard=[]
             if direct or candidate:
@@ -127,8 +131,9 @@ class Group:
         if q and direct: q.forget(msg.id)
         if self.policy(self.tab, self.peer)[1] != mode: return
         if result and result.strip() != '[NO_REPLY]':
-            if speak:await self.send(msg,result,spoken=speak)
-            else:await self.send(msg,result)
+            receipts = await self.send(msg,result,spoken=speak) if speak else await self.send(msg,result)
+            for mid in receipts or ():
+                remember_reply(self.state.db,self.peer,msg.sender_id,msg.id,mid)
 
     async def step(self):
         messages = await self.client.get_messages(self.peer, min_id=self.cursor, reverse=True, limit=30)

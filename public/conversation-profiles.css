@@ -82,8 +82,8 @@ header #profile-tabs {flex:1;min-width:0;flex-wrap:wrap;gap:0 .75em;align-items:
 header #profile-tabs::-webkit-scrollbar {display:none}
 header #profile-tabs a {position:relative;flex:none;padding:0;line-height:32px}
 header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-start:-.375em;top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
-.profile-toolbar {display:grid;align-items:center;grid-template-columns:minmax(0,calc(12.85em + 2 * var(--tool-gap))) auto auto auto;justify-content:start;--tool-gap:clamp(6px,1.8vw,.75em);gap:0 var(--tool-gap)}
-.profile-toolbar>.grid:first-child {display:grid;align-items:center;gap:var(--tool-gap);width:100%;min-width:0;grid-template-columns:minmax(0,1fr) 2.5em}
+.profile-toolbar {display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-start;--tool-gap:clamp(6px,1.8vw,.75em);gap:0 var(--tool-gap)}
+.profile-toolbar>.grid:first-child {display:grid;align-items:center;gap:var(--tool-gap);flex:0 1 calc(12.85em + 2 * var(--tool-gap));min-width:0;grid-template-columns:minmax(0,1fr) 2.5em}
 .profile-toolbar .profile-picker-trigger {width:100%;max-width:100%}
 .profile-toolbar .profile-picker .profile-picker-trigger {padding:4px 0;height:auto;min-height:32px;background:none;box-shadow:none;text-align:center}
 .profile-toolbar .profile-picker-list {right:auto;min-width:max-content;max-width:85vw}
@@ -98,12 +98,19 @@ header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-st
 .profile-toolbar .profile-picker .profile-picker-trigger[data-field=model] {text-align:left}
 .profile-toolbar .profile-picker-option.is-focused {text-decoration:none}
 .profile-toolbar .profile-picker-option[aria-selected=true] {color:#fff;font-weight:550}
-.profile-toolbar .memory-grid {display:inline-flex;align-items:center;gap:var(--tool-gap);margin:0}
+.profile-toolbar .memory-strip,.profile-toolbar .memory-grid {display:inline-flex;align-items:center;gap:var(--tool-gap);margin:0;max-width:100%}
+.memory-grid .number-slot {display:flex;flex-direction:column;min-width:0}
+.memory-grid .number-slot label {display:flex;flex-direction:row;align-items:center;gap:.2em;font-size:.92em;white-space:nowrap}
+.profile-toolbar .memory-grid input[type=range] {width:100%;min-width:0;height:13px;margin:0;cursor:pointer}
+/* Intrinsic range widths must not spread the three compact controls. */
+.memory-grid .number-slot {width:max-content;position:relative;padding-bottom:13px}
+.memory-grid .number-slot input[type=range] {position:absolute;bottom:0;left:0}
+.memory-grid .number-slot input[type=number] {min-height:24px;text-align:center}
 .memory-grid input[type=number]{width:3.5ch;min-height:32px;padding:0;border:0;background:transparent;color:inherit;font:inherit;font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
 .memory-grid input::-webkit-inner-spin-button,.memory-grid input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .memory-grid input[type=number]:focus {outline:none;box-shadow:none;color:#eee}
 .memory-grid input:disabled,.profile-toolbar button:disabled {opacity:1;color:var(--inactive-ink);-webkit-text-fill-color:var(--inactive-ink)}
-.profile-toolbar .actions {grid-column:1/-1;min-width:0;flex-wrap:wrap;margin:0;gap:0 var(--tool-gap)}
+.profile-toolbar .actions {flex-basis:100%;min-width:0;flex-wrap:wrap;margin:0;gap:0 var(--tool-gap)}
 @media(max-width:340px) {.profile-toolbar .actions {--tool-gap:.25em}}
 .profile-toolbar .feedback:empty {display:none}
 .profile-toolbar .actions button {white-space:nowrap;flex:none}

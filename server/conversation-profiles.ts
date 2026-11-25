@@ -7,7 +7,7 @@ type Profile = {
   textOutput?: boolean; voiceOutput?: boolean;
   model: string; thinking: string; systemPrompt: boolean; character: string;
   customPrompt: string; customOn?: boolean; basePrompt?: string; baseOn?: boolean; piOn?: boolean; toolsOn?: boolean; tail: string; tailOn: boolean; memory: boolean;
-  memoryLimit: number; backgroundLimit: number; replyMode: string;
+  personLimit?: number; memoryLimit: number; backgroundLimit: number; replyMode: string;
   memoryEpoch: string; memoryResetAt: number;
 };
 type CatalogEntry = {
@@ -61,13 +61,13 @@ export function createConversationProfiles(options: {
     profiles: catalog.map(entry => ({ id: entry.id, label: entry.label, chatId: entry.chatId,
       chatIds: entry.chatIds || (entry.chatId ? [entry.chatId] : []), kind: entry.kind || 'group',
       notice: options.notice?.(entry) || '',
-      independent: !!data.profiles[entry.id], settings: { textOutput: false, voiceOutput: false, piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
+      independent: !!data.profiles[entry.id], settings: { personLimit: 0, textOutput: false, voiceOutput: false, piOn: false, customOn: true, baseOn: true, toolsOn: true, basePrompt: options.basePrompt(),
         ...options.defaults(entry), ...(entry.id.startsWith('dm_') && !data.profiles[entry.id] ? data.profiles.guest_dm : {}), ...data.profiles[entry.id] } }))
   });
   const validate = async (input: any, entry: CatalogEntry): Promise<Profile> => {
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('Invalid profile');
     const allowed = ['textOutput', 'voiceOutput', 'piOn', 'model', 'thinking', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn', 'tail', 'tailOn',
-      'memory', 'memoryLimit', 'backgroundLimit', 'replyMode'];
+      'memory', 'personLimit', 'memoryLimit', 'backgroundLimit', 'replyMode'];
     if (Object.keys(input).some(key => !allowed.includes(key))) throw Error('Unknown profile field');
     for (const key of ['textOutput','voiceOutput']) if (input[key] !== undefined && typeof input[key] !== 'boolean') throw Error('Invalid ' + key);
     if (input.piOn !== undefined && typeof input.piOn !== 'boolean') throw Error('Invalid piOn');
@@ -75,6 +75,8 @@ export function createConversationProfiles(options: {
     for (const [key, limit] of [['basePrompt', 30000], ['character', 8000], ['customPrompt', 20000], ['tail', 4000]] as const) {
       if (typeof input[key] !== 'string' || input[key].length > limit) throw Error('Invalid ' + key);
     }
+    if (input.personLimit !== undefined && (!Number.isInteger(input.personLimit) || input.personLimit < 0 || input.personLimit > 500)) throw Error('Person window must be 0 to 500');
+    if (entry.kind && entry.kind !== 'group' && input.personLimit) throw Error('Private conversations have no participant window');
     if (!Number.isInteger(input.memoryLimit) || input.memoryLimit < 0 || input.memoryLimit > 500) throw Error('Dialogue window must be 0 to 500');
     if (!Number.isInteger(input.backgroundLimit) || input.backgroundLimit < 0 || input.backgroundLimit > 500) throw Error('Background window must be 0 to 500');
     if (entry.kind && entry.kind !== 'group' && input.backgroundLimit !== 0) throw Error('Private conversations have no group background');
@@ -120,6 +122,7 @@ export function createConversationProfiles(options: {
       const previous = { ...(inherited || options.defaults(entry)), ...data.profiles[entry.id] };
       if (!next) next = { ...previous };
       else if (next.piOn === undefined) next.piOn = previous.piOn ?? false; // Older panel tabs preserve the setting.
+      next.personLimit ??= previous.personLimit ?? 0; // Preserve saved values for older panel tabs.
       next.textOutput ??= previous.textOutput ?? false;
       next.voiceOutput ??= previous.voiceOutput ?? false;
       const reset = req.body.action === 'reset';

@@ -7,7 +7,7 @@ import express from 'express';
 import {chromium,webkit} from 'playwright-core';
 import {createConversationProfiles} from '../server/conversation-profiles.ts';
 const dir=mkdtempSync(path.join(tmpdir(),'profile-format-'));
-process.env.PI_WEB_CONVERSATION_PROFILES=JSON.stringify(['alpha','beta'].map((id,i)=>({id,label:id,chatId:-1-i,tailKey:''})));
+process.env.PI_WEB_CONVERSATION_PROFILES=JSON.stringify([{id:'alpha',label:'alpha',chatId:-1},{id:'beta',label:'beta',chatId:-2},{id:'dm',label:'dm',chatId:7,kind:'private'}]);
 const app=express();app.use(express.json());app.use('/api/conversation-profiles',createConversationProfiles({directory:dir,basePrompt:()=>'',piReference:async()=>'',models:()=>['fixture'],thinking:async()=>({level:'off',levels:['off']}),defaults:()=>({model:'fixture',thinking:'off',replyMode:'mention_reply',systemPrompt:false,character:'',customPrompt:'',tail:'',tailOn:false,memory:false,memoryLimit:0,backgroundLimit:0,memoryEpoch:'test',memoryResetAt:0})}));
 app.get('/api/chat/models',(_,res)=>res.json({models:[{id:'fixture'}]}));app.use(express.static('public'));
 const server=app.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));let browser;
@@ -30,6 +30,13 @@ try {
     assert.ok(boxes.every((b,i)=>b&&b.x+b.width<=width&&(!i||b.x>boxes[i-1].x+boxes[i-1].width)&&Math.abs(b.y+b.height/2-boxes[0].y-boxes[0].height/2)<2),`Action row at ${width}px: ${JSON.stringify(boxes)}`);
     const top=await nextHeadingTop(), voice=boxes.at(-1);
     assert.equal(await marker.textContent(),'');
+    const mem=section.getByRole('group',{name:'Memory windows'}), person=mem.getByRole('spinbutton',{name:'Earlier participant messages'});
+    const positions=await mem.locator('.number-slot').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return [r.left,r.right,r.top]}));
+    assert.ok(positions.every(([l,r,t],i)=>l>=0 && r<=width && (!i || l>=positions[i-1][1] && Math.abs(t-positions[0][2])<=1)),`Memory windows at ${width}px: ${JSON.stringify(positions)}`);
+    assert.deepEqual(await mem.locator('.number-slot label').allTextContents().then(x=>x.map(t=>t.trim())),['Person','Group','BG']);
+    if(width===320)assert.equal(await person.inputValue(),'0');
+    await mem.getByRole('slider',{name:'Person memory slider'}).fill('100');assert.equal(await person.inputValue(),'100');
+    await person.fill('101');assert.equal(await mem.getByRole('slider',{name:'Person memory slider'}).inputValue(),'101');
     await section.getByRole('spinbutton',{name:'Earlier dialogue messages'}).fill(String(width/10));
     assert.equal(await marker.textContent(),'Unsaved changes');
     const m=await marker.boundingBox();assert.ok(m && m.x>voice.x+voice.width && m.x+m.width<=width && Math.abs(m.y+m.height/2-voice.y-voice.height/2)<2);
@@ -61,5 +68,9 @@ try {
   assert.equal(profiles.alpha.textOutput,true);assert.equal(profiles.alpha.voiceOutput,true);assert.equal(profiles.beta,undefined);
   await page.reload();await switches.waitFor();
   for(const name of ['Text','Voice'])assert.ok(await section.getByRole('checkbox',{name,exact:true}).isChecked());
-  console.log('Mobile Text + Voice -> Save -> isolated profile on disk -> reload verified.');
+  assert.equal(await section.locator('[name=personLimit]').inputValue(),'101');
+  await page.locator('#profile-tabs').getByText('dm',{exact:true}).click();
+  const dm=page.locator('[data-profile=dm]');assert.equal(await dm.locator('.number-slot:visible').count(),1);
+  assert.equal(await dm.locator('[name=personLimit]').isDisabled(),true);
+  console.log('Compact memory windows and reply format: isolated Save/reload, DM scope, mobile layout and drafts verified.');
 } finally {await browser?.close();server.close();rmSync(dir,{recursive:true,force:true});}

@@ -1,0 +1,133 @@
+"""Synthetic group + SQLite. Set TEST_PI_BIN for a real Pi turn against an isolated loopback provider."""
+import asyncio
+from contextlib import asynccontextmanager, contextmanager
+from datetime import datetime, timezone
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import json
+import os
+from pathlib import Path
+import sqlite3
+import sys
+import tempfile
+import threading
+from types import SimpleNamespace as N
+import unittest
+from unittest.mock import AsyncMock, patch
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'telegram'))
+import participant_memory as pm
+from group_replies import Group, PeerState
+import instance
+
+ROOM, OTHER, A, B, ME = -1001234501,-1001234502,17,18,70
+DEFAULT = dict(personLimit=100,memoryLimit=0,backgroundLimit=0,memory=True,memoryResetAt=0)
+
+
+class Client:
+    def __init__(self):self.rows={};self.calls=[]
+    def post(self,peer,mid,who,text,reply=None):
+        m=N(id=mid,chat_id=peer,sender_id=who,out=who==ME,raw_text=text,message=text,reply_to_msg_id=reply,reply_to=None,
+            date=datetime.fromtimestamp(mid,timezone.utc),entities=[],fwd_from=None,photo=None,document=None,rich_message=None)
+        m.get_reply_message=AsyncMock(side_effect=lambda:self.rows.get((peer,reply)))
+        self.rows[peer,mid]=m;return m
+    async def get_me(self):return N(id=ME,username='nika')
+    @asynccontextmanager
+    async def action(self,*args):yield
+    async def get_messages(self,peer,ids=None,from_user=None,max_id=None,limit=None,**kw):
+        self.calls.append((peer,from_user,ids,limit))
+        if ids is not None:
+            return [self.rows.get((peer,i)) for i in ids] if isinstance(ids,list) else self.rows.get((peer,ids))
+        return sorted((m for (room,i),m in self.rows.items() if room==peer and i<max_id and
+                       (from_user is None or m.sender_id==(ME if from_user=='me' else from_user))),key=lambda m:-m.id)[:limit]
+    def pair(self,db,peer,who,mid,topic,record=True):
+        self.post(peer,mid,who,f'{topic}_QUESTION_{mid}');self.post(peer,mid+1,ME,f'{topic}_ANSWER_{mid}',mid)
+        if record:pm.remember_reply(db,peer,who,mid,mid+1)
+
+
+def packed(prompt):return json.loads(prompt.split('\n',1)[1]) if prompt else {}
+
+
+def user_payload(request):
+    content=next(m['content'] for m in reversed(request['messages']) if m['role']=='user')
+    return content if isinstance(content,str) else '\n'.join(part.get('text','') for part in content if isinstance(part,dict))
+
+
+@contextmanager
+def local_provider(root):
+    seen=[]
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self,*args):pass
+        def do_POST(self):
+            if self.headers.get('Authorization')!='Bearer loopback-fixture':self.send_error(401);return
+            seen.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
+            self.send_response(200);self.send_header('Content-Type','text/event-stream');self.end_headers()
+            for delta,reason in (({'role':'assistant','content':'Fixture answer'},None),({},'stop')):
+                event={'id':'local','object':'chat.completion.chunk','model':'test','choices':[{'index':0,'delta':delta,'finish_reason':reason}]}
+                self.wfile.write(('data: '+json.dumps(event)+'\n\n').encode())
+            self.wfile.write(b'data: [DONE]\n\n')
+    server=ThreadingHTTPServer(('127.0.0.1',0),Handler);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+    agent=root/'fixture-agent';agent.mkdir(mode=0o700); (agent/'models.json').write_text(json.dumps({'providers':{'fixture':{'baseUrl':f'http://127.0.0.1:{server.server_port}/v1','api':'openai-completions','models':[{'id':'test','name':'Fixture','contextWindow':200000,'maxTokens':512}]}}}));(agent/'auth.json').write_text(json.dumps({'fixture':{'type':'api_key','key':'loopback-fixture'}}))
+    try:
+        with patch.dict(os.environ,{'HOME':str(root),'PI_CODING_AGENT_DIR':str(agent)}):yield seen
+    finally:server.shutdown();server.server_close();thread.join()
+
+
+class Memory(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name)
+        self.db=sqlite3.connect(self.root/'state.sqlite');self.db.execute('PRAGMA synchronous=OFF');self.addCleanup(self.db.close);self.client=Client()
+    async def get(self,actor=A,peer=ROOM,before=99999,quote=None,**changes):
+        return await pm.group_context(self.client,self.db,peer,actor,before,quote,{**DEFAULT,**changes})
+    def fill(self):
+        for i in range(1,111,2):self.client.pair(self.db,ROOM,A,i,'SIMPLEX')
+        for i in range(151,2151,2):self.client.pair(self.db,ROOM,B,i,'VENICE')
+        self.client.pair(self.db,OTHER,A,11,'FOREIGN')
+    async def test_quiet_sender_after_a_thousand_other_turns_and_restart(self):
+        self.fill();other=sqlite3.connect(self.root/'state.sqlite');self.addCleanup(other.close)
+        p=await pm.group_context(self.client,other,ROOM,A,99999,None,DEFAULT);rows=packed(p)['person']
+        self.assertEqual([r['id'] for r in rows],list(range(11,111)));self.assertNotIn('VENICE',p);self.assertNotIn('FOREIGN',p)
+        self.assertEqual(rows[-1]['role'],'assistant');self.assertTrue(all(peer==ROOM for peer,*_ in self.client.calls))
+        self.assertTrue(all(call[2] is not None for call in self.client.calls),'warm personal read must not fetch the room feed')
+        self.assertEqual(self.db.execute('SELECT COUNT(*) FROM participant_replies WHERE peer=? AND actor=?',(ROOM,B)).fetchone()[0],500)
+        self.assertNotIn('text',[r[1] for r in self.db.execute('PRAGMA table_info(participant_replies)')])
+    async def test_three_independent_windows_and_quote_dedup(self):
+        self.client.pair(self.db,ROOM,A,10,'SIMPLEX');self.client.pair(self.db,ROOM,B,15,'VENICE');self.client.post(ROOM,17,B,'AMBIENT');self.client.post(ROOM,18,B,'EXPLICIT')
+        w=packed(await self.get(quote=18,personLimit=1,memoryLimit=2,backgroundLimit=4))
+        self.assertEqual([r['id'] for r in w['person']],[11]);self.assertEqual([r['id'] for r in w['group']],[15,16]);self.assertEqual([r['id'] for r in w['background']],[17]);self.assertNotIn('EXPLICIT',str(w));
+        self.assertNotIn('SIMPLEX',await self.get(actor=B));self.assertNotIn('person',packed(await self.get(actor=-17)))
+    async def test_deleted_edited_reset_mismatch_and_disabled(self):
+        c=self.client;c.pair(self.db,ROOM,A,10,'old');c.pair(self.db,ROOM,A,20,'new');c.pair(self.db,ROOM,A,30,'gone');del c.rows[ROOM,30]
+        c.post(ROOM,20,A,'edited');c.pair(self.db,ROOM,A,40,'wrong_parent');c.rows[ROOM,41].reply_to_msg_id=15
+        c.pair(self.db,ROOM,A,50,'wrong_author');c.rows[ROOM,50].sender_id=B
+        c.pair(self.db,ROOM,A,60,'foreign_parent');c.rows[ROOM,61].reply_to=N(reply_to_peer_id=__import__('telethon').types.PeerUser(123))
+        p=await self.get(memoryResetAt=15000);self.assertIn('edited',p)
+        for forbidden in ('old_QUESTION','old_ANSWER','gone','wrong_parent','wrong_author','foreign_parent'):self.assertNotIn(forbidden,p)
+        self.assertIn('old_QUESTION',await self.get(memoryResetAt=0));c.calls=[]
+        self.assertFalse(await self.get(memory=False));self.assertFalse(await self.get(personLimit=0));self.assertFalse(c.calls)
+        with patch.object(c,'get_messages',new=AsyncMock(side_effect=OSError())):self.assertFalse(await self.get())
+    async def test_bounded_cold_start_and_payload_size(self):
+        self.client.pair(self.db,ROOM,A,1,'SIMPLEX',False);self.client.pair(self.db,ROOM,B,3,'VENICE',False)
+        p=await self.get();self.assertIn('SIMPLEX_ANSWER',p);self.assertNotIn('VENICE',p);self.assertLessEqual(len(self.client.calls),3)
+        self.client.calls=[];await self.get();self.assertEqual(len(self.client.calls),1)
+        for i in range(6,30,2):self.client.pair(self.db,ROOM,A,i,'🌗'*12000)
+        p=await self.get();self.assertLessEqual(len(p.split('\n',1)[1].encode()),pm.TOTAL_BYTES)
+        self.assertLess(len(packed(p)['person']),26)
+    @unittest.skipUnless(os.environ.get('TEST_PI_BIN'),'set TEST_PI_BIN for the real loopback-provider fixture')
+    async def test_real_pi_provider_payload(self):
+        base=self.root/'state';base.mkdir();state=PeerState(base,ROOM);state.db.execute('PRAGMA synchronous=OFF');self.addCleanup(state.db.close)
+        for i in range(1,111,2):self.client.pair(state.db,ROOM,A,i,'SIMPLEX')
+        for i in range(151,2151,2):self.client.pair(state.db,ROOM,B,i,'VENICE')
+        current=self.client.post(ROOM,2155,A,'@nika Continue the simplex');profile={**DEFAULT,'model':'fixture/test','thinking':'off','toolsOn':False,'basePrompt':'A synthetic test.'}
+        send=AsyncMock(return_value=[]);g=Group(self.client,await self.client.get_me(),ROOM,'lake',state,lambda *_:(profile,'all',[]),instance.answer,send)
+        with local_provider(self.root) as seen,patch.object(instance,'BASE',base),patch.dict(os.environ,{'PI_WEB_PI_BIN':os.environ['TEST_PI_BIN']}):
+            await g.handle(current)
+            self.assertEqual(len(seen),1);body=json.dumps(seen[0],ensure_ascii=False)
+            self.assertIn('SIMPLEX_ANSWER_109',body);self.assertIn('SIMPLEX_QUESTION_11',body);self.assertNotIn('SIMPLEX_QUESTION_1\\"',body);self.assertNotIn('VENICE',body)
+            self.assertEqual([x['id'] for x in packed(user_payload(seen[0]).split('\n\nCurrent request:',1)[0])['person']],list(range(11,111)))
+            self.assertEqual(send.await_count,1)
+            # Positive Group must still not resume a shared Pi session in scoped mode.
+            profile['memoryLimit']=2;await g.handle(self.client.post(ROOM,2157,A,'@nika group too'))
+            self.assertIn('VENICE_ANSWER_2149',json.dumps(seen[-1]));self.assertFalse(list((base/f'conversation-group-{ROOM}').rglob('*.jsonl')))
+
+
+if __name__=='__main__':unittest.main()

@@ -28,5 +28,17 @@ try {
   assert.equal(save.status,200); const saved=JSON.parse(await fs.readFile(path.join(dir,'data/conversation-profiles.json'),'utf8'));
   assert.equal(saved.profiles.owner_dm.model,model);assert.equal(saved.profiles.owner_dm.piOn,true);
   assert.equal(saved.profiles.owner_dm.toolsOn,false);assert.notEqual(saved.profiles.guest_dm.piOn,true);
-  console.log('Fresh profiles inherit the instance model; owner settings persist independently.');
+  let current=await save.json();
+  const change=(id,action,values)=>fetch(url+'/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,revision:current.revision,settings:values})});
+  const group=current.profiles.find(p=>p.id==='lake');assert.equal(group.settings.personLimit,0);
+  const edit={...group.settings,personLimit:100,memoryLimit:0,backgroundLimit:0};delete edit.memoryEpoch;delete edit.memoryResetAt;
+  for(const value of [-1,501,1.5,'100',null,true])assert.equal((await change('lake','save',{...edit,personLimit:value})).status,400);
+  assert.equal((await change('owner_dm','save',{...settings,personLimit:1})).status,400);
+  current=await (await change('lake','save',edit)).json();delete edit.personLimit;
+  current=await (await change('lake','save',edit)).json(); // An older open tab must not clear Person.
+  for(const action of ['reset','restore']){
+    current=await (await change('lake',action)).json();const s=current.profiles.find(p=>p.id==='lake').settings;
+    assert.equal(s.personLimit,100);assert.equal(s.memoryLimit,0);assert.equal(s.backgroundLimit,0);assert.equal(s.memoryResetAt>0,action==='reset');
+  }
+  console.log('Fresh profile isolation, legacy saves, three windows, reset boundaries and DM validation verified.');
 } finally { if(server) await new Promise(resolve=>server.close(resolve));await fs.rm(dir,{recursive:true,force:true}); }

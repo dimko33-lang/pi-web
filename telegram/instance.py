@@ -157,7 +157,9 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
             and not profile.get('memory', True) and not profile.get('tailOn', True) and (BASE/'inspection/armed').is_file()):
         args.extend(['--extension', str(APP/'telegram/request-inspection.ts')])
         env['NIKITA_OWNER_INSPECTION_DIR'] = str(BASE/'inspection')
-    if profile.get('memory', True) and profile.get('memoryLimit', 100) > 0:
+    # Explicit group windows have already been selected; a shared Pi continuation would leak other turns.
+    scoped = group is not None and profile.get('personLimit', 0) > 0
+    if not scoped and profile.get('memory', True) and profile.get('memoryLimit', 100) > 0:
         since = int(profile.get('memoryResetAt') or 0)
         sessions = cwd / ('after-' + str(since)) if since > 0 else cwd
         sessions.mkdir(mode=0o700, exist_ok=True)
@@ -277,15 +279,18 @@ async def deliver_answer(client, archive, msg, text, spoken=False, *, showcase=F
     if spoken and text:
         note=await send_spoken(client,msg.chat_id,msg.id,text,mode=spoken)
         if note:
-            archive.notify(msg.chat_id,note.id);return
+            archive.notify(msg.chat_id,note.id);return [note.id]
     if showcase:
         mid = await deliver_showcase(client, msg.chat_id, msg.id, text)
         archive.notify(msg.chat_id, mid)
-        return
+        return [mid]
+    receipts = []
     for body, entities in message_parts(text, formatted=True):
         sent = await msg.reply(body, formatting_entities=entities, link_preview=False)
         archive.notify(msg.chat_id,sent.id)
         await verify_blocks(client,msg.chat_id,sent,entities)
+        receipts.append(sent.id)
+    return receipts
 
 
 async def serve():
@@ -295,7 +300,7 @@ async def serve():
     c = TelegramClient(StringSession(conf['session']), conf['api'], conf['secret'], sequential_updates=True)
     archive = SalonArchive(BASE, owner)
     async def send_group(msg, text, *, spoken=False):
-        await deliver_answer(c,archive,msg,text,spoken,showcase=showcase_enabled(BASE,msg.chat_id))
+        return await deliver_answer(c,archive,msg,text,spoken,showcase=showcase_enabled(BASE,msg.chat_id))
     groups = GroupService(BASE, group_policy, answer, send_group)
     tasks = []
     @c.on(events.NewMessage(incoming=True))

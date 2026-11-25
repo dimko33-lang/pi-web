@@ -16,7 +16,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   });
   const endpoint = '/api/conversation-profiles';
   const fields = ['textOutput', 'voiceOutput', 'piOn', 'model', 'thinking', 'replyMode', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn',
-    'tail', 'tailOn', 'memory', 'memoryLimit', 'backgroundLimit'];
+    'tail', 'tailOn', 'memory', 'personLimit', 'memoryLimit', 'backgroundLimit'];
   const status = document.querySelector('#status');
   const editors = new Map();
   const metadataCache = new Map();
@@ -120,7 +120,9 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       if (name === 'thinking') continue;
       const input = editor.form.elements[name];
       if (input.type === 'checkbox') input.checked = item.settings[name];
-      else input.value = item.settings[name];
+      else input.value = item.settings[name] ?? (name === 'personLimit' ? 0 : '');
+      const slider = editor.form.querySelector(`[data-window="${name}"]`);
+      if (slider) slider.value = input.value;
     }
     updateReplyHint(editor);
     for (const picker of editor.pickers) picker.refresh();
@@ -187,13 +189,23 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
     const toolbar = document.createElement('div'); toolbar.className = 'profile-toolbar';
     form.prepend(toolbar);
     addShowControls(form, item.id);
-    toolbar.append(form.querySelector('.grid'), form.elements.toolsOn.closest('.field-heading'), form.elements.memory.closest('.field-heading'), form.querySelector('.memory-grid'), form.querySelector('.actions'));
+    const memoryStrip = document.createElement('div'); memoryStrip.className = 'memory-strip';
+    memoryStrip.append(form.elements.memory.closest('.field-heading'), form.querySelector('.memory-grid'));
+    toolbar.append(form.querySelector('.grid'), form.elements.toolsOn.closest('.field-heading'), memoryStrip, form.querySelector('.actions'));
     const replyHint = section.querySelector('[data-reply-hint]');
     replyHint.id = 'reply-hint-' + item.id;
     form.elements.replyMode.setAttribute('aria-describedby', replyHint.id);
     const pickers = ['model', 'thinking', 'replyMode'].map(name => createProfilePicker(form.elements[name]));
-    form.elements.backgroundLimit.disabled = privateConversation;
-    for (const input of form.querySelectorAll('input[type=number]')) input.addEventListener('focus', () => input.select());
+    for (const slot of form.querySelectorAll('[data-group-only]')) slot.hidden = privateConversation;
+    if (privateConversation) form.querySelector('[data-dialogue-label]').textContent = 'Dialogue';
+    for (const slider of form.querySelectorAll('[data-window]')) {
+      const number = form.elements[slider.dataset.window];
+      number.disabled = slider.disabled = privateConversation && number.name !== 'memoryLimit';
+      const slide = () => { number.value = slider.value; };
+      slider.addEventListener('input', slide); slider.addEventListener('change', slide);
+      number.addEventListener('input', () => { if (number.validity.valid) slider.value = number.value; });
+      number.addEventListener('focus', () => number.select());
+    }
     if (item.kind === 'private_default') section.querySelector('[data-reset-hint]').textContent =
       'New Chat starts a fresh context separately for every guest. Old Chat reopens each guest\'s own retained history within the saved limits and Memory switch. People never share history. Neither action deletes logs or cancels active replies; removed messages cannot be restored.';
     for (const model of catalog) {
