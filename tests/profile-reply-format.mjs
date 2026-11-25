@@ -17,7 +17,7 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/conversation-profiles.html?chat=alpha`);
   const section=page.locator('[data-profile=alpha]');
   const switches=section.getByRole('group',{name:'Reply format'});
-  await switches.waitFor();assert.equal(await section.locator('[data-format-hint]').count(),0);
+  await switches.waitFor();assert.equal(await section.getByRole('combobox',{name:'Voice preset'}).count(),0);assert.equal(await section.locator('[data-format-hint]').count(),0);
   const marker=section.locator('.draft-status');
   const nextHeadingTop=()=>section.locator('[name=piOn]').evaluate(input=>input.closest('.field-heading').getBoundingClientRect().top);
   const save=async()=>{
@@ -91,7 +91,11 @@ try {
   const dialogue=dm.getByRole('checkbox',{name:'Dialogue',exact:true});assert.equal(await dialogue.isChecked(),false);
   await dm.getByText('Dialogue',{exact:true}).click();assert.equal(await dialogue.isChecked(),true);
   assert.equal(await dm.locator('[name=memoryLimit]').inputValue(),'150');
+  const speaker=dm.getByRole('combobox',{name:'Voice preset'});assert.equal(await speaker.inputValue(),'gacrux');
+  await speaker.selectOption('charon-elder');
   const dmSaved=page.waitForResponse(r=>r.url().endsWith('/dm')&&r.request().method()==='POST');await dm.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await dmSaved).status(),200);
-  assert.equal(JSON.parse(readFileSync(path.join(dir,'conversation-profiles.json'))).profiles.dm.memory,true);
+  const dmSettings=JSON.parse(readFileSync(path.join(dir,'conversation-profiles.json'))).profiles.dm;
+  assert.equal(dmSettings.memory,true);assert.equal(dmSettings.voicePreset,'charon-elder');assert.equal(dmSettings.voiceOutput,false);
+  await page.reload();await speaker.waitFor();assert.equal(await speaker.inputValue(),'charon-elder');
   console.log('Independent dimmed labels and counts, Save/reload, DM Dialogue, keyboard, mobile layout and drafts verified.');
 } finally {await browser?.close();server.close();rmSync(dir,{recursive:true,force:true});}

@@ -10,6 +10,8 @@ Record the reference check, the published commit and the fresh-install check sep
 
 ## Current coverage
 
+After `v0.12.1`, an individual DM on the reference and on `main` can select **Gacrux** (unchanged reference) or **Charon · Quiet elder** for Google speech. The choice does not enable voice delivery, change the conversation prompt or assign a speaker to other guests or groups. The `v0.12.1` release archive predates this selector. No enrolled peer or personal settings ship in source.
+
 First import: `public/conversation-profiles.{html,js,css}`, `server/conversation-profiles.ts` and `telegram/lc_recovery.py` were imported byte-for-byte before the instance-specific wiring below. The 18 indexed Notes bodies already match the reference. The portable Notes index omits the source instance's share links. No source-host account, user session, provider authorization or chat history belongs in a release.
 
 Owner DMs now read one saved `owner_dm` profile per turn. Its Pi/Base, Character, Custom, response style, model, thinking and tool switches control inference and tool dispatch. New profile stores inherit the instance model unless explicitly saved; existing stores are not rewritten. The portable profile reference endpoint uses the installed Pi, and `/go/hub` preserves the selected salon tab. Offline checks cover profile save/isolation and CLI invocation, not delivery through a live account.

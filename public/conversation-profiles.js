@@ -17,7 +17,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   const endpoint = '/api/conversation-profiles';
   const fields = ['textOutput', 'voiceOutput', 'piOn', 'model', 'thinking', 'replyMode', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn',
     'tail', 'tailOn', 'personLimit', 'memoryLimit', 'backgroundLimit'];
-  const profileFields = editor => fields.concat(editor.item.kind === 'group' ? ['personOn', 'groupOn', 'backgroundOn'] : ['memory']);
+  const profileFields = editor => fields.concat(editor.item.kind === 'group' ? ['personOn', 'groupOn', 'backgroundOn'] : ['memory'], editor.item.kind === 'private' ? ['voicePreset'] : []);
   const status = document.querySelector('#status');
   const editors = new Map();
   const metadataCache = new Map();
@@ -185,6 +185,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       ? 'Shared defaults; each person keeps a separate conversation and history.'
       : privateConversation ? 'Your private Telegram conversation.' : 'Telegram ' + (item.chatIds || [item.chatId]).join(' / ');
     const form = section.querySelector('form');
+    form.elements.voicePreset.closest('label').hidden = form.elements.voicePreset.disabled = item.kind !== 'private';
     const toolbar = document.createElement('div'); toolbar.className = 'profile-toolbar';
     form.prepend(toolbar);
     addShowControls(form, item.id);

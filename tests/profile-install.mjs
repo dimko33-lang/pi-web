@@ -66,5 +66,14 @@ try {
     const s=await update(action);assert.deepEqual(flags.map(k=>s[k]),[false,true,false]);
     assert.deepEqual([s.personLimit,s.memoryLimit,s.backgroundLimit],[100,42,9]);assert.equal(s.memoryResetAt>0,action==='reset');
   }
+  // Only an individual DM can own a speaker. Older panels and history actions preserve it.
+  for(const [id,values,preset] of [['guest_dm',settings,'charon-elder'],['lake',edit,'charon-elder'],['owner_dm',settings,'unlisted']]) {
+    assert.equal((await change(id,'save',{...values,voicePreset:preset})).status,400);
+  }
+  const changeOwner=async(action,values)=>{const r=await change('owner_dm',action,values);assert.equal(r.status,200);current=await r.json();return current.profiles.find(p=>p.id==='owner_dm').settings};
+  assert.equal((await changeOwner('save',{...settings,voicePreset:'charon-elder'})).voicePreset,'charon-elder');
+  const older={...settings};delete older.voicePreset;
+  for(const action of ['save','reset','restore'])assert.equal((await changeOwner(action,older)).voicePreset,'charon-elder');
+  assert.equal((await changeOwner('save',{...settings,voicePreset:'gacrux'})).voicePreset,'gacrux');
   console.log('Eight independent switch states, retained counts, old clients, reset/restore and DM isolation verified.');
 } finally { if(server) await new Promise(resolve=>server.close(resolve));await fs.rm(dir,{recursive:true,force:true}); }

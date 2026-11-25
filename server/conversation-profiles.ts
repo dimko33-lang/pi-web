@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import { Router } from 'express';
 
 type Profile = {
-  textOutput?: boolean; voiceOutput?: boolean;
+  textOutput?: boolean; voiceOutput?: boolean; voicePreset?: 'gacrux' | 'charon-elder';
   model: string; thinking: string; systemPrompt: boolean; character: string;
   customPrompt: string; customOn?: boolean; basePrompt?: string; baseOn?: boolean; piOn?: boolean; toolsOn?: boolean; tail: string; tailOn: boolean; memory: boolean;
   personLimit?: number; memoryLimit: number; backgroundLimit: number; replyMode: string;
@@ -22,6 +22,7 @@ function panelSettings(settings: Profile, entry: CatalogEntry) {
     // Project old groups into the new UI without writing the store or losing paused counts.
     for (const [on, count] of windows) settings[on] ??= settings.memory && (settings[count] ?? 0) > 0;
   }
+  if (entry.kind === 'private') settings.voicePreset ??= 'gacrux';
   return settings;
 }
 // Keep the former tag-only value readable without silently widening old settings.
@@ -75,10 +76,11 @@ export function createConversationProfiles(options: {
   });
   const validate = async (input: any, entry: CatalogEntry): Promise<Profile> => {
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('Invalid profile');
-    const allowed = ['textOutput', 'voiceOutput', 'piOn', 'model', 'thinking', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn', 'tail', 'tailOn',
+    const allowed = ['textOutput', 'voiceOutput', 'voicePreset', 'piOn', 'model', 'thinking', 'systemPrompt', 'character', 'customPrompt', 'customOn', 'basePrompt', 'baseOn', 'toolsOn', 'tail', 'tailOn',
       'memory', 'personLimit', 'memoryLimit', 'backgroundLimit', ...windows.map(([on]) => on), 'replyMode'];
     if (Object.keys(input).some(key => !allowed.includes(key))) throw Error('Unknown profile field');
     for (const key of ['textOutput','voiceOutput']) if (input[key] !== undefined && typeof input[key] !== 'boolean') throw Error('Invalid ' + key);
+    if ('voicePreset' in input && (entry.kind !== 'private' || !['gacrux', 'charon-elder'].includes(input.voicePreset))) throw Error('Unknown or non-private voice preset');
     if (input.piOn !== undefined && typeof input.piOn !== 'boolean') throw Error('Invalid piOn');
     const explicit = windows.some(([on]) => on in input);
     if (explicit) {
@@ -152,6 +154,7 @@ export function createConversationProfiles(options: {
       }
       next.textOutput ??= previous.textOutput ?? false;
       next.voiceOutput ??= previous.voiceOutput ?? false;
+      if (entry.kind === 'private') next.voicePreset ??= previous.voicePreset; // An older tab must not clear a saved speaker.
       const reset = req.body.action === 'reset';
       const restore = req.body.action === 'restore';
       // Both history actions rotate the generation so Telegram repins its local floor.

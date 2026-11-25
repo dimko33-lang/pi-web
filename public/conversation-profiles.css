@@ -59,6 +59,8 @@ main section {border:0;padding-top:0}
 .field-heading {border-top:1px solid var(--divider-ink);margin-top:10px;padding-top:4px}
 .format-status,.format-switches {display:inline-flex;align-items:center;gap:var(--tool-gap)}
 .format-status {flex:1 1 min-content}
+.dm-voice-preset {flex-direction:row;align-items:center;gap:.65em;width:fit-content;max-width:100%}
+.dm-voice-preset select {width:auto;min-height:32px;height:32px;padding-block:4px;background-color:var(--surface)}
 .format-switches {flex:none}
 .draft-status {font-size:.9em;line-height:1.15;font-weight:600;color:#ff6b6b}
 html:is([data-theme=light],[data-reader-theme=light]) .draft-status {color:#b4232b}

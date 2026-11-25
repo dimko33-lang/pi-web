@@ -24,10 +24,17 @@ TRIGGER=re.compile(PREFIX+r'поговори\s+со\s+мной'+END,re.I)
 CLOUD=re.compile(PREFIX+r'ответь\s+(?:облачным\s+голосом|голосом\s+(?:qwen|квен))'+END,re.I)
 HINT='\n\n[Delivery: this one reply will be spoken aloud. Answer the user directly in a few natural sentences, without markup.]'
 
-async def google_wave(line,path):
+GOOGLE_PRESETS = ('gacrux', 'charon-elder')
+
+def google_packet(line, preset):
+    if preset not in GOOGLE_PRESETS: raise ValueError('Unknown Google voice preset')
+    return (b'' if preset=='gacrux' else b'\xffcharon-elder\x00') + line.encode('utf-8')
+
+async def google_wave(line,path,*,preset='gacrux'):
+    packet=google_packet(line,preset)
     reader,writer=await asyncio.open_unix_connection(str(GOOGLE_SOCKET))
     try:
-        writer.write(line.encode());await writer.drain();writer.write_eof();size=0
+        writer.write(packet);await writer.drain();writer.write_eof();size=0
         with path.open('xb') as dst:
             while block:=await reader.read(65536):
                 size+=len(block)
@@ -51,12 +58,15 @@ def voice_policy(base,message,text,heard=(),*,owner_dm=False,profile=None):
     # Called only after chat admission. Quotes/history never select an output mode.
     if text.startswith('/') or (owner_dm and text.strip().lower()=='ok' and not getattr(message,'media',None)):return False
     prefs=profile or {};typed=prefs.get('textOutput') is True;voice=prefs.get('voiceOutput') is True
+    # The preset selects a timbre only after a private profile has selected Google delivery.
+    preset = 'charon-elder' if getattr(message,'is_private',False) and prefs.get('voicePreset')=='charon-elder' else 'gacrux'
     if typed or voice:
         microphone=bool(getattr(message,'voice',None)) and not getattr(message,'fwd_from',None)
-        return 'gacrux' if voice and (not typed or microphone) else False
+        return preset if voice and (not typed or microphone) else False
     inputs=(text,*heard) if getattr(message,'voice',None) else (text,)
     if any(re.match(PREFIX+r'(?:ответь|напиши)(?:\s+мне)?\s+текстом'+END,s,re.I) for s in inputs):return False
-    return requested_turn(message,text,heard) or ('gacrux' if (base/'voice-all-gacrux.enabled').is_dir() else False)
+    mode = requested_turn(message,text,heard) or ('gacrux' if (base/'voice-all-gacrux.enabled').is_dir() else False)
+    return preset if mode=='gacrux' else mode
 
 def set_voice_all(base,on):
     marker=base/'voice-all-gacrux.enabled'
@@ -90,7 +100,7 @@ async def run(argv,*,stdin,stdout,env=None,data=None):
 
 async def prepare(text,*,cloud=False):
     # Never truncate a substantive answer to fit; fall back to its original text.
-    limit=1500 if cloud=='gacrux' else (600 if cloud else 1400)
+    limit=1500 if cloud in GOOGLE_PRESETS else (600 if cloud else 1400)
     if not text or len(text)>limit or '```' in text:return None
     if cloud and re.search(r'https?://|(?:sk-|AQ\.|AIza)[A-Za-z0-9_-]{12,}|-----BEGIN .*KEY-----',text,re.I):return None
     line=' '.join(text.replace('**','').split())
@@ -99,7 +109,7 @@ async def prepare(text,*,cloud=False):
         try:
             with tempfile.TemporaryDirectory(prefix='nikita-speech-') as folder:
                 wav=Path(folder)/'reply.wav';piper=ASSETS/'piper';env={'PATH':os.environ.get('PATH','/usr/bin:/bin'),'LD_LIBRARY_PATH':str(piper),'OMP_NUM_THREADS':'1'}
-                if cloud=='gacrux':await asyncio.wait_for(google_wave(line,wav),58)
+                if cloud in GOOGLE_PRESETS:await asyncio.wait_for(google_wave(line,wav,preset=cloud),58)
                 elif cloud:
                     with wav.open('xb') as dst:
                         await run([sys.executable,'-I','-B',str(Path(__file__).with_name('qwen_tts.py'))],stdin=asyncio.subprocess.PIPE,stdout=dst,env={'PATH':env['PATH']},data=line.encode())
@@ -120,7 +130,8 @@ async def prepare(text,*,cloud=False):
         except (OSError,ValueError,EOFError,wave.Error,asyncio.TimeoutError):return None
 
 async def send_spoken(client,peer,mid,text,*,mode='qwen'):
-    prepared=await prepare(text,cloud=mode) if mode in ('qwen','gacrux') else await prepare(text)
+    if mode=='charon-elder' and (type(peer) is not int or peer<=0):return None
+    prepared=await prepare(text,cloud=mode) if mode=='qwen' or mode in GOOGLE_PRESETS else await prepare(text)
     if not prepared:return None
     stream,attr=prepared
     # Only a definitive voice rejection can safely fall through to ordinary text.

@@ -82,6 +82,48 @@ class Spoken(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(hashlib.sha256(fixture).hexdigest(),'9237a7fb29d1630ec9348bfe3e0b2e7e79f35496b1fcf46840238afc2d29a2c2')
             data={'mimeType':'audio/l16; rate=24000; channels=1','data':base64.b64encode(b'\0\1'*100).decode()};return BytesIO(json.dumps({'candidates':[{'content':{'parts':[{'inlineData':data}]}}]}).encode())
         with wave.open(BytesIO(google.render('test','example-key',post))) as audio:self.assertEqual((audio.getframerate(),audio.getnframes()),(24000,100))
+    async def test_private_elder_preset(self):
+        import tempfile,json,os
+        from telethon import types
+        from datetime import datetime,timezone
+        p=dict(voicePreset='charon-elder',textOutput=True,voiceOutput=True,toolsOn=False,memory=False)
+        with tempfile.TemporaryDirectory() as d,patch.dict(os.environ,PI_WEB_TELEGRAM_DATA=d):
+            base=Path(d);(base/'conversation-profiles.json').write_text(json.dumps({'version':1,'profiles':{'dm_17':p,'guest_dm':p}}))
+            def event(peer,voice):
+                m=NS(voice=voice,is_private=True,reply_to_msg_id=None,fwd_from=None,media=voice)
+                return NS(id=1,is_private=True,chat_id=peer,sender_id=peer,out=False,raw_text='' if voice else 'hello',message=m)
+            with patch.object(instance,'recognize',AsyncMock(return_value='fixture')),patch.object(instance,'answer',AsyncMock(return_value='reply')):
+                for peer,voice,want in [(17,True,'charon-elder'),(17,False,None),(18,True,'gacrux')]:
+                    delivery={};self.assertEqual(await instance.tool_turn(event(peer,voice),guest=peer,delivery=delivery),('reply',None));self.assertEqual(delivery.get('spoken'),want)
+            for target,want in [(types.PeerUser(17),'charon-elder'),(types.PeerChannel(42),'gacrux')]:
+                msg=types.Message(id=1,peer_id=target,date=datetime.now(timezone.utc),message='hello')
+                self.assertEqual(tts.voice_policy(base,msg,'hello',profile={**p,'textOutput':False}),want)
+            self.assertFalse(tts.voice_policy(base,event(17,True).message,'hello',profile={**p,'voiceOutput':False}))
+            with patch.object(tts,'prepare',AsyncMock()) as synth:
+                self.assertIsNone(await tts.send_spoken(None,-17,1,'test',mode='charon-elder'));synth.assert_not_awaited()
+            with patch.object(tts,'google_wave',AsyncMock(side_effect=OSError)) as broker,patch.object(tts,'run',AsyncMock()) as fallback:
+                self.assertIsNone(await tts.prepare('test',cloud='charon-elder'));self.assertEqual(broker.await_args.kwargs,{'preset':'charon-elder'})
+                self.assertIsNone(await tts.prepare('x'*1501,cloud='charon-elder'));broker.assert_awaited_once();fallback.assert_not_awaited()
+
+    def test_elder_broker_request(self):
+        import base64,json,wave,gacrux_worker as g
+        from io import BytesIO
+        text='Тихий голос.'; seen=[]
+        def post(req,**kw):
+            self.assertEqual(req.full_url,g.URL);seen.append(json.loads(req.data));audio={'mimeType':'audio/l16; rate=24000','data':base64.b64encode(b'\0\0'*100).decode()}
+            return BytesIO(json.dumps({'candidates':[{'content':{'parts':[{'inlineData':audio}]}}]}).encode())
+        for preset,name in [('charon-elder','Charon'),('gacrux','Gacrux')]:
+            body=tts.google_packet(text,preset);self.assertEqual(g.decode_request(body),(text,preset))
+            with wave.open(BytesIO(g.render(text,'fixture',post,preset=preset))) as wav:self.assertEqual(wav.getnframes(),100)
+            data=seen[-1];self.assertEqual(data['generationConfig']['speechConfig']['voiceConfig']['prebuiltVoiceConfig']['voiceName'],name)
+            words=data['contents'][0]['parts'][0]['text'];self.assertTrue(words.endswith(text));self.assertIn('no audible smile',words)
+            if preset=='charon-elder':self.assertIn('everyday conversation',words)
+        self.assertEqual(g.decode_request(b'{"voicePreset":"charon-elder"}')[1],'gacrux')
+        with self.assertRaises(ValueError):g.decode_request(b'\xffunknown\0test')
+        with self.assertRaises(ValueError):g.decode_request(tts.google_packet('x'*(g.MAX_INPUT_BYTES+1),'charon-elder'))
+        with self.assertRaises(ValueError):g.render('test','fixture',post,preset='unknown')
+        self.assertEqual(len(seen),2)
+
     async def test_spoken_then_reset(self):
         for voice,raw,expected in [(False,'Поговори со мной: зачем?',True),(True,'',True),(False,'а дальше?',False)]:
             m=NS(voice=voice,fwd_from=None,reply_to_msg_id=None,media=voice);out={}

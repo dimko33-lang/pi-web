@@ -16,19 +16,24 @@ def write_atomic(path,data,mode):
         os.fchmod(f.fileno(),mode);f.write(data)
     os.replace(f.name,path)
 
-def setup(venv,user):
+def setup(venv,user,*,refresh=False):
     if os.geteuid()!=0 or not Path('/run/systemd/system').is_dir():raise SystemExit('Requires root and systemd')
     if not re.fullmatch(r'[a-z_][a-z0-9_-]*',user):raise ValueError('Invalid service user')
     os.umask(0o022);pwd.getpwnam(user); venv=venv.resolve(strict=True)
     if not (venv/'pyvenv.cfg').is_file():raise ValueError('Expected the Telegram venv directory')
     ident=hashlib.sha256(os.fsencode(venv)).hexdigest()[:12];name='pi-web-gacrux-'+ident
-    root=Path('/etc/pi-web-speech');root.mkdir(mode=0o755,exist_ok=True);d=root/ident;d.mkdir(mode=0o755,exist_ok=True)
+    root=Path('/etc/pi-web-speech');d=root/ident
+    if not refresh: root.mkdir(mode=0o755,exist_ok=True);d.mkdir(mode=0o755,exist_ok=True)
     for p in (root,d):
         st=p.lstat()
         if p.is_symlink() or st.st_uid!=0 or st.st_mode&0o022:raise ValueError('Unsafe service directory')
     units=Path('/etc/systemd/system');sock=units/(name+'.socket');svc=units/(name+'@.service');marker='# Pi Web managed Gacrux broker: '+ident+'\n'
     for p in (sock,svc):
         if p.is_symlink() or (p.exists() and not p.read_text().startswith(marker)):raise ValueError('Unrecognized unit')
+    if refresh:
+        if not all(p.is_file() for p in (sock,svc,d/'enabled',d/'worker.py')):raise ValueError('No enrolled Google worker')
+        write_atomic(d/'worker.py',Path(__file__).with_name('gacrux_worker.py').read_bytes(),0o644)
+        print('Updated the enrolled speech worker. Key, socket and settings were not changed.');return
     key=getpass.getpass('Google AI Studio API key: ') if sys.stdin.isatty() else sys.stdin.buffer.read(513).decode().strip()
     if not re.fullmatch('[A-Za-z0-9._-]{20,512}',key):raise ValueError('Invalid key format')
     write_atomic(d/'google-key',key.encode(),0o600)
@@ -72,4 +77,4 @@ WantedBy=sockets.target
     write_atomic(d/'enabled',b'Gacrux\n',0o644);print('Gacrux enabled; key stays in the broker, outside the app and Save.')
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--venv',type=Path,required=True);p.add_argument('--user',required=True);a=p.parse_args();setup(a.venv,a.user)
+    p=argparse.ArgumentParser();p.add_argument('--venv',type=Path,required=True);p.add_argument('--user',required=True);p.add_argument('--refresh-worker',action='store_true',help='Update the enrolled worker code only; never read or replace a key');a=p.parse_args();setup(a.venv,a.user,refresh=a.refresh_worker)

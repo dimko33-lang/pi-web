@@ -115,6 +115,7 @@ def conversation_profile(name):
         raise ValueError('Invalid conversation profiles')
     profile = saved['profiles'].get(name, {})
     if not isinstance(profile, dict): raise ValueError('Invalid conversation profile')
+    if name == 'guest_dm': profile.pop('voicePreset', None)  # A shared default cannot assign a personal speaker.
     return profile
 
 
