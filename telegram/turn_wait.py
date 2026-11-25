@@ -28,6 +28,7 @@ class PiReply:
     failed: Optional[str] = None
     settled: bool = False
     stderr: bytes = b''
+    used_tools: bool = False
 
 
 async def reap_pi(proc):
@@ -70,8 +71,10 @@ async def collect_pi(proc, prompt, *, idle=None):
     try:
         while line := await progress(proc.stdout.readline()):
             event = json.loads(line)
+            if event.get('type') == 'tool_execution_start': result.used_tools = True
             if event.get('type') == 'message_end' and event.get('message', {}).get('role') == 'assistant':
                 message = event['message']; content = message.get('content', [])
+                if any(c.get('type') == 'toolCall' for c in content): result.used_tools = True
                 if message.get('stopReason') in ('error', 'aborted'):
                     result.failed = message.get('errorMessage') or 'Model failed'
                 elif not any(c.get('type') == 'toolCall' for c in content):

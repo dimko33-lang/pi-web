@@ -13,7 +13,7 @@ def user_payload(request):
 
 
 @contextmanager
-def local_provider(root, reply=lambda index: 'Fixture answer'):
+def local_provider(root, reply=lambda index: 'Fixture answer', *, vision=False):
     seen = []
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args): pass
@@ -28,7 +28,7 @@ def local_provider(root, reply=lambda index: 'Fixture answer'):
     server=ThreadingHTTPServer(('127.0.0.1',0),Handler); thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
     try:
         agent=root/'fixture-agent'; agent.mkdir(mode=0o700)
-        (agent/'models.json').write_text(json.dumps({'providers':{'fixture':{'baseUrl':f'http://127.0.0.1:{server.server_port}/v1','api':'openai-completions','models':[{'id':'test','name':'Fixture','contextWindow':200000,'maxTokens':512}]}}}))
+        (agent/'models.json').write_text(json.dumps({'providers':{'fixture':{'baseUrl':f'http://127.0.0.1:{server.server_port}/v1','api':'openai-completions','models':[{'id':'test','name':'Fixture','input':['text','image'] if vision else ['text'],'contextWindow':200000,'maxTokens':512}]}}}))
         (agent/'auth.json').write_text(json.dumps({'fixture':{'type':'api_key','key':'loopback-fixture'}}))
         with patch.dict(os.environ,{'HOME':str(root),'PI_CODING_AGENT_DIR':str(agent)}): yield seen
     finally:

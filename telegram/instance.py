@@ -24,6 +24,7 @@ from showcase_reply import deliver_showcase
 from group_replies import GroupService
 from participant_memory import uses_group_windows
 from dm_memory import dm_context
+from group_photos import complete_turn
 from rich_replies import message_text
 from turn_wait import collect_pi, PiIdleTimeout, reap_pi
 from private_profiles import guests, private_profile_key
@@ -143,8 +144,10 @@ def selected_model(profile):
     return os.environ.get('PI_WEB_MODEL', '')  # Otherwise let the enrolled Pi choose.
 
 
-async def answer(text, profile=None, group=None, addressing='', *, inspect_owner=False, frames=(), guest=None):
+async def answer(text, profile=None, group=None, addressing='', *, inspect_owner=False, frames=(), guest=None, history_photos=None):
     if profile is None: profile = owner_profile()
+    if history_photos is not None and (group != history_photos.peer or guest is not None or not uses_group_windows(profile)):
+        raise ValueError('Historical photos require a scoped turn in the same group')
     pi = os.environ.get('PI_WEB_PI_BIN') or shutil.which('pi')
     if not pi:
         raise RuntimeError('Pi CLI not found')
@@ -191,13 +194,16 @@ async def answer(text, profile=None, group=None, addressing='', *, inspect_owner
             prompt.write('\n\n'.join(parts) or ' '); prompt.flush()
             args.extend(['--append-system-prompt' if native else '--system-prompt', prompt.name])
         args.extend('@'+str(path) for path in frames)
-        p = await asyncio.create_subprocess_exec(*args, cwd=cwd, env=env, stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL, start_new_session=True, limit=4_000_000)
-        try:
-            result = await collect_pi(p, text)
-        finally:
-            await reap_pi(p)
-    if p.returncode or result.failed or not result.settled or not result.text:
+        async def invoke(body, earlier):
+            p = await asyncio.create_subprocess_exec(*args, *('@'+str(f) for f in earlier), cwd=cwd, env=env, stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL, start_new_session=True, limit=4_000_000)
+            try:
+                reply = await collect_pi(p,body)
+                return p.returncode, reply
+            finally:
+                await reap_pi(p)
+        code, result = await complete_turn(history_photos,text,invoke)
+    if code or result.failed or not result.settled or not result.text:
         raise RuntimeError('Pi did not complete a reply')
     return result.text
 

@@ -4,6 +4,7 @@ import json
 import logging
 import time
 
+from group_photos import GroupPhotos, photo_key
 from rich_replies import message_text
 from telethon import utils
 
@@ -120,16 +121,18 @@ def _clip(text):
     raw=text.encode('utf-8');return text if len(raw)<=ROW_BYTES else raw[:ROW_BYTES-3].decode('utf-8','ignore')+'…'
 
 
-def _row(m, role, peer):
+def _row(m, role, peer, include_photos):
     text = message_text(m).strip()
-    if not text: return None  # Do not download media or resurrect deleted text to fill a quota.
+    photo = include_photos and photo_key(m) is not None
+    if not text and not photo: return None
     row={'id':m.id,'role':role,'sender_id':m.sender_id,'text':_clip(text)}
+    if photo: row['_source']=m  # The exact snapshot for this row; serialized only as a boolean marker.
     parent=_parent(m,peer)
     if parent: row['reply_to']=parent
     return row
 
 
-def _verified(edges, bodies, peer, me, before, since):
+def _verified(edges, bodies, peer, me, before, since, include_photos):
     rows={}
     for actor,source,sent in edges:
         q,a=bodies.get(source),bodies.get(sent)
@@ -137,13 +140,15 @@ def _verified(edges, bodies, peer, me, before, since):
                 and not q.out and q.sender_id==actor and _own(a,me) and _parent(a,peer)==q.id): continue
         for m,role in ((q,'user'),(a,'assistant')):
             if m.id not in rows:
-                row=_row(m,role,peer)
+                row=_row(m,role,peer,include_photos)
                 if row: rows[m.id]=row
     return sorted(rows.values(),key=lambda r:r['id'],reverse=True)
 
 
-async def group_context(client, db, peer, actor, before, quote, profile):
+async def group_context(client, db, peer, actor, before, quote, profile, *, photos=None):
     """Build exactly the selected windows before inference. Never fall back to a shared Pi session."""
+    if photos is not None: photos.clear()
+    include_photos=photos is not None
     pn,gn,bn=group_limits(profile)
     if not (pn or gn or bn): return ''
     if type(peer) is not int or peer>=0 or type(actor) is not int or not actor or type(before) is not int or before<=0:
@@ -171,14 +176,14 @@ async def group_context(client, db, peer, actor, before, quote, profile):
                     bodies.update((m.id,m) for m in messages if _visible(m,peer,before,since))
             try: await asyncio.wait_for(hydrate(),18)
             except Exception as exc: log.info('Participant message batch unavailable (%s)',type(exc).__name__)
-            personal=_verified(p,bodies,peer,me,before,since);group=_verified(g,bodies,peer,me,before,since)
+            personal=_verified(p,bodies,peer,me,before,since,include_photos);group=_verified(g,bodies,peer,me,before,since,include_photos)
     except Exception as exc:
         log.warning('Dialogue lookup unavailable (%s); no unverified history used',type(exc).__name__)
     if bn:
         try:
             messages=await asyncio.wait_for(client.get_messages(peer,max_id=before,limit=bn),12)
             for m in sorted((m for m in messages if _visible(m,peer,before,since)),key=lambda m:m.id,reverse=True)[:bn]:
-                row=_row(m,'assistant' if m.out else 'user',peer)
+                row=_row(m,'assistant' if m.out else 'user',peer,include_photos)
                 if row: ambient.append(row)
         except Exception as exc:
             log.warning('Group background unavailable (%s)',type(exc).__name__)
@@ -189,8 +194,30 @@ async def group_context(client, db, peer, actor, before, quote, profile):
         for row in rows:
             if len(kept)>=n: break
             if row['id'] in seen: continue
+            source=row.pop('_source',None)
+            if source is not None: row['photo']=True
             size=len(json.dumps(row,ensure_ascii=False,separators=(',',':')).encode())+1
             if used+size>TOTAL_BYTES: break
             kept.append(row);seen.add(row['id']);used+=size
+            if source is not None: photos[row['id']]=source  # Only after scope, count, quote and byte checks.
         if kept: windows[name]=list(reversed(kept))
     return HEADER+json.dumps(windows,ensure_ascii=False,separators=(',',':')) if windows else ''
+
+
+async def group_inputs(client, db, peer, actor, before, quote, profile, current_profile):
+    """Offer one-turn handles. Re-check the actual window and the attachment before releasing pixels."""
+    args=(client,db,peer,actor,before,quote)
+    selected={}; text=await group_context(*args,profile,photos=selected)
+    if not selected: return text, None
+    keys={mid:photo_key(m) for mid,m in selected.items()}
+    def scope(p): return group_limits(p), p.get('memoryResetAt',0), p.get('memoryEpoch')
+    pinned=scope(profile)
+    def current():
+        p=current_profile()
+        return p if p and uses_group_windows(p) and scope(p)==pinned else None
+    async def reopen(mid):
+        p=current()
+        if p is None: return None
+        fresh={}; await group_context(*args,p,photos=fresh)
+        return fresh.get(mid) if current() is not None else None
+    return text, GroupPhotos(peer,keys,reopen,client.download_media)

@@ -38,6 +38,13 @@ class Watchdog(unittest.IsolatedAsyncioTestCase):
             finally: await reap_pi(proc)
             self.assertTrue(answer.settled); self.assertEqual(answer.text, 'Complete answer'); self.assertIsNone(answer.failed)
 
+    async def test_settled_text_does_not_hide_an_earlier_tool_action(self):
+        for event in ({'type':'tool_execution_start'}, {'type':'message_end','message':{'role':'assistant','content':[{'type':'toolCall'}]}}):
+            proc = await self.child('print('+repr(json.dumps(event))+');'+FINAL)
+            try: answer = await collect_pi(proc,'Q',idle=2)
+            finally: await reap_pi(proc)
+            self.assertTrue(answer.used_tools and answer.settled); self.assertEqual(answer.text,'Complete answer')
+
     async def test_stall_and_cancel(self):
         for cancel in (False, True):
             proc = await self.child(PROGRESS+';time.sleep(20)')

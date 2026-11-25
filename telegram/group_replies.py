@@ -9,7 +9,7 @@ import unicodedata
 
 from lc_recovery import ReplyQueue, WINDOW
 from turn_wait import PiIdleTimeout
-from participant_memory import group_context, remember_reply, uses_group_windows
+from participant_memory import group_inputs, remember_reply, uses_group_windows
 from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
 from spoken_reply import voice_policy, HINT as SPOKEN_HINT
@@ -111,8 +111,13 @@ class Group:
         prompt = f'[Current message from user (id {msg.sender_id})]:\n{text}'
         if quoted: prompt += '\n\n[Reply target, quoted context]:\n' + self.text(quoted)[:12000]
         async with self.client.action(self.peer, 'typing'):
+            inference_options = {}
             if uses_group_windows(profile):
-                history = await group_context(self.client,self.state.db,self.peer,msg.sender_id,msg.id,msg.reply_to_msg_id,profile)
+                def current_profile():
+                    current, active_mode, _ = self.policy(self.tab, self.peer)
+                    return current if active_mode == mode else None
+                history, photos = await group_inputs(self.client,self.state.db,self.peer,msg.sender_id,msg.id,msg.reply_to_msg_id,profile,current_profile)
+                if photos: inference_options['history_photos'] = photos
                 if history: prompt = history+'\n\nCurrent request:\n'+prompt
             address = ADDRESSING if candidate else ''
             heard=[]
@@ -124,10 +129,10 @@ class Group:
             if speak:prompt+=SPOKEN_HINT
             if (direct or candidate) and (attachment_type(msg) or attachment_type(quoted)):
                 async with sampled_inputs(msg, quoted) as (frames, note):
-                    result = await self.infer(prompt+'\n\n'+note, profile, self.peer, address, frames=frames)
+                    result = await self.infer(prompt+'\n\n'+note, profile, self.peer, address, frames=frames, **inference_options)
             else:
                 if not text and not direct: return
-                result = await self.infer(prompt, profile, self.peer, address)
+                result = await self.infer(prompt, profile, self.peer, address, **inference_options)
         # Final delivery may already have reached Telegram on disconnect. Never replay it.
         if q and direct: q.forget(msg.id)
         if self.policy(self.tab, self.peer)[1] != mode: return
