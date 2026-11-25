@@ -1,6 +1,7 @@
 """Diagnostic: python circle_render.py speech.wav new-circle.mp4 (Python 3.11+)."""
 import asyncio
 import os
+import wave
 import sys
 import tempfile
 import time
@@ -13,14 +14,21 @@ from circle_media import circle_duration, speech_pcm
 async def render(source, destination):
     import av
     import numpy as np
-    from scipy.signal import correlate
+    from scipy.signal import correlate, resample_poly
     from anam import AnamClient, AnamEvent
-    from anam.types import AgentAudioInputConfig, PersonaConfig
+    from anam.types import AgentAudioInputConfig, DirectorNotes, PersonaConfig
 
     pcm = speech_pcm(source)
     credential = Path(os.environ.get('CREDENTIALS_DIRECTORY', '/nonexistent')) / 'anam-key'
     key = credential.read_text().strip() if credential.is_file() else os.environ['ANAM_API_KEY']
-    client = AnamClient(api_key=key, persona_config=PersonaConfig(avatar_id=os.environ['ANAM_AVATAR_ID'], avatar_model='cara-4.1-express', enable_audio_passthrough=True))
+    direction = DirectorNotes(
+        expressivity=0.0,
+        custom_style_prompt='Formal, cool reserve. Level gaze, still head and brows. Neutral lip corners; speak unsmiling with minimal articulation.',
+    )
+    client = AnamClient(api_key=key, persona_config=PersonaConfig(
+        avatar_id=os.environ['ANAM_AVATAR_ID'], avatar_model='cara-4.1-express',
+        director_notes=direction, enable_audio_passthrough=True,
+    ))
     ready = asyncio.Event()
 
     @client.on(AnamEvent.SESSION_READY)
@@ -29,17 +37,24 @@ async def render(source, destination):
 
     # Match windows near both ends of the source against returned audio. Do not
     # use end_sequence or local wall-clock time as a playback acknowledgement.
-    source16 = np.frombuffer(pcm, dtype='<i2')[::3].astype(np.float32)
+    source16 = resample_poly(np.frombuffer(pcm, dtype='<i2').astype(float), 1, 3)
     voiced = np.flatnonzero(abs(source16) > max(60, abs(source16).max() * .025))
     if len(voiced) < 1000:
         raise ValueError('Insufficient voiced samples')
     start, end = int(voiced[0]), int(voiced[-1]) + 1
-    size = min(6000, (end - start) // 2)
+    size = min(1600, (end - start) // 3)
     windows = [(p, source16[p:p+size]) for p in (start, end-size)]
     complete = asyncio.Event()
     with tempfile.TemporaryDirectory(dir=destination.parent) as tmp:
         target = Path(tmp) / 'circle.mp4'
-        with av.open(str(target), 'w') as mux:
+        from contextlib import ExitStack
+        with ExitStack() as stack:
+            debug_audio = None
+            if os.environ.get('CIRCLE_CAPTURE_RETURN') == '1':
+                raw = stack.enter_context(destination.with_suffix('.returned.wav').open('xb'))
+                debug_audio = stack.enter_context(wave.open(raw, 'wb'))
+                debug_audio.setparams((1, 2, 8000, 0, 'NONE', ''))
+            mux = stack.enter_context(av.open(str(target), 'w'))
             video = mux.add_stream('libx264', rate=30)
             video.width = video.height = 640
             video.pix_fmt = 'yuv420p'
@@ -68,19 +83,23 @@ async def render(source, destination):
                     else:
                         for piece in monitor.resample(frame):
                             samples = piece.to_ndarray().flatten().astype(np.float32)
+                            if debug_audio is not None:
+                                debug_audio.writeframes(piece.to_ndarray().astype('<i2').tobytes())
                             chunks.append(samples)
                             count += len(samples)
                         if count - checked >= 4000 and count >= end and not complete.is_set():
                             checked = count
-                            captured = np.concatenate(chunks)
+                            captured = np.concatenate(chunks).astype(float)
                             energy = np.r_[0., np.cumsum(captured.astype(float)**2)]
                             offsets = []
                             for p, window in windows:
-                                scores = correlate(captured, window, mode='valid', method='fft') / np.sqrt(np.maximum(1., (energy[size:] - energy[:-size]) * np.dot(window, window)))
+                                scores = correlate(captured, window, mode='valid', method='fft') / np.sqrt(np.maximum(1., energy[size:] - energy[:-size]) * np.dot(window, window))
                                 i = int(np.argmax(scores))
                                 if scores[i] >= .55:
                                     offsets.append(i-p)
-                            if len(offsets) == 2 and abs(offsets[0]-offsets[1]) < 1000 and count >= offsets[1]+len(source16)+2000:
+                            if debug_audio is not None and checked % 8000 < 4200:
+                                print('returned_samples', count, 'matched_offsets', offsets, flush=True)
+                            if len(offsets) == 2 and -1600 <= offsets[1]-offsets[0] <= 32000 and count >= offsets[1]+len(source16)+2000:
                                 complete.set()
                     frame.pts, frame.time_base = pts, Fraction(1, rate)
                     mux.mux(stream.encode(frame))
@@ -91,9 +110,11 @@ async def render(source, destination):
                     tasks = [group.create_task(capture(session.video_frames(), video, 30, True)), group.create_task(capture(session.audio_frames(), audio, 48000, False))]
                     await ready.wait()
                     agent = session.create_agent_audio_input_stream(AgentAudioInputConfig(encoding='pcm_s16le', sample_rate=24000, channels=1))
-                    for i in range(0, len(pcm), 9600):
-                        await agent.send_audio_chunk(pcm[i:i+9600])
-                        await asyncio.sleep(.2)
+                    # The engine buffers the sequence. Follow the SDK sample;
+                    # sleeping for chunk duration can starve its playback buffer.
+                    for i in range(0, len(pcm), 24000):
+                        await agent.send_audio_chunk(pcm[i:i+24000])
+                        await asyncio.sleep(.01)
                     await agent.end_sequence()
                     await complete.wait()
                     await asyncio.sleep(.3)
