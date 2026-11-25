@@ -14,7 +14,8 @@ from circle_media import circle_duration, speech_pcm
 async def render(source, destination):
     import av
     import numpy as np
-    from scipy.signal import correlate, resample_poly
+    from scipy.signal import resample_poly
+    from circle_match import SpeechReceipt
     from anam import AnamClient, AnamEvent
     from anam.types import AgentAudioInputConfig, DirectorNotes, PersonaConfig
 
@@ -38,12 +39,8 @@ async def render(source, destination):
     # Match windows near both ends of the source against returned audio. Do not
     # use end_sequence or local wall-clock time as a playback acknowledgement.
     source16 = resample_poly(np.frombuffer(pcm, dtype='<i2').astype(float), 1, 3)
-    voiced = np.flatnonzero(abs(source16) > max(60, abs(source16).max() * .025))
-    if len(voiced) < 1000:
-        raise ValueError('Insufficient voiced samples')
-    start, end = int(voiced[0]), int(voiced[-1]) + 1
-    size = min(1600, (end - start) // 3)
-    windows = [(p, source16[p:p+size]) for p in (start, end-size)]
+    receipt = SpeechReceipt(source16)
+    counts = {'audio': 0, 'video': 0}
     complete = asyncio.Event()
     with tempfile.TemporaryDirectory(dir=destination.parent) as tmp:
         target = Path(tmp) / 'circle.mp4'
@@ -58,6 +55,7 @@ async def render(source, destination):
             video = mux.add_stream('libx264', rate=30)
             video.width = video.height = 640
             video.pix_fmt = 'yuv420p'
+            video.options = {'preset':'veryfast', 'threads':'2'}
             audio = mux.add_stream('aac', rate=48000)
             audio.layout = 'mono'
             epoch = time.monotonic()
@@ -68,6 +66,7 @@ async def render(source, destination):
                 chunks, count, checked = [], 0, 0
                 previous = -1
                 async for frame in iterator:
+                    counts['video' if is_video else 'audio'] += 1
                     if first is None:
                         base, first = time.monotonic() - epoch, frame.time
                     pts = round((base + frame.time - first) * rate)
@@ -87,19 +86,9 @@ async def render(source, destination):
                                 debug_audio.writeframes(piece.to_ndarray().astype('<i2').tobytes())
                             chunks.append(samples)
                             count += len(samples)
-                        if count - checked >= 4000 and count >= end and not complete.is_set():
+                        if count - checked >= 4000 and count >= receipt.end and not complete.is_set():
                             checked = count
-                            captured = np.concatenate(chunks).astype(float)
-                            energy = np.r_[0., np.cumsum(captured.astype(float)**2)]
-                            offsets = []
-                            for p, window in windows:
-                                scores = correlate(captured, window, mode='valid', method='fft') / np.sqrt(np.maximum(1., energy[size:] - energy[:-size]) * np.dot(window, window))
-                                i = int(np.argmax(scores))
-                                if scores[i] >= .55:
-                                    offsets.append(i-p)
-                            if debug_audio is not None and checked % 8000 < 4200:
-                                print('returned_samples', count, 'matched_offsets', offsets, flush=True)
-                            if len(offsets) == 2 and -1600 <= offsets[1]-offsets[0] <= 32000 and count >= offsets[1]+len(source16)+2000:
+                            if receipt.matches(np.concatenate(chunks)):
                                 complete.set()
                     frame.pts, frame.time_base = pts, Fraction(1, rate)
                     mux.mux(stream.encode(frame))
@@ -116,7 +105,10 @@ async def render(source, destination):
                         await agent.send_audio_chunk(pcm[i:i+24000])
                         await asyncio.sleep(.01)
                     await agent.end_sequence()
-                    await complete.wait()
+                    try:
+                        await asyncio.wait_for(complete.wait(), len(pcm)/48000 + 15)
+                    finally:
+                        print('circle receipt: input_s=%.2f frames=%s edge_scores=%s complete=%s' % (len(pcm)/48000, counts, [round(v,2) for v in receipt.scores], complete.is_set()), file=sys.stderr, flush=True)
                     await asyncio.sleep(.3)
                     for task in tasks:
                         task.cancel()

@@ -39,7 +39,8 @@ async def send_circle(client, peer, mid, text):
         return None
     async with SLOT:
         try:
-            stream, attr = await asyncio.wait_for(prepare(line), 160)
+            async with client.action(peer, 'record-round'):
+                stream, attr = await asyncio.wait_for(prepare(line), 160)
         except Exception as exc:
             logging.getLogger(__name__).warning('Circle preparation failed: %s', type(exc).__name__)
             return None
