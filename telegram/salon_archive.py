@@ -41,7 +41,9 @@ def showcase_enabled(base, peer):
     return False
 
 
-def bind(base, profile, peer, authors=False, replies=None, showcase=None):
+def bind(base, profile, peer, authors=False, replies=None, showcase=None, circles=None):
+    if circles and profile == 'lightcone':
+        raise ValueError('Circle requests are not eligible for LightCone recovery.')
     if authors and profile != 'lightcone':
         raise ValueError('The author reader can only use the LightCone tab.')
     if profile not in GROUPS or peer >= 0:
@@ -62,6 +64,11 @@ def bind(base, profile, peer, authors=False, replies=None, showcase=None):
             if replies: allowed[profile] = peer
             else: allowed.pop(profile, None)
             atomic(base / 'reply-bindings.json', allowed)
+        if circles is not None:
+            routes = read(base / 'circle-bindings.json', {})
+            if circles: routes[profile] = peer
+            else: routes.pop(profile, None)
+            atomic(base / 'circle-bindings.json', routes)
         if showcase is not None:
             formats = read(base / 'showcase-bindings.json', {})
             if showcase: formats[profile] = peer
@@ -123,6 +130,8 @@ class SalonArchive:
             # Use the salon's existing feed schema; do not export the whole Telegram object.
             key = f'{abs(peer)}-{m.id}'
             text = m.message or ''
+            if not text and getattr(m, 'video_note', None):
+                text = read(self.base / 'circle-transcripts' / str(peer) / f'{m.id}.json', '')
             if not text and getattr(m, 'rich_message', None) and showcase_enabled(self.base, peer):
                 from rich_replies import message_text
                 text = message_text(m)

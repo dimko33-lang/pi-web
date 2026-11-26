@@ -14,6 +14,7 @@ from motion_frames import attachment_type, sampled_inputs
 from voice_notes import is_voice, audio_context
 from spoken_reply import voice_policy, HINT as SPOKEN_HINT
 from salon_archive import GROUPS, read, showcase_enabled
+from circle_command import circle_request, name_format, other_address_names
 
 log = logging.getLogger(__name__)
 POLL = 5
@@ -82,7 +83,12 @@ class Group:
     async def handle(self, msg, retry=False):
         if not msg or msg.chat_id != self.peer or msg.out or not msg.sender_id: return
         text = self.text(msg).strip()
-        if (not text and not attachment_type(msg) and not is_voice(msg)) or text.startswith('/'): return
+        circles = self.tab != 'lightcone' and read(self.state.base/'circle-bindings.json', {}).get(self.tab) == self.peer
+        raw = (msg.raw_text or '') if not getattr(msg, 'fwd_from', None) else ''
+        circle = circle_request(peer=self.peer, demo_peers=(self.peer,) if circles else (), text=raw, incoming=True, is_group=True)
+        by_name = name_format(raw) if circles and circle is None else None
+        if circle is not None: text = circle
+        elif (not text and not attachment_type(msg) and not is_voice(msg)) or text.startswith('/'): return
         profile, mode, names = self.policy(self.tab, self.peer)
         if mode not in ('mention_reply', 'mentions', 'addressed', 'all'): return
         q = self.queue
@@ -98,7 +104,8 @@ class Group:
             if not quoted: quoted = await self.client.get_messages(self.peer, ids=msg.reply_to_msg_id)
             if quoted and quoted.chat_id != self.peer: quoted = None
             if quoted and mode != 'mentions' and (quoted.out or quoted.sender_id == self.me.id): direct = True
-        candidate = not direct and mode == 'addressed' and ordinary_name(text, names)
+        direct = direct or circle is not None
+        candidate = not direct and mode == 'addressed' and (by_name or ordinary_name(text, other_address_names(names) if circles else names))
         if not direct and (recovering or (mode != 'all' and not candidate)): return
         if q and direct:
             expires = msg.date.timestamp() + WINDOW
@@ -108,6 +115,8 @@ class Group:
                 if q.take_retry(msg.id, msg.sender_id) is None: return
             elif not q.begin(msg.id, msg.sender_id, expires): return
         elif not self.state.claim(msg.id): return
+        if circle == '':
+            await msg.reply('Напиши «Кружок:» и свой вопрос.'); return
         prompt = f'[Current message from user (id {msg.sender_id})]:\n{text}'
         if quoted: prompt += '\n\n[Reply target, quoted context]:\n' + self.text(quoted)[:12000]
         async with self.client.action(self.peer, 'typing'):
@@ -119,14 +128,18 @@ class Group:
                 history, photos = await group_inputs(self.client,self.state.db,self.peer,msg.sender_id,msg.id,msg.reply_to_msg_id,profile,current_profile)
                 if photos: inference_options['history_photos'] = photos
                 if history: prompt = history+'\n\nCurrent request:\n'+prompt
-            address = ADDRESSING if candidate else ''
+            address = ADDRESSING if candidate or by_name else ''
+            if address and circles: address += ' Никита, Ника and Ники are possible forms of your name.'
             heard=[]
             if direct or candidate:
                 for source, is_quote in ((msg,False),(quoted,True)):
                     if is_voice(source):
                         prompt+='\n\n'+await audio_context(source,self.client.download_media,quoted=is_quote,on_current_speech=None if is_quote else heard.append)
-            speak=voice_policy(self.state.base,msg,text,heard,profile=profile)
-            if speak:prompt+=SPOKEN_HINT
+            speak = 'circle' if circle is not None or by_name == 'circle' else 'gacrux' if by_name == 'voice' else voice_policy(self.state.base,msg,text,heard,profile=profile)
+            if speak == 'circle':
+                from circle_reply import HINT
+                prompt += HINT
+            elif speak:prompt+=SPOKEN_HINT
             if (direct or candidate) and (attachment_type(msg) or attachment_type(quoted)):
                 async with sampled_inputs(msg, quoted) as (frames, note):
                     result = await self.infer(prompt+'\n\n'+note, profile, self.peer, address, frames=frames, **inference_options)
@@ -136,6 +149,7 @@ class Group:
         # Final delivery may already have reached Telegram on disconnect. Never replay it.
         if q and direct: q.forget(msg.id)
         if self.policy(self.tab, self.peer)[1] != mode: return
+        if circles and read(self.state.base/'circle-bindings.json', {}).get(self.tab) != self.peer: return
         if result and result.strip() != '[NO_REPLY]':
             receipts = await self.send(msg,result,spoken=speak) if speak else await self.send(msg,result)
             for mid in receipts or ():

@@ -292,7 +292,15 @@ async def tool_turn(e, *, delivery=None, guest=None):
 
 
 async def deliver_answer(client, archive, msg, text, spoken=False, *, showcase=False):
-    if spoken and text:
+    if spoken == 'circle' and text:
+        from circle_reply import send_circle
+        from salon_archive import atomic
+        note = await send_circle(client, msg.chat_id, msg.id, text)
+        if note:
+            atomic(archive.base/'circle-transcripts'/str(msg.chat_id)/f'{note.id}.json', ' '.join(text.replace('**','').split()))
+            archive.notify(msg.chat_id,note.id); return [note.id]
+        text = 'Кружок не получился. Отвечаю текстом.\n\n' + text
+    elif spoken and text:
         note=await send_spoken(client,msg.chat_id,msg.id,text,mode=spoken)
         if note:
             archive.notify(msg.chat_id,note.id);return [note.id]
@@ -374,10 +382,13 @@ if __name__ == '__main__':
     presentation = route.add_mutually_exclusive_group()
     presentation.add_argument('--showcase', dest='showcase', action='store_true', help='Prefer full text and native Telegram articles for this group')
     presentation.add_argument('--no-showcase', dest='showcase', action='store_false', help='Restore standard delivery without changing reply permission')
-    route.set_defaults(replies=None, showcase=None)
+    circle = route.add_mutually_exclusive_group()
+    circle.add_argument('--circles', dest='circles', action='store_true', help='Enable explicit group circle/voice addresses')
+    circle.add_argument('--no-circles', dest='circles', action='store_false')
+    route.set_defaults(replies=None, showcase=None, circles=None)
     args = parser.parse_args(); action = args.action
     if action == 'bind':
-        try: bind(BASE, args.profile, args.peer, args.authors, args.replies, args.showcase)
+        try: bind(BASE, args.profile, args.peer, args.authors, args.replies, args.showcase, args.circles)
         except ValueError as e: parser.error(str(e))
         print('Archive tab bound:', args.profile)
     elif action == 'status':

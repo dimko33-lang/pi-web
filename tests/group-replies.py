@@ -99,6 +99,19 @@ class Recovery(unittest.IsolatedAsyncioTestCase):
             f=self.c.add('@my_agent поговори со мной',10000);f.fwd_from=True;await g.step()
             m=self.c.add('другой разговор',10000);m.voice=True;await g.step()
             self.assertEqual(sent,[(a.id,'qwen'),(v.id,'qwen'),(q.id,False),(f.id,False)]);self.assertEqual(asr.await_count,2)
+    async def test_explicit_circle_binding_and_first_word(self):
+        self.mode='addressed'; g=await self.boot(); g.tab='piwep'; g.queue=None
+        sent=[]
+        async def send(m,text,*,spoken=False): sent.append((m.raw_text,spoken)); return []
+        g.send=send
+        async def turn(text): await g.handle(self.c.add(text,10000))
+        await turn('/circle hi'); self.assertFalse(sent)
+        bind(self.base,'piwep',-7,replies=True,circles=True)
+        for text in ('Никита, привет','Ника, привет','НИКИ привет','/circle hi','Кружок: вопрос','В салоне Ники','Никифор?'):
+            await turn(text)
+        self.assertEqual([s for _,s in sent],[False,'gacrux','circle','circle','circle'])
+        bind(self.base,'piwep',-7,circles=False); await turn('/circle disabled');self.assertEqual(len(sent),5)
+
     def test_archive_does_not_grant_replies(self):
         bind(self.base,'lightcone',-7,True);p=self.base/'reply-bindings.json';self.assertFalse(p.exists())
         bind(self.base,'lightcone',-7,replies=True);self.assertEqual(read(p,{}),{'lightcone':-7})
