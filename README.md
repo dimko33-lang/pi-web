@@ -1,5 +1,7 @@
 # Pi Web · Nikita
 
+[Feature tour / Возможности](docs/features.md) · [Release history / История версий](docs/release-history.md) · [All releases & downloads](https://github.com/dimko33-lang/pi-web/releases)
+
 Nikita is a personal project I’ve wanted to build for twenty years. This is my starting sandbox: a place to try things with the Pi coding agent in a browser and on Telegram. You can install it on your own machine and see what you’d use it for.
 
 The current installable release is [v0.13.0 — One conversation, three ways to reply](https://github.com/dimko33-lang/pi-web/releases/tag/v0.13.0). Fresh installs use its archive; rerunning the card is not a general upgrade command.
