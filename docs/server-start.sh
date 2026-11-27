@@ -29,10 +29,25 @@ JS
   link="$url/i#$key"
   if [[ -t 1 && ${TERM_PROGRAM:-} == iTerm.app ]]; then printf '\n\033]8;;%s\033\\Open Nikita\033]8;;\033\\\n' "$link"; else printf '\nOpen Nikita:\n%s\n' "$link"; fi
 }
-if [[ -r $state/instance ]]; then instance=$(<"$state/instance"); if protected "$url"; then issue; exit; fi; fi
+# Recover either surviving half without stopping a listener or replacing credentials.
+if command -v flock >/dev/null; then exec 9>"$state/start.lock"; flock -n 9 || { echo 'Startup already in progress.' >&2; exit 1; }; fi
+keep_app=0; keep_proxy=0; instance=''
+caddy="$state/caddy-$version"
+if [[ -r $state/instance ]]; then
+  instance=$(<"$state/instance"); [[ $instance =~ ^[0-9a-f]{32}$ ]] || exit 1
+  if protected "$url"; then issue; exit; fi
+  if protected "http://127.0.0.1:$port"; then keep_app=1; fi
+  # Linux: verify the actual executable, arguments and original configuration.
+  if [[ -x $caddy && -f $state/Caddyfile ]] && cmp -s "$state/Caddyfile" <(printf '{\n admin off\n persist_config off\n}\n%s {\n reverse_proxy 127.0.0.1:%s\n}\n' "$host" "$port"); then
+    for proc in /proc/[0-9]*; do
+      [[ $(readlink "$proc/exe" 2>/dev/null || :) == "$caddy" ]] || continue
+      if cmp -s "$proc/cmdline" <(printf '%s\0' "$caddy" run --adapter caddyfile --config "$state/Caddyfile"); then keep_proxy=1; break; fi
+    done
+  fi
+fi
 # Refuse conflicts before downloading or requesting a certificate.
-node - "$port" <<'JS'
-const net=require('node:net'); (async()=>{for(const [port,host] of [[+process.argv[2],'127.0.0.1'],[80,'0.0.0.0'],[443,'0.0.0.0']]) await new Promise((ok,fail)=>{const s=net.createServer();s.on('error',e=>fail(Error(`Cannot listen on port ${port} (${e.code}). Existing services were not changed.`)));s.listen(port,host,()=>s.close(ok));});})().catch(e=>{console.error(e.message);process.exitCode=1});
+node - "$port" "$keep_app" "$keep_proxy" <<'JS'
+const net=require('node:net'); (async()=>{for(const [port,host] of [...(process.argv[3]==='1'?[]:[[+process.argv[2],'127.0.0.1']]),...(process.argv[4]==='1'?[]:[[80,'0.0.0.0'],[443,'0.0.0.0']])]) await new Promise((ok,fail)=>{const s=net.createServer();s.on('error',e=>fail(Error(`Cannot listen on port ${port} (${e.code}). Existing services were not changed.`)));s.listen(port,host,()=>s.close(ok));});})().catch(e=>{console.error(e.message);process.exitCode=1});
 JS
 case "$os-$arch" in
 linux-x64) platform=linux_amd64; sum=5b8cb7faf8726a2028ad96a66e54e6e81e8f361bc6175e5d22bbd997cc5177fb;;
@@ -47,21 +62,21 @@ if [[ ! -x $caddy ]]; then
   node -e 'const fs=require("fs"),h=require("crypto").createHash("sha256");fs.createReadStream(process.argv[1]).on("data",d=>h.update(d)).on("end",()=>{if(h.digest("hex")!==process.argv[2])throw Error("Caddy checksum mismatch")})' "$tmp/archive" "$sum"
   tar -xzf "$tmp/archive" -C "$tmp" caddy; chmod 700 "$tmp/caddy"; mv "$tmp/caddy" "$caddy"; rm -rf "$tmp"; trap - EXIT
 fi
-instance=$(node -e 'console.log(require("crypto").randomBytes(16).toString("hex"))'); printf '%s\n' "$instance" > "$state/instance"
+instance=${instance:-$(node -e 'console.log(require("crypto").randomBytes(16).toString("hex"))')}; printf '%s\n' "$instance" > "$state/instance"
 export PI_WEB_INSTANCE="$instance" PI_WEB_ALLOWED_HOSTS="$host" PI_WEB_TICKET_FILE="$ticket" PORT="$port"
 export PI_WEB_PASSWORD="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"; unset PI_WEB_PASSWORD_HASH
 export XDG_DATA_HOME="$state/data" XDG_CONFIG_HOME="$state/config"
-printf '{\n admin off\n persist_config off\n}\n%s {\n reverse_proxy 127.0.0.1:%s\n}\n' "$host" "$port" > "$state/Caddyfile"
+if [[ $keep_proxy == 0 ]]; then printf '{\n admin off\n persist_config off\n}\n%s {\n reverse_proxy 127.0.0.1:%s\n}\n' "$host" "$port" > "$state/Caddyfile"; fi
 cd "$base/app"; app=; proxy=
 cleanup(){ [[ -z $proxy ]] || kill "$proxy" 2>/dev/null || :; [[ -z $app ]] || kill "$app" 2>/dev/null || :; }; trap cleanup EXIT
-nohup node --import tsx server/main.ts </dev/null >"$state/app.log" 2>&1 & app=$!
+if [[ $keep_app == 0 ]]; then nohup node --import tsx server/main.ts 9>&- </dev/null >"$state/app.log" 2>&1 & app=$!; fi
 for ((i=0;i<30;i++)); do protected "http://127.0.0.1:$port" && break; kill -0 "$app" 2>/dev/null || break; sleep 1; done
 protected "http://127.0.0.1:$port" || { echo "Application did not pass its private health check; see $state/app.log" >&2; exit 1; }
 unset PI_WEB_PASSWORD
-nohup "$caddy" run --adapter caddyfile --config "$state/Caddyfile" </dev/null >"$state/https.log" 2>&1 & proxy=$!
+if [[ $keep_proxy == 0 ]]; then nohup "$caddy" run --adapter caddyfile --config "$state/Caddyfile" 9>&- </dev/null >"$state/https.log" 2>&1 & proxy=$!; fi
 echo 'Preparing HTTPS. The server must be reachable on ports 80 and 443…'
 for ((i=0;i<100;i++)); do
   if protected "$url"; then issue; trap - EXIT; exit 0; fi
-  kill -0 "$proxy" 2>/dev/null || break; sleep 2
+  [[ $keep_proxy == 1 ]] || kill -0 "$proxy" 2>/dev/null || break; sleep 2
 done
 echo "HTTPS was not verified. No link issued. Check DNS, ports 80/443 and $state/https.log." >&2; exit 1

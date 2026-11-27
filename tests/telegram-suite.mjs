@@ -12,7 +12,7 @@ try {
   const state = path.join(temp,'state'), data = path.join(temp,'data');
   for (const dir of [state,data]) fs.mkdirSync(dir,{mode:0o700});
   const options = {cwd:root, stdio:'inherit', env:{...process.env, NIKITA_INSTANCE_DIR:state, PI_WEB_TELEGRAM_DATA:data, NIKITA_PI_IDLE_SECONDS:'1200', PYTHONDONTWRITEBYTECODE:'1', TEST_TELEGRAM_PYTHON:python, TEST_PI_BIN:pi, PI_WEB_PI_BIN:pi}};
-  for (const name of ['turn-wait','telegram-transport','individual-dms','dm-memory','participant-memory','group-photos','group-replies','reply-recovery','showcase-reply','voice-notes','spoken-reply','telegram-archive']) {
+  for (const name of ['turn-wait','telegram-transport','individual-dms','dm-memory','participant-memory','group-photos','group-replies','reply-recovery','showcase-reply','voice-notes','spoken-reply','telegram-archive','heygen-circles']) {
     console.log(`Testing ${name}`); execFileSync(python, ['-B',`tests/${name}.py`], options);
   }
   execFileSync(process.execPath, ['--import','tsx','tests/request-inspection.mjs'], options);

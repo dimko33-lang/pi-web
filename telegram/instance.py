@@ -295,10 +295,11 @@ async def deliver_answer(client, archive, msg, text, spoken=False, *, showcase=F
     if spoken == 'circle' and text:
         from circle_reply import send_circle
         from salon_archive import atomic
-        note = await send_circle(client, msg.chat_id, msg.id, text)
-        if note:
-            atomic(archive.base/'circle-transcripts'/str(msg.chat_id)/f'{note.id}.json', ' '.join(text.replace('**','').split()))
-            archive.notify(msg.chat_id,note.id); return [note.id]
+        async with archive.circle_lock(msg.chat_id):
+            note = await send_circle(client, msg.chat_id, msg.id, text)
+            if note:
+                atomic(archive.base/'circle-transcripts'/str(msg.chat_id)/f'{note.id}.json', {'source':msg.id,'text':' '.join(text.replace('**','').split())})
+                archive.notify(msg.chat_id,note.id); return [note.id]
         text = 'Кружок не получился. Отвечаю текстом.\n\n' + text
     elif spoken and text:
         note=await send_spoken(client,msg.chat_id,msg.id,text,mode=spoken)
@@ -322,6 +323,8 @@ async def serve():
         raise SystemExit('Telegram not connected; run connect first.')
     conf = json.loads(CONFIG.read_text()); owner = conf['owner']
     c = TelegramClient(StringSession(conf['session']), conf['api'], conf['secret'], sequential_updates=True)
+    from circle_transcripts import configure, file_reader
+    configure(file_reader(BASE))
     archive = SalonArchive(BASE, owner)
     async def send_group(msg, text, *, spoken=False):
         return await deliver_answer(c,archive,msg,text,spoken,showcase=showcase_enabled(BASE,msg.chat_id))

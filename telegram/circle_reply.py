@@ -15,13 +15,23 @@ SLOT = asyncio.Lock()
 HINT = '\n\n[Delivery: answer aloud in 15–30 seconds, a few natural sentences without markup. Do not post separately.]'
 
 
-async def prepare(line):
+def provider():
+    selector = Path('/etc/pi-web-speech')/GOOGLE_SOCKET.stem.removeprefix('pi-web-gacrux-')/'circle-provider'
+    try: value = selector.read_text().strip()
+    except FileNotFoundError: return 'anam'
+    if value not in ('anam','heygen'): raise ValueError('Unknown circle provider')
+    return value
+
+
+async def prepare(line, selected='anam', peer=None, mid=None):
     with tempfile.TemporaryDirectory(prefix='nikita-circle-') as folder:
         wav = Path(folder)/'speech.wav'
         await asyncio.wait_for(google_wave(line, wav), 58)
         speech_pcm(wav)
-        reader, writer = await asyncio.open_unix_connection(str(SOCKET))
+        socket = SOCKET if selected=='anam' else SOCKET.with_name(SOCKET.name.replace('circle','heygen'))
+        reader, writer = await asyncio.open_unix_connection(str(socket))
         try:
+            if selected=='heygen': writer.write(struct.pack('!qQ',peer,mid))
             writer.write(wav.read_bytes()); await writer.drain(); writer.write_eof()
             size, ms = struct.unpack('!II', await reader.readexactly(8))
             if not 0 < size <= 40*1024**2 or not 0 < ms <= 60000:
@@ -40,7 +50,8 @@ async def send_circle(client, peer, mid, text):
     async with SLOT:
         try:
             async with client.action(peer, 'record-round'):
-                stream, attr = await asyncio.wait_for(prepare(line), 160)
+                selected=provider()
+                stream, attr = await asyncio.wait_for(prepare(line) if selected=='anam' else prepare(line,selected,peer,mid), 160 if selected=='anam' else 990)
         except Exception as exc:
             logging.getLogger(__name__).warning('Circle preparation failed: %s', type(exc).__name__)
             return None

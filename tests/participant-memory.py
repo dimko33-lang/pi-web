@@ -70,6 +70,17 @@ class Memory(unittest.IsolatedAsyncioTestCase):
         self.db=sqlite3.connect(self.root/'state.sqlite');self.db.execute('PRAGMA synchronous=OFF');self.addCleanup(self.db.close);self.client=Client()
     async def get(self,actor=A,peer=ROOM,before=99999,quote=None,**changes):
         return await pm.group_context(self.client,self.db,peer,actor,before,quote,{**DEFAULT,**changes})
+    async def test_verified_circle_windows(self):
+        import circle_transcripts as ct
+        self.client.pair(self.db,ROOM,A,20,'speech'); m=self.client.rows[ROOM,21]
+        m.video_note=True; m.raw_text=m.message=''
+        ct.configure(lambda p,i,r:'actual speech' if (p,i,r)==(ROOM,21,20) else '');self.addCleanup(ct.configure,None)
+        for opts in ({},{'actor':B,'personLimit':0,'memoryLimit':1},{'personLimit':0,'backgroundLimit':1}):
+            self.assertIn('actual speech',await self.get(personOn=True,groupOn=True,backgroundOn=True,**opts))
+        self.assertNotIn('actual speech',await self.get(quote=21));self.assertEqual(pm.message_text(m),'actual speech')
+        m.fwd_from=True;self.assertEqual(pm.message_text(m),'');m.fwd_from=None
+        del self.client.rows[ROOM,21];self.assertNotIn('actual speech',await self.get())
+
     def fill(self):
         for i in range(1,111,2):self.client.pair(self.db,ROOM,A,i,'SIMPLEX')
         for i in range(151,2151,2):self.client.pair(self.db,ROOM,B,i,'VENICE')

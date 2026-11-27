@@ -52,6 +52,20 @@ class Archive(unittest.IsolatedAsyncioTestCase):
             await a.page(client,'lightcone',p); self.assertTrue(a.wake.is_set());await a.page(client,'lightcone',p)
             self.assertEqual(archive.read(dest/'cursor.json',{})['last'],114)
 
+    async def test_circle_event_before_send_returns(self):
+        from unittest.mock import patch
+        import instance
+        with tempfile.TemporaryDirectory() as t:
+            base=Path(t); c=Client(); peer=-100123; a=archive.SalonArchive(base,17);await a.page(c,'piwep',peer)
+            tasks=[]
+            async def send(*args):
+                m=Message(2);m.message='';m.video_note=True;m.chat_id=peer;m.reply_to_msg_id=1;c.rows.append(m)
+                tasks.append(asyncio.create_task(a.page(c,'piwep',peer)));await asyncio.sleep(0)
+                self.assertFalse(tasks[0].done());return m
+            with patch('circle_reply.send_circle',send):
+                self.assertEqual(await instance.deliver_answer(c,a,SimpleNamespace(id=1,chat_id=peer),'Circle transcript',spoken='circle'),[2])
+            await tasks[0];self.assertEqual(archive.read(base/'archive/piwep/messages.json',[])[0]['text'],'Circle transcript')
+
     async def test_owner_feed_not_in_author_index(self):
         with tempfile.TemporaryDirectory() as t:
             base=Path(t); c=Client(); a=archive.SalonArchive(base,17);await a.page(c,'owner_dm',17)

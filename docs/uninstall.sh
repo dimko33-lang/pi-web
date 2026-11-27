@@ -48,6 +48,24 @@ def processes():
             if fd is not None:
                 os.close(fd)
 
+# The canonical Telegram venv, not the service user, identifies optional brokers.
+venv = base/'telegram-venv'
+if venv.is_symlink(): stop('Refusing symlinked Telegram venv.')
+ident = hashlib.sha256(os.fsencode(venv)).hexdigest()[:12]
+units = Path('/etc/systemd/system'); secrets = Path('/etc/pi-web-speech')/ident
+if secrets.parent.is_symlink() or secrets.is_symlink(): stop('Unexpected credential directory link.')
+brokers=[]
+for kind in ('heygen','circle','gacrux'):
+    name = f'pi-web-{kind}-{ident}'; sock=units/(name+'.socket'); worker=units/(name+'@.service'); dest=Path('/opt')/name
+    if not any(p.exists() or p.is_symlink() for p in (sock,worker)): continue
+    if os.getuid()!=0 or not all(p.is_file() and not p.is_symlink() and p.stat().st_uid==0 for p in (sock,worker)):
+        stop('Incomplete or unrecognized broker units; nothing removed.')
+    command = (f'/usr/bin/python3 -I -B {secrets}/worker.py' if kind=='gacrux' else f'{dest}/venv/bin/python -B {dest}/'+('circle_worker.py' if kind=='circle' else 'heygen_render.py'))
+    if f'ListenStream=/run/{name}.sock' not in sock.read_text().splitlines() or f'ExecStart={command}' not in worker.read_text().splitlines() or dest.is_symlink(): stop('Foreign broker; nothing removed.')
+    if kind!='circle' and not all(p.read_text().startswith(f'# Pi Web managed {"HeyGen" if kind=="heygen" else "Gacrux"} broker: {ident}\n') for p in (sock,worker)): stop('Unknown broker marker.')
+    if kind!='gacrux' and any(Path(re.sub(r'\\([0-7]{3})',lambda m:chr(int(m[1],8)),line.split()[4])).is_relative_to(dest) for line in Path('/proc/self/mountinfo').read_text().splitlines()): stop('Mounted broker directory; refusing removal.')
+    brokers.append((kind,name,sock,worker,dest))
+
 # A connected Telegram worker uses the system Python, not the private Node binary.
 unit_name = 'nikita-telegram-' + hashlib.sha256(os.fsencode(base)).hexdigest()[:12] + '.service'
 unit = Path('/etc/systemd/system') / unit_name
@@ -62,6 +80,27 @@ if lock.exists():
     guard = lock.open('a')
     try: fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError: stop('Stop the foreground Telegram process before uninstalling.')
+
+for kind,name,sock,worker,dest in brokers:
+    subprocess.run(['systemctl','disable','--now',sock.name],check=True)
+    active=subprocess.check_output(['systemctl','list-units','--plain','--no-legend',name+'@*.service'],text=True)
+    for row in active.splitlines():
+        service=row.split()[0]
+        if service.startswith(name+'@') and service.endswith('.service'): subprocess.run(['systemctl','stop',service],check=True)
+    if kind=='heygen':
+        # DynamicUser places the owned StateDirectory under /var/lib/private.
+        link=Path('/var/lib')/name; private=Path('/var/lib/private')/name
+        if link.is_symlink() and link.resolve()==private and private.is_dir() and not private.is_symlink():
+            for receipt in private.iterdir():
+                if re.fullmatch('[a-f0-9]{64}',receipt.name) and receipt.is_file() and not receipt.is_symlink(): receipt.unlink()
+            if not any(private.iterdir()): private.rmdir(); link.unlink()
+    sock.unlink(); worker.unlink()
+    if kind!='gacrux' and dest.exists(): shutil.rmtree(dest)
+    keys={'gacrux':('google-key','worker.py','enabled'),'circle':('anam-key',),'heygen':('heygen-key','heygen-portrait.jpg','circle-provider')}[kind]
+    for key in keys: (secrets/key).unlink(missing_ok=True)
+if brokers:
+    subprocess.run(['systemctl','daemon-reload'],check=True)
+    if secrets.is_dir() and not any(secrets.iterdir()): secrets.rmdir()
 
 # The dedicated science broker belongs only to the standard root installation.
 science = Path('/var/lib/pi-web-science')

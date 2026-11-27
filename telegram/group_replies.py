@@ -78,7 +78,8 @@ class Group:
         if not msg.raw_text and getattr(msg, 'rich_message', None) and showcase_enabled(self.state.base, self.peer):
             from rich_replies import message_text
             return message_text(msg)
-        return msg.raw_text or ''
+        from circle_transcripts import lookup
+        return msg.raw_text or lookup(msg)
 
     async def handle(self, msg, retry=False):
         if not msg or msg.chat_id != self.peer or msg.out or not msg.sender_id: return

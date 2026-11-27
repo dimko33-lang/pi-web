@@ -128,7 +128,8 @@ def rich_text(value):
 
 def message_text(message):
     plain = getattr(message, 'raw_text', None) or getattr(message, 'message', None) or ''
-    return plain or rich_text(getattr(message, 'rich_message', None))
+    from circle_transcripts import lookup
+    return plain or rich_text(getattr(message, 'rich_message', None)) or lookup(message)
 
 
 def rich_mentions(value, user_id):

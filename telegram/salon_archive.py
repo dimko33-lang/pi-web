@@ -81,7 +81,11 @@ def bind(base, profile, peer, authors=False, replies=None, showcase=None, circle
 class SalonArchive:
     def __init__(self, base, owner):
         self.base, self.owner = base, owner
+        self.circle_locks = {}
         self.wake = asyncio.Event(); self.peers = {owner}; self.first_event = {}; self.reader_peer = None
+
+    def circle_lock(self, peer):
+        return self.circle_locks.setdefault(peer, asyncio.Lock())
 
     def notify(self, peer, mid):
         if peer in self.peers and mid > 0:
@@ -108,6 +112,11 @@ class SalonArchive:
         atomic(dest / 'index.json',sorted(index.values(),key=lambda r:(-r['count'],r['id'])))
 
     async def page(self, client, profile, peer):
+        # An outgoing Telegram event can arrive before send_file returns its ID.
+        async with self.circle_lock(peer):
+            await self._page(client, profile, peer)
+
+    async def _page(self, client, profile, peer):
         dest = self.base / 'archive' / profile
         state = read(dest / 'cursor.json', None)
         if state and state['peer'] != peer:
@@ -131,7 +140,8 @@ class SalonArchive:
             key = f'{abs(peer)}-{m.id}'
             text = m.message or ''
             if not text and getattr(m, 'video_note', None):
-                text = read(self.base / 'circle-transcripts' / str(peer) / f'{m.id}.json', '')
+                from circle_transcripts import lookup, file_reader
+                text = lookup(m, file_reader(self.base))
             if not text and getattr(m, 'rich_message', None) and showcase_enabled(self.base, peer):
                 from rich_replies import message_text
                 text = message_text(m)
@@ -177,6 +187,7 @@ class SalonArchive:
                     async for _ in client.iter_dialogs(): pass
                     primed = self.peers.copy()
                 for name, peer in mapping.items():
+                    if self.circle_lock(peer).locked(): continue  # Other feeds need not wait for a render.
                     try: await self.page(client, name, peer)
                     except Exception as e: log.warning('Archive %s deferred: %s', name, type(e).__name__)
             except Exception as e:

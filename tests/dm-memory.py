@@ -39,6 +39,14 @@ def history(text):
 
 
 class Dialogue(unittest.IsolatedAsyncioTestCase):
+    async def test_circle_receipt_and_reply_dedup(self):
+        import circle_transcripts as ct
+        c=Client();c.post(OWNER,10,'question');note=c.post(OWNER,11,'',parent=10,out=True);note.video_note=True
+        ct.configure(lambda p,i,r:'spoken sentence' if (p,i,r)==(OWNER,11,10) else '');self.addCleanup(ct.configure,None)
+        e=c.event(c.post(OWNER,12,'more',parent=11));profile={'memoryLimit':10}
+        self.assertIn('spoken sentence',await dm.dm_context(e,profile));self.assertNotIn('spoken sentence',await dm.dm_context(e,profile,11))
+        self.assertEqual(instance.message_text(await e.get_reply_message()),'spoken sentence')
+
     async def test_visible_only(self):
         c=Client();p=OWNER;profile={'memoryLimit':500}
         for n in range(1,18,2): c.post(p,n,'Q'+str(n));c.post(p,n+1,'A'+str(n),parent=n,out=True)
