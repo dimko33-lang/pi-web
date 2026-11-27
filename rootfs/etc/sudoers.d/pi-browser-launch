@@ -1,0 +1,2 @@
+Defaults:pi-browser !use_pty, closefrom_override
+pi-browser ALL=(root) NOPASSWD: /usr/local/sbin/pi-web-launch status, /usr/local/sbin/pi-web-launch enable, /usr/local/sbin/pi-web-launch disable, /usr/local/sbin/pi-web-launch exec, /usr/local/sbin/pi-web-launch cleanup, /usr/local/sbin/pi-web-launch cancel, /usr/local/sbin/pi-web-launch forget

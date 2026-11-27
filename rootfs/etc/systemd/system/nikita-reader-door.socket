@@ -1,0 +1,6 @@
+[Socket]
+ListenStream=/run/nikita-reader-door.sock
+SocketUser=www-data
+SocketMode=0600
+[Install]
+WantedBy=sockets.target

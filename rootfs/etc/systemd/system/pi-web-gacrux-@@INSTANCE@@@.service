@@ -1,0 +1,21 @@
+# Pi Web managed Gacrux broker: @@INSTANCE@@
+[Unit]
+Description=Nikita Gacrux voice worker
+[Service]
+Type=exec
+DynamicUser=yes
+User=pwg@@INSTANCE@@
+LoadCredential=google-key:/etc/pi-web-speech/@@INSTANCE@@/google-key
+ExecStart=/usr/bin/python3 -I -B /etc/pi-web-speech/@@INSTANCE@@/worker.py
+StandardInput=socket
+StandardOutput=socket
+StandardError=null
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RuntimeMaxSec=55
+MemoryMax=160M

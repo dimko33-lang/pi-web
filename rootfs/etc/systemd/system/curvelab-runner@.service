@@ -1,0 +1,12 @@
+[Service]
+ExecStart=/usr/bin/python3 -I /usr/local/lib/curvelab-runner.py
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/run /etc/curvelab-route /srv/nikita-projects/curvelab /var/log/nginx /var/lib/nginx
+UMask=0077
+RuntimeMaxSec=65s

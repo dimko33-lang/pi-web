@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" role="img" aria-labelledby="title desc">
+<title id="title">Ночной сеанс</title><desc id="desc">Старый кинопроектор освещает стену. В луче на табурете сидит кошка, а на стене видна её большая ушастая тень.</desc>
+<defs>
+ <linearGradient id="room" x2=".85" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#253038"/><stop offset=".65" stop-color="#17222b"/><stop offset="1" stop-color="#101921"/></linearGradient>
+ <linearGradient id="light"><stop stop-color="#ffd791" stop-opacity=".53"/><stop offset=".22" stop-color="#ffc774" stop-opacity=".18"/><stop offset=".86" stop-color="#e6bb7b" stop-opacity=".08"/><stop offset="1" stop-color="#f5c585" stop-opacity=".15"/></linearGradient>
+ <linearGradient id="screen" x2="1" y2=".8"><stop stop-color="#ffeac1"/><stop offset=".5" stop-color="#f1d3a0"/><stop offset="1" stop-color="#cfaa7b"/></linearGradient>
+ <radialGradient id="halo"><stop stop-color="#ffe9b3" stop-opacity=".9"/><stop offset=".18" stop-color="#ffd79b" stop-opacity=".55"/><stop offset="1" stop-color="#ffd79b" stop-opacity="0"/></radialGradient>
+ <g id="reel"><circle r="29" fill="#25323a" stroke="#a1a8a2" stroke-width="1.5"/><circle r="24.8" fill="none" stroke="#657476" stroke-width=".8"/><g fill="#121b22" stroke="#657476" stroke-width=".6"><circle cy="-15" r="7.1"/><circle cx="14.3" cy="-4.6" r="7.1"/><circle cx="8.8" cy="12.1" r="7.1"/><circle cx="-8.8" cy="12.1" r="7.1"/><circle cx="-14.3" cy="-4.6" r="7.1"/></g><circle r="4" fill="#ced0bb"/></g>
+ <g id="cat"><path d="M-20 0 Q-27 -4 -24 -15 Q-22 -26 -12 -34 Q-8 -39 -9 -43 Q-15 -46 -15 -54 L-17 -68 L-6 -61 Q0 -64 5 -61 L14 -68 L13 -54 Q15 -46 9 -41 Q14 -30 13 -18 L14 -4 Q20 -3 18 0Z"/><path d="M-18 -5 Q-36 1 -39 -11 Q-40 -18 -35 -24" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/></g>
+ <clipPath id="frame"><path d="M750 113L864 83V336L750 355Z"/></clipPath>
+</defs>
+<path fill="url(#room)" d="M0 0H960V480H0Z"/>
+<!-- Back wall, floor and the oblique wall on which the frame falls. -->
+<path fill="#334049" d="M700 68L960 0V371L700 414Z"/><path fill="#1b262e" d="M0 359L700 414L960 371V480H0Z"/>
+<g fill="none" stroke="#89928b" stroke-opacity=".18"><path d="M0 356L700 411L960 368M0 359L700 414L960 371M700 69V410"/><path d="M360 480L622 408M790 480L675 413M0 416L473 397" stroke-opacity=".11"/></g>
+<!-- The screen is light on plaster, not an object hung on the wall. -->
+<path d="M750 113L864 83V336L750 355Z" fill="url(#screen)"/><path d="M180 229L864 83L750 113L180 231L750 355L864 336L180 229Z" fill="#ffdaa0" fill-opacity=".045"/>
+<path d="M180 229L750 113V355L180 232Z" fill="url(#light)"/>
+<g clip-path="url(#frame)" fill="#746959" color="#746959"><g transform="matrix(1.64,-.29,0,1.78,806,314)"><use href="#cat"/><path d="M-27 0H23V5H-27ZM-22 5H-18L-22 47H-26ZM14 5H18L23 47H19Z"/></g></g>
+<!-- A few motes, each placed in the cone. -->
+<g fill="#fff1d0"><circle cx="244" cy="228" r="1.3" opacity=".71"/><circle cx="299" cy="221" r=".9" opacity=".54"/><circle cx="335" cy="239" r="1.4" opacity=".57"/><circle cx="373" cy="213" r=".8" opacity=".6"/><circle cx="384" cy="236" r=".8" opacity=".4"/><circle cx="421" cy="227" r="1.3" opacity=".69"/><circle cx="463" cy="198" r=".9" opacity=".47"/><circle cx="492" cy="255" r="1.2" opacity=".43"/><circle cx="523" cy="207" r=".8" opacity=".53"/><circle cx="602" cy="187" r="1.1" opacity=".4"/><circle cx="674" cy="268" r="1.2" opacity=".5"/></g>
+<!-- Projector, reels, threaded film and stand. -->
+<ellipse cx="119" cy="377" rx="80" ry="6" fill="#10181d" opacity=".66"/><g stroke="#526068" stroke-width="3.5" fill="none"><path d="M102 216L80 179M118 216L134 176"/></g><path d="M68 180L69 217L101 230L143 207L151 175" stroke="#99998b" fill="none" stroke-width="1"/><use href="#reel" transform="translate(78 180) rotate(12)"/><use href="#reel" transform="translate(138 169) scale(.89) rotate(-16)"/>
+<g fill="#10191f" stroke="#66716e" stroke-width="1.2"><rect x="69" y="210" width="86" height="49" rx="4"/><path d="M155 221H165V238H155Z"/><path d="M165 218H178L182 221V237L178 240H165Z"/></g><g stroke="#59666b" stroke-width="1.7"><path d="M79 223H94M79 227H94M79 231H94M79 235H94M79 239H94"/></g><circle cx="138" cy="246" r="2" fill="#d86b48"/><ellipse cx="181" cy="229" rx="2.5" ry="8.5" fill="#ffefc9"/><ellipse cx="184" cy="229" rx="22" ry="22" fill="url(#halo)"/>
+<g fill="#131d24" stroke="#596269" stroke-width="1.1"><path d="M56 260H168V266H56Z"/><path d="M66 266H72L64 376H59ZM152 266H158L165 377H160Z"/><path d="M68 323H157V326H68Z"/></g><path d="M77 253Q46 277 62 324T42 371Q24 382 0 376" fill="none" stroke="#10171c" stroke-width="2.6"/>
+<!-- The only spectator. -->
+<ellipse cx="529" cy="404" rx="65" ry="5" fill="#10181e" opacity=".65"/><g fill="#172027" stroke="#68706b" stroke-width="1"><path d="M503 295L558 294L563 297L561 302L503 303Z"/><path d="M508 303H513L504 402H500ZM552 302H557L566 403H562ZM514 302H517L518 390H515Z"/><path d="M506 365L562 364V367L506 368Z"/></g><g transform="translate(534 295)" fill="#182127" color="#182127"><use href="#cat"/></g><path d="M517 227L528 234M539 234L548 227" fill="none" stroke="#ecd09e" stroke-width="1" opacity=".8"/>
+</svg>

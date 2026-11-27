@@ -1,0 +1,12 @@
+# Pi Web managed HeyGen broker: @@INSTANCE@@
+[Unit]
+Description=Pi Web prepaid HeyGen circle socket
+[Socket]
+ListenStream=/run/pi-web-heygen-@@INSTANCE@@.sock
+Accept=yes
+SocketUser=pi-nikita
+SocketMode=0600
+MaxConnections=1
+RemoveOnStop=yes
+[Install]
+WantedBy=sockets.target

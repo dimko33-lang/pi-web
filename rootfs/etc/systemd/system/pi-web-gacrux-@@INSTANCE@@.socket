@@ -1,0 +1,12 @@
+# Pi Web managed Gacrux broker: @@INSTANCE@@
+[Unit]
+Description=Nikita Gacrux voice socket
+[Socket]
+ListenStream=/run/pi-web-gacrux-@@INSTANCE@@.sock
+Accept=yes
+SocketUser=pi-nikita
+SocketMode=0600
+MaxConnections=2
+RemoveOnStop=yes
+[Install]
+WantedBy=sockets.target

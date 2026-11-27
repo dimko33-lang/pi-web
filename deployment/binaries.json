@@ -1,0 +1,14 @@
+{
+  "/opt/node22/bin/node": {
+    "size": 124902584,
+    "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90"
+  },
+  "/opt/pi-web-runtime/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js": {
+    "size": 160,
+    "sha256": "e79626f2dd6f94aa45d30f3fa63cd84319a6eefcd150b353cfaf274366926774"
+  },
+  "/opt/pi-web-heygen-@@INSTANCE@@/ffmpeg": {
+    "size": 79826272,
+    "sha256": "e7e7fb30477f717e6f55f9180a70386c62677ef8a4d4d1a5d948f4098aa3eb99"
+  }
+}

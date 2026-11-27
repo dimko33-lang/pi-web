@@ -1,0 +1,121 @@
+map $d33_reader_scope $d33_response_robots {
+    default "noindex, nofollow, noarchive";
+    landing "";
+    card_image "";
+}
+map $d33_reader_scope $d33_response_cache {
+    landing "no-cache";
+    card_image "public, max-age=604800, immutable";
+    debri "private, no-store";
+    default $n33_cache;
+}
+map $d33_reader_scope $d33_response_csp {
+    default "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'";
+    landing "default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-jsw0SlJ3xTrNcn9/nCuXu+Y4EQEyCboRbgoEadBM6fo='; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+}
+map $d33_reader_ok $lc_shell {
+    0 /lc-guest.html;
+    default /lc-index.html;
+}
+map "$d33_reader_ok:$uri:$arg_author" $lc_access {
+    default $d33_reader_ok;
+    ~^0:/lc/:([A-Za-z0-9_-]+)$ 1;
+    ~^0:/lc/(app\.js|render\.js|style\.css|messages/[A-Za-z0-9_-]+\.json|assets/katex/katex\.min\.(js|css)|assets/katex/fonts/[A-Za-z0-9_.-]+\.(woff2?|ttf)): 1;
+}
+server {
+    listen 80;
+    listen [::]:80;
+    server_name @@SITE_HOST@@ @@SITE_WWW@@;
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/instance-site-acme;
+        try_files $uri =404;
+    }
+    location / { return 301 https://@@SITE_HOST@@$request_uri; }
+}
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name @@SITE_WWW@@;
+    ssl_certificate /etc/letsencrypt/live/instance-site-hub/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/instance-site-hub/privkey.pem;
+    return 301 https://@@SITE_HOST@@$request_uri;
+}
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name @@SITE_HOST@@;
+    if ($uri = /pi) { return 302 https://@@PUBLIC_HOST@@/; }
+    if ($uri = /pi/) { return 302 https://@@PUBLIC_HOST@@/; }
+    ssl_certificate /etc/letsencrypt/live/instance-site-hub/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/instance-site-hub/privkey.pem;
+    # The landing page is public. Reader gates and the salon's own checks are independent.
+    if ($lc_access = 0) { return 401; }
+    add_header Set-Cookie $d33_reader_cookie always;
+    # Redeeming a valid owner-panel ticket for Debri grants its new scoped cookie.
+    add_header Set-Cookie $d33_debri_ticket_cookie always;
+    add_header X-Robots-Tag $d33_response_robots always;
+    location = /nikita/_enter { access_log off; proxy_pass_request_headers off; proxy_pass_request_body off; proxy_set_header Content-Length ""; proxy_pass http://unix:/run/nikita-reader-door.sock:/consume; }
+    location = /robots.txt {
+        default_type text/plain;
+        alias /var/www/pi-web-card/robots.txt;
+    }
+    autoindex off;
+    server_tokens off;
+    access_log /var/log/nginx/instance-site-reader.access.log combined if=$n33_loggable;
+    error_log /var/log/nginx/instance-site-reader.error.log;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy no-referrer always;
+    add_header X-Frame-Options DENY always;
+    add_header Content-Security-Policy $d33_response_csp always;
+    add_header Cache-Control $d33_response_cache always;
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 1024;
+    gzip_vary on;
+    gzip_types application/json application/javascript text/javascript text/css;
+    include /etc/nginx/snippets/nikita-public-site.conf;
+    # Independent LightCone reader; exact static allowlist only.
+    location = /lc { return 301 /lc/; }
+    location = /lc/ { root /var/lib/nikita-live-archive; try_files $lc_shell =404; }
+    # LightCone and Debri share the renderer, not the author data.
+    location = /lc/index.html { alias /var/lib/nikita-live-archive/lc-index.html; }
+    location = /lc/app.js { alias /var/lib/nikita-live-archive/lc-app.js; }
+    location = /lc/render.js { alias /var/lib/nikita-live-archive/render.js; }
+    location ~ ^/lc/assets/(.*)$ { alias /var/lib/nikita-live-archive/assets/$1; }
+    # The /lc/ reader requests relative paths; serve live data, not the old snapshot.
+    location = /lc/authors.json { alias /var/lib/nikita-live-archive/authors.json; }
+    location ~ ^/lc/messages/([A-Za-z0-9_-]+)\.json$ {
+        alias /var/lib/nikita-live-archive/messages/$1.json;
+        # Authors without new messages live only in the published snapshot.
+        error_page 404 = @lc_release;
+    }
+    location @lc_release {
+        rewrite ^/lc/(.*)$ /$1 break;
+        root /opt/projects/lightcone-reader/releases/20261112T214655Z/public;
+    }
+    location ~ ^/lc/(index\.html|style\.css|app\.js|authors\.json|messages/[A-Za-z0-9_-]+\.json)$ {
+        alias /opt/projects/lightcone-reader/public/$1;
+    }
+    location /lc/ { return 404; }
+    location = /install { return 302 https://dimko33-lang.github.io/pi-web/install.sh; }
+
+    location = / {
+        # Old author bookmarks stay on this origin, behind the Debri gate.
+        if ($arg_author ~ ^[A-Za-z0-9_-]+$) { return 302 /debri/?author=$arg_author; }
+        root /var/www/pi-web-card;
+        try_files /home.html =404;
+    }
+    location = /pi-web-card-v2.png { alias /var/www/pi-web-card/pi-web-card-v2.png; }
+    location = /pi-web-install-graphite.png { alias /var/www/pi-web-card/pi-web-install-graphite.png; }
+    location = /pi-web-curl-graphite-v4.png { alias /var/www/pi-web-card/pi-web-curl-graphite-v4.png; }
+    location = /pi-web-card-c83fed50.png { alias /var/www/pi-web-card/pi-web-card-c83fed50.png; }
+    location = /debri { return 302 /debri/$is_args$args; }
+    location = /debri/ { rewrite ^ /debri/index.html last; }
+    location ~ ^/debri/(index\.html|app\.js|render\.js)$ { alias /var/lib/nikita-live-archive/$1; }
+    location /debri/assets/ { alias /var/lib/nikita-live-archive/assets/; }
+    # Keep Debri's existing immutable archive, not LightCone's live author index.
+    location ~ ^/debri/(style\.css|authors\.json|messages/[A-Za-z0-9_-]+\.json)$ {
+        alias /opt/projects/debri-reader/public/$1;
+    }
+    location / { return 404; }
+}

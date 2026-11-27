@@ -1,0 +1,40 @@
+[Unit]
+Description=Isolated Nikita site-entry
+After=network.target
+
+[Service]
+Type=simple
+User=pi-nikita
+Group=pi-nikita
+Slice=pi-nikita.slice
+WorkingDirectory=/srv/pi-workspaces/nikita/rootfs/opt/site-entry
+Environment=HOME=/srv/pi-workspaces/nikita/rootfs/root
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=PLAYWRIGHT_BROWSERS_PATH=/opt/pi-browsers
+Environment=CHROMIUM_PATH=/opt/pi-browsers/chromium-1248/chrome-linux64/chrome
+Environment=PORT=5690
+Environment=SITE_ENTRY_CONFIG=/srv/pi-workspaces/nikita/rootfs/etc/site-entry.json
+ExecStart=/usr/local/bin/node main.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectProc=invisible
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+CapabilityBoundingSet=
+UMask=0077
+ReadWritePaths=/srv/pi-workspaces/nikita/rootfs/opt/projects /srv/pi-workspaces/nikita/rootfs/root /srv/pi-workspaces/nikita/rootfs/opt/pi-web/data /srv/pi-workspaces/nikita/rootfs/opt/pi-web/sessions
+InaccessiblePaths=-/srv/pi-workspaces/arri -/srv/pi-workspaces/eritcya -/srv/pi-workspaces/curvelab -/srv/pi-workspaces/owner -/root -/opt/pi-web -/opt/curvelab-editor -/opt/projects -/opt/aeronav-deployment -/opt/aeronav-test-env -/var/www/aeronav -/var/lib/server-backup -/etc/pi-web.env -/etc/curvelab-editor.env -/etc/site-entry.json -/srv/pi-workspaces/aeronav
+
+[Install]
+WantedBy=multi-user.target

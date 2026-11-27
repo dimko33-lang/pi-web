@@ -1,0 +1,7 @@
+[Socket]
+ListenStream=/run/curvelab-deps.sock
+SocketMode=0666
+Accept=yes
+MaxConnections=24
+[Install]
+WantedBy=sockets.target

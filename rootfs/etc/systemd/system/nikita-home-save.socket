@@ -1,0 +1,8 @@
+[Socket]
+ListenStream=/run/nikita-home-save.sock
+SocketUser=www-data
+SocketMode=0600
+Accept=yes
+MaxConnections=3
+[Install]
+WantedBy=sockets.target

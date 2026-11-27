@@ -1,0 +1,32 @@
+[Unit]
+Description=Detached checked restart for Nikita only
+After=network-online.target nikita-web.service
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=pi-nikita
+Group=pi-nikita
+Slice=pi-nikita.slice
+WorkingDirectory=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent
+Environment=HOME=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/home
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=NIKITA_PI_BIN=/opt/pi-web-runtime/node_modules/.bin/pi
+Environment=PYTHONUNBUFFERED=1
+ExecStartPre=/usr/bin/sleep 3
+ExecStart=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/venv/bin/python /srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/restart_checked.py
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectProc=invisible
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+ReadWritePaths=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent
+InaccessiblePaths=-/root -/srv/pi-workspaces/owner -/srv/pi-workspaces/aeronav -/srv/pi-workspaces/curvelab -/srv/pi-workspaces/arri -/srv/pi-workspaces/eritcya -/etc/pi-web.env -/etc/curvelab-editor.env -/etc/site-entry.json -/opt/pi-web -/opt/curvelab-editor -/opt/projects -/opt/aeronav-deployment -/var/www/aeronav
+MemoryMax=1500M
+TasksMax=512

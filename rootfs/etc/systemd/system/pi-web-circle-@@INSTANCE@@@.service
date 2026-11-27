@@ -1,0 +1,16 @@
+[Unit]
+Description=Nika single circle renderer
+[Service]
+DynamicUser=yes
+LoadCredential=anam-key:/etc/pi-web-speech/@@INSTANCE@@/anam-key
+Environment=ANAM_AVATAR_ID=@@AVATAR@@
+ExecStart=/opt/nikita-circle-reserve/venv/bin/python -B /opt/nikita-circle-reserve/circle_worker.py
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+NoNewPrivileges=yes
+RuntimeMaxSec=100s
+UMask=0077

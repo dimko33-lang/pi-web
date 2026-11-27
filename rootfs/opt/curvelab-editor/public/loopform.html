@@ -1,0 +1,1297 @@
+<!doctype html>
+<html lang="ru" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARRI — shell</title>
+<link rel="icon" href="data:,">
+<script>
+/* Каркас: держим состояние панелей до первой отрисовки, чтобы не мигало. */
+(function () {
+  try {
+    var d = document.documentElement;
+    var lc = localStorage.getItem('shell.leftCollapsed');
+    var rc = localStorage.getItem('shell.rightCollapsed');
+    var lw = Number(localStorage.getItem('shell.leftW'));
+    var rw = Number(localStorage.getItem('shell.rightW'));
+    d.classList.toggle('boot-left-collapsed', lc === '1');
+    d.classList.toggle('boot-right-collapsed', rc === '1');
+    if (lw) d.style.setProperty('--left-w', Math.max(160, Math.min(520, lw)) + 'px');
+    if (rw) d.style.setProperty('--right-w', Math.max(200, Math.min(560, rw)) + 'px');
+  } catch (e) {}
+})();
+</script>
+<style>
+  /* ============================================================
+     ПАЛИТРА — та же, что в редакторе ARRI. Менять только здесь.
+     ============================================================ */
+  :root{
+    --bg:#1c1f24; --canvas:#22262c; --panel:#24282e;
+    --line:#32373e; --line-2:#3d434b;
+    --ink:#e4e8ed; --ink-2:#9aa3ad; --ink-3:#6f7880;
+    --accent:#e0594d; --ok:#6fc99a; --warn:#e8b486;
+    --hover:#2c3138;
+    --rail:28px;               /* ширина вертикальных рейлов */
+    --left-w:190px;            /* ширина левой панели */
+    --right-w:300px;           /* ширина правой панели */
+    --shadow-l: 6px 0 18px -8px rgba(0,0,0,.45);
+    --shadow-r: -6px 0 18px -8px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  html{background:#12151a}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);overflow:hidden;
+    font:13px/1.5 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;
+  }
+
+  /* Common topbar geometry is owned by editor/chrome.css and the Skeleton template. */
+  .tb-chip{display:inline-flex;align-items:center;gap:6px;margin-left:2px;flex:0 0 auto;
+    padding:2px 8px;border:1px solid var(--line-2);border-radius:5px;
+    font-size:10px;color:var(--ink-2);white-space:nowrap}
+  .tb-chip b{font-weight:600;color:var(--ink-2);letter-spacing:.04em}
+  .tb-chip .subtle-pill{margin-left:0;font-size:9px;padding:1px 5px}
+
+  /* ---------- рабочая область ---------- */
+  .app{flex:1 1 auto;min-height:0;display:flex;position:relative;overflow:hidden}
+
+  /* рейлы */
+  .toolrail{
+    flex:0 0 var(--rail);width:var(--rail);background:var(--panel);
+    display:flex;flex-direction:column;align-items:center;
+    padding:5px 0;gap:1px;overflow-y:auto;overflow-x:hidden;
+    scrollbar-width:none;-ms-overflow-style:none;position:relative;z-index:80;
+  }
+  .toolrail::-webkit-scrollbar{width:0;height:0}
+  .toolrail-l{border-right:1px solid var(--line)}
+  .toolrail-r{border-left:1px solid var(--line)}
+  .tl-btn{
+    width:24px;height:24px;flex:0 0 24px;background:transparent;
+    border:1px solid transparent;border-radius:6px;color:#7a8290;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
+    transition:background .13s,color .13s,border-color .13s;
+  }
+  .tl-btn:hover{background:var(--hover);color:var(--ink)}
+  .tl-btn.on{background:#3b6ea8;color:#fff}
+  .tl-btn svg{display:block;width:14px;height:14px;min-width:14px;min-height:14px;flex:0 0 14px}
+  .tl-btn.big svg{width:18px;height:18px;min-width:18px;min-height:18px;flex:0 0 18px}
+  .tl-sep{width:16px;height:1px;background:var(--line);margin:3px 0;flex:0 0 1px}
+
+  /* холст */
+  .stage{
+    flex:1 1 auto;min-width:0;position:relative;
+    background:var(--canvas);overflow:hidden;
+  }
+  /* Сюда инструмент вставляет своё содержимое */
+  .stage-slot{position:absolute;inset:0}
+
+  /* ---------- панели поверх холста ---------- */
+  .side{
+    position:absolute;top:0;bottom:0;z-index:40;
+    background:var(--panel);display:flex;flex-direction:column;
+    min-height:0;
+  }
+  .side-left{
+    left:0;width:var(--left-w);border-right:1px solid var(--line);
+    box-shadow:var(--shadow-l);
+  }
+  .side-right{
+    right:0;width:var(--right-w);border-left:1px solid var(--line);
+    box-shadow:var(--shadow-r);
+  }
+  html.boot-left-collapsed .side-left,
+  body.left-collapsed .side-left{display:none}
+  html.boot-right-collapsed .side-right,
+  body.right-collapsed .side-right{display:none}
+
+  /* тело панели: свой скролл, без видимой полосы */
+  .side-scroll{
+    flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;
+    padding:16px 15px 12px;box-sizing:border-box;
+    scrollbar-width:none;-ms-overflow-style:none;
+  }
+  .side-scroll::-webkit-scrollbar{width:0;height:0}
+  /* текст всегда внутри панели: переносится, не вылезает */
+  .side{overflow:hidden}
+  .side-scroll{overflow-wrap:anywhere;word-break:break-word}
+  .side-scroll *{max-width:100%;box-sizing:border-box}
+
+
+  /* ручка ресайза: тянется мышкой, ширина запоминается */
+  .side-resize{
+    position:absolute;top:0;bottom:0;width:6px;cursor:col-resize;z-index:8;
+  }
+  .side-resize:hover,.side-resize.dragging{background:transparent}
+  .side-left .side-resize{right:-3px}
+  .side-right .side-resize{left:-3px}
+  body.left-collapsed .side-left .side-resize,
+  body.right-collapsed .side-right .side-resize{display:none}
+
+  /* заголовки внутри панели — инструмент может использовать */
+  .side h2{
+    font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--ink-3);margin:14px 0 8px;
+  }
+  .side h2:first-child{margin-top:0}
+  .side .muted{color:var(--ink-2);font-size:11.5px;line-height:1.55}
+
+  /* пустое состояние */
+  .empty{
+    border:1px dashed var(--line-2);border-radius:7px;padding:14px;
+    color:var(--ink-3);font-size:11.5px;text-align:center;
+  }
+
+  /* мобильная раскладка */
+  @media(max-width:760px){
+    .side-left,.side-right{width:min(86vw,320px)}
+  }
+
+:root{color-scheme:light;--ink:#202022;--secondary:#777879;--line:#e9e9e9;--panel:#ffffff;--canvas:#f7f7f5;--blue:#2769ff;--blue-pale:#eaf0ff;--red:#db6a61;--green:#258259;--shadow:0 18px 65px rgba(20,22,26,.055)}
+*{box-sizing:border-box}body{margin:0;font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Arial,sans-serif;color:var(--ink);background:#f5f5f4}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+header{grid-column:1/-1;display:flex;align-items:center;gap:18px;padding:0 25px;background:#fff;border-bottom:1px solid var(--line);z-index:10}.mark{width:34px;height:34px;display:grid;place-items:center;background:#1d1d1f;color:#fff;border-radius:11px;font-size:24px;line-height:1;font-family:Georgia,serif}.brand{display:flex;align-items:center;gap:10px;min-width:300px}.brand b{font-size:15px;letter-spacing:-.04em}.brand span{font-size:10px;letter-spacing:.14em;font-weight:650;color:#9a9a9a;margin-left:8px}.head-center{display:flex;align-items:center;gap:8px;margin:auto}.icon-btn{height:34px;min-width:34px;border:1px solid #e8e8e8;border-radius:9px;background:#fff;display:inline-flex;align-items:center;justify-content:center;padding:0 11px;color:#444}.icon-btn:hover{background:#f4f5f8}.smalltag{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:#6d6d6d;background:#f5f5f5;padding:7px 11px;border-radius:18px}.dot{width:7px;height:7px;border-radius:99px;background:#43a879}.head-right{display:flex;align-items:center;gap:8px;margin-left:auto}.primary{border:0;background:#1e1f21;color:white;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:10px 15px;font-size:12px;font-weight:650}.primary:hover{background:#383b40}.secondary-btn{background:#fff;border:1px solid #e3e3e3;border-radius:9px;padding:9px 12px;font-weight:600;font-size:11px}.secondary-btn:hover{background:#f8f8f8}
+aside{overflow-y:auto;background:#fff;padding:23px 22px 40px;scrollbar-width:thin}aside.left{border-right:1px solid var(--line)}aside.right{border-left:1px solid var(--line)}.kicker{font-size:10px;font-weight:750;letter-spacing:.15em;color:#9d9d9d;text-transform:uppercase;margin-bottom:9px}.panel-title{font-weight:700;letter-spacing:-.042em;font-size:20px;line-height:1.2;margin:0 0 6px}.muted{color:#878789;font-size:11px;line-height:1.55}.section{padding-top:25px;margin-top:24px;border-top:1px solid #ededed}.section h3{font-size:12px;font-weight:750;letter-spacing:-.01em;margin:0 0 17px;display:flex;justify-content:space-between;align-items:center}.field{margin-bottom:17px}.frow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}.frow label{font-size:12px;font-weight:500}.num{font-variant-numeric:tabular-nums;font-size:11px;font-weight:650;color:#777;background:#f6f6f6;padding:3px 7px;border-radius:5px;min-width:39px;text-align:right}.field input[type=range]{width:100%;appearance:none;-webkit-appearance:none;background:linear-gradient(to right,var(--blue) 0%,var(--blue) var(--pct,50%),#e8e8e8 var(--pct,50%),#e8e8e8 100%);border-radius:20px;height:3px;cursor:pointer}.field input[type=range]::-webkit-slider-thumb{appearance:none;background:white;width:13px;height:13px;border:3px solid var(--blue);border-radius:50%;box-shadow:0 1px 5px #0001}.field input[type=range]::-moz-range-thumb{background:white;width:9px;height:9px;border:3px solid var(--blue);border-radius:50%;box-shadow:none}.line-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 0;font-size:12px;cursor:pointer}.line-toggle input{appearance:none;width:30px;height:17px;border-radius:10px;background:#d8d8d8;position:relative;transition:background .16s;cursor:pointer}.line-toggle input:before{content:'';width:11px;height:11px;border-radius:50%;background:#fff;position:absolute;left:3px;top:3px;transition:transform .16s}.line-toggle input:checked{background:var(--blue)}.line-toggle input:checked:before{transform:translateX(13px)}.tip{display:flex;gap:10px;background:#f7f8fb;border-radius:11px;padding:11px;margin-top:18px;color:#6b7182;font-size:11px;line-height:1.5}.tip b{color:#343948}
+main{background:var(--canvas);position:relative;overflow:hidden}.stage-wrap{position:absolute;inset:0;overflow:hidden}#stage{width:100%;height:100%;touch-action:none;display:block;user-select:none;cursor:default}.corner{position:absolute;pointer-events:none;background:#fff9;border:1px solid #eee;border-radius:9px;box-shadow:0 8px 20px #00000004;padding:8px 11px;font-size:11px}.corner.top{top:20px;left:20px}.corner.bottom{bottom:20px;left:20px;max-width:500px}.corner.zoom{right:20px;bottom:20px;pointer-events:auto;display:flex;gap:5px;align-items:center;padding:5px}.corner.zoom button{border:0;background:transparent;width:30px;height:29px;border-radius:6px;font-size:18px;color:#666}.corner.zoom button:hover{background:#f0f0f0}.corner.zoom .zval{min-width:46px;text-align:center;font-size:11px}.subtle-pill{display:inline-block;border-radius:4px;background:#eef4ff;color:#3b69b1;padding:2px 6px;margin-left:7px;font-size:10px}.centered{display:flex;align-items:center;justify-content:space-between}.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:15px;color:#929292;font-size:10px}.leg{display:flex;align-items:center;gap:6px}.sw{width:7px;height:7px;border-radius:50%;background:#2568ff}.sw.red{background:#e87b73}.sw.gray{background:#909399}
+.inspect-sample{border:1px solid #ececec;background:#fcfcfc;border-radius:13px;padding:12px 10px 9px;margin-top:15px}.inspect-sample svg{width:100%;height:110px}.selector{border:1px solid #e7e7e7;background:#fafafa;border-radius:9px;padding:10px;display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:650}.selector small{font-size:10px;color:#929292;font-weight:400}.alert{background:#f5f9f6;border:1px solid #e5f0e8;border-radius:12px;padding:13px;margin-top:17px}.alert.warn{background:#fff9f1;border-color:#f8ebd5}.alert strong{font-weight:700;color:#27794f;display:block;font-size:12px}.alert.warn strong{color:#a46c2a}.alert p{color:#758179;font-size:11px;margin:5px 0 0}.alert.warn p{color:#8d7867}.measure{margin:12px 0 0;display:flex;justify-content:space-between;border-bottom:1px solid #f0f0f0;padding:8px 0;font-size:11px}.measure b{font-variant-numeric:tabular-nums}.export-pane{border:1px solid #e8e8e8;border-radius:12px;padding:14px;margin-top:19px}.export-pane p{color:#8b8b8b;font-size:11px}.stretch{width:100%}.help-note{margin-top:14px;font-size:10px;color:#999;line-height:1.6}.hide{display:none!important}svg .hit{cursor:grab;touch-action:none}svg .hit:active{cursor:grabbing}svg .node{transition:stroke-width .1s}svg .node.sel{stroke:#1e5bfa!important;stroke-width:2!important}svg .point-label{font-size:3.2px;fill:#8b9dc0;font-weight:650;pointer-events:none}svg .hover-halo{filter:drop-shadow(0 0 3px #93b8ff)}
+aside{padding:21px 16px}.head-center{display:none}}
+.head-right .secondary-btn{display:none}}
+main{grid-row:1;grid-column:1}.corner.bottom{max-width:70%;font-size:10px}}
+
+/* v2 – automatic curvature optimization */
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid #e9e9e9;border-radius:11px;background:#f7f7f7;padding:4px;margin:14px 0}
+.mode-tabs button{border:0;background:transparent;border-radius:7px;padding:9px 3px;color:#777;font-weight:650;font-size:11px}
+.mode-tabs button.active{background:#fff;color:#1f2227;box-shadow:0 1px 6px #00000012}
+.auto-card{border:1px solid #e5eaf6;background:linear-gradient(145deg,#f8faff,#fff);border-radius:13px;padding:14px 13px 12px;margin-top:6px}
+.auto-card h4{font-size:12px;margin:0 0 5px}.auto-card .muted{margin-bottom:12px}
+.auto-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.auto-actions button{padding:9px 4px;font-size:11px}
+.auto-status{padding:10px;background:#fff;border:1px solid #e8ecf6;border-radius:9px;margin-top:12px;font-size:11px;color:#616b7b;line-height:1.6}
+.auto-status.good{border-color:#cde9d9;background:#f6fcf8;color:#2b6c48}
+.auto-status.bad{border-color:#f2debb;background:#fffaf3;color:#84622f}
+.auto-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.auto-stat{padding:9px;background:#fff;border:1px solid #e9edf6;border-radius:8px;font-size:10px;color:#8b8e9b}
+.auto-stat b{font-size:14px;color:#222;display:block;margin-top:2px;font-variant-numeric:tabular-nums}
+.inline-options{display:flex;gap:6px;align-items:center;font-size:11px;margin-top:10px}.inline-options select{min-width:0;flex:1;border:1px solid #e2e7f0;background:#fff;border-radius:7px;padding:7px 5px;font:inherit}
+@media(max-width:420px){#autoShortcut{display:none}}
+.ghostpath{stroke:#5c6a7a;stroke-opacity:.5;stroke-width:1.05;stroke-dasharray:2.5 2.2;fill:none;stroke-linecap:round;pointer-events:none}
+/* breakpoint: preserve room for optimizer controls */
+@media (min-width:621px){aside.left{padding-bottom:80px}}
+
+/* ===== ТЁМНАЯ ТЕМА (в стиле CurveLab). Перекрываем светлые токены. ===== */
+:root{
+  color-scheme:dark;
+  --ink:#e4e8ed; --secondary:#9aa3ad; --line:#32373e; --panel:#24282e; --canvas:#22262c;
+  --blue:#5b8fd6; --blue-pale:#22303f; --red:#d98b82; --green:#6fc99a;
+  --shadow:0 18px 65px rgba(0,0,0,.35);
+}
+body{color:var(--ink);background:#1c1f24}
+header{background:#1b2027;border-bottom-color:#2a3138}
+.mark{background:#2a323c;color:#e8eef5}
+.brand span{color:#7d8792}
+.icon-btn{background:#222932;border-color:#323b45;color:#c3ccd6}
+.icon-btn:hover{background:#2b3440}
+.smalltag{background:#222932;color:#97a1ac}
+.primary{background:#2f4a6b;color:#e3eefb}
+.primary:hover{background:#3a5b82}
+.secondary-btn{background:#222932;border-color:#323b45;color:#c3ccd6}
+.secondary-btn:hover{background:#2b3440}
+aside{background:#24282e}
+aside.left{border-right-color:#32373e}
+aside.right{border-left-color:#32373e}
+.kicker{color:#6f7880}
+.muted{color:#9aa3ad}
+.section{border-top-color:#32373e}
+.section h3{color:var(--ink)}
+.frow label{color:#c3ccd6}
+.num{color:#a8b2bd;background:#222932}
+.field input[type=range]{background:linear-gradient(to right,var(--blue) 0%,var(--blue) var(--pct,50%),#333c46 var(--pct,50%),#333c46 100%)}
+.field input[type=range]::-webkit-slider-thumb{background:#1b2027;border-color:var(--blue)}
+.line-toggle input{background:#3a434e}
+.line-toggle input:checked{background:var(--blue)}
+.tip{background:#222a33;color:#93a0ad}
+.tip b{color:#c9d4e0}
+main{background:#22262c}
+.corner{background:#1b2027cc;border-color:#2a3138;color:#a8b2bd}
+.corner.zoom button{color:#c3ccd6}
+.corner.zoom button:hover{background:#2b3440}
+.subtle-pill{background:#22303f;color:#8fb8e6}
+.legend{color:#7d8792}
+.inspect-sample{background:#171c22;border-color:#2a3138}
+.selector{background:#222932;border-color:#323b45;color:#dbe2ea}
+.selector small{color:#8b949f}
+.alert{background:#1e2a24;border-color:#2f4a3c}
+.alert strong{color:#7fd6a5}
+.alert p{color:#9db0a5}
+.alert.warn{background:#2a2519;border-color:#4a4030}
+.alert.warn strong{color:#e0b877}
+.alert.warn p{color:#b8a68c}
+.measure{border-bottom-color:#262d35;color:#b6c0cb}
+.export-pane{border-color:#2a3138}
+.export-pane p{color:#8b949f}
+.help-note{color:#7d8792}
+.mode-tabs{background:#222932;border-color:#323b45}
+.mode-tabs button{color:#8b949f}
+.mode-tabs button.active{background:#2f4a6b;color:#e3eefb;box-shadow:none}
+.auto-card{background:#20272f;border-color:#33465c}
+.auto-status{background:#222932;border-color:#33404d;color:#a3aeb9}
+.auto-status.good{background:#1e2a24;border-color:#2f4a3c;color:#7fd6a5}
+.auto-status.bad{background:#2a2519;border-color:#4a4030;color:#e0b877}
+.auto-stat{background:#222932;border-color:#323b45;color:#8b949f}
+.auto-stat b{color:#dbe2ea}
+.inline-options select{background:#222932;border-color:#323b45;color:#c3ccd6}
+svg .point-label{fill:#7f93b5}
+.ghostpath{stroke:#6f7c8c}
+
+
+/* ===== ОБЩИЙ КАРКАС ARRI (как в редакторе): топбар + два узких рейла ===== */
+:root{--abg:#1c1f24;--acanvas:#22262c;--apanel:#24282e;--aline:#32373e;--aline2:#3d434b;
+      --aink:#e4e8ed;--aink2:#9aa3ad;--aink3:#6f7880;--ahover:#2c3138;--aacc:#e0594d}
+html.ari{background:#12151a}
+body.ari{margin:0;background:var(--abg);color:var(--aink);overflow:hidden;
+  font:13px/1.5 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;height:100vh;display:flex;flex-direction:column}
+.a-topbar{height:30px;flex:0 0 30px;display:flex;align-items:center;gap:4px;padding:0 8px;
+  background:var(--apanel);border-bottom:1px solid var(--aline);position:relative;z-index:60}
+.a-brand{font-size:15px;font-weight:700;color:var(--aink);letter-spacing:-.02em;
+  margin-right:4px;white-space:nowrap}
+.a-brand span{color:var(--aacc)}
+.a-topbar .a-spacer{flex:1}
+.a-tb{font:inherit;font-size:11px;padding:3px 7px;cursor:pointer;background:transparent;
+  color:var(--aink2);border:1px solid transparent;border-radius:5px;display:inline-flex;
+  align-items:center;gap:5px;white-space:nowrap;text-decoration:none;
+  transition:background .13s,color .13s,border-color .13s}
+.a-tb:hover{background:var(--ahover);color:var(--aink);border-color:var(--aline2)}
+.a-tb.lit{border-color:#35516e;color:#a9c4dd}
+.a-body{flex:1;display:flex;min-height:0;min-width:0;position:relative;overflow:hidden}
+.a-rail{position:relative;z-index:80;pointer-events:auto;flex:0 0 28px;min-width:28px;width:28px;background:var(--apanel);display:flex;flex-direction:column;
+  align-items:center;padding:5px 0;gap:1px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;
+  scrollbar-width:none;-ms-overflow-style:none;z-index:50}
+.a-rail::-webkit-scrollbar{width:0;height:0}
+.a-rail-l{border-right:1px solid var(--aline)}
+.a-rail-r{border-left:1px solid var(--aline)}
+.a-btn{width:24px;height:24px;flex:0 0 24px;background:transparent;border:1px solid transparent;
+  border-radius:6px;color:#7a8290;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;padding:0;transition:background .13s,color .13s,border-color .13s}
+.a-btn:hover{background:var(--ahover);color:var(--aink)}
+.a-btn.on{background:#3b6ea8;color:#fff}
+.a-btn svg{display:block;width:14px;height:14px;min-width:14px;min-height:14px;flex:0 0 14px}
+.a-btn.a-big svg{width:18px;height:18px}
+.a-btn.a-logo{font:700 9px/1 Inter,sans-serif;letter-spacing:.02em;text-decoration:none;color:#9aa3ad}
+.a-btn.a-logo:hover{color:#e4e8ed;background:var(--ahover)}
+.a-sep{width:16px;height:1px;background:var(--aline);margin:3px 0;flex:0 0 1px}
+  /* ===== КАРКАС ARRI (последним — перекрывает стили инструмента) ===== */
+  .shell-app{display:flex;flex:1 1 auto;min-height:0;position:relative;overflow:hidden}
+  .toolrail{flex:0 0 28px;width:28px;background:#24282e;display:flex;flex-direction:column;
+  align-items:center;padding:5px 0;gap:1px;overflow-y:auto;overflow-x:hidden;
+  box-sizing:border-box;scrollbar-width:none;-ms-overflow-style:none;position:relative;z-index:80}
+.toolrail::-webkit-scrollbar{width:0;height:0}
+  .stage{flex:1 1 auto;min-width:0;min-height:0;position:relative;background:#22262c;overflow:hidden}
+  .stage-wrap{position:absolute;inset:0;overflow:hidden}
+  #stage{width:100%;height:100%;display:block;touch-action:none;user-select:none;cursor:default}
+  /* Панели лежат ПОВЕРХ холста: раскладку не трогают, при открытии
+     холст не смещается. Тень как в редакторе. */
+  .side{position:absolute;top:0;bottom:0;z-index:40;background:#24282e;
+        display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:0}
+  .side-left{left:28px;width:var(--left-w);border-right:1px solid #32373e;box-shadow:6px 0 18px -8px rgba(0,0,0,.45)}
+  .side-right{right:28px;width:var(--right-w);border-left:1px solid #32373e;box-shadow:-6px 0 18px -8px rgba(0,0,0,.45)}
+  body.left-collapsed .side-left{display:none}
+  body.right-collapsed .side-right{display:none}
+  .side-scroll{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:16px 15px 12px;
+    box-sizing:border-box;scrollbar-width:none;-ms-overflow-style:none}
+  .side-scroll::-webkit-scrollbar{width:0;height:0}
+  aside.left, aside.right{background:transparent}
+  .app</style>
+<link rel="stylesheet" href="../editor/chrome.css">
+</head>
+<body>
+
+<!-- ============ ВЕРХНЯЯ ПАНЕЛЬ ============ -->
+<header class="topbar" id="topbar">
+  <button class="tb-btn tb-menu" id="btnMenu" aria-label="Меню">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg>
+  </button>
+  <div class="brand">CurveLab<span>.</span></div>
+  <!-- Tool-specific controls stay inside the Skeleton slot. -->
+  <div class="tb-slot" id="tbSlot">
+    <span class="tb-chip" title="Monogram / 001"><b>001</b><span class="subtle-pill" id="methodBadge">G2 · EXACT</span></span>
+    <button class="tb-btn" id="autoShortcut" title="Автоподбор">✳ auto</button>
+    <button class="tb-btn" id="reset" title="Сбросить">reset</button>
+    <button class="tb-btn lit" id="exportTop" title="Экспорт SVG">↧ svg</button>
+  </div>
+
+  <span class="spacer"></span>
+  <div class="tb-right">
+  <a class="tb-btn tb-jump" id="pageJump" href="../" title="Open CurveLab">CurveLab</a>
+  <button class="tb-btn tb-live" id="btnLive" type="button" title="показывать курсор другим">live</button>
+
+    <a class="tb-btn tb-chat" id="btnChatLink" href="https://t.me/+@@EDITOR_INVITE@@" target="_blank" rel="noopener noreferrer">Chat</a>
+    <button class="tb-btn tb-panel" id="btnPanelToggle" type="button" title="Панель" aria-label="Панель">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h8M2 8h12M2 12h6"/><circle cx="12" cy="4" r="1.6" fill="currentColor" stroke="none"/><circle cx="10" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>
+  </button>
+  </div>
+</header>
+
+<!-- ============ РАБОЧАЯ ОБЛАСТЬ ============ -->
+<div class="shell-app" id="app">
+
+<aside class="toolrail toolrail-l" id="railLeft">
+    <button class="tl-btn on" id="btnLeft" title="Левая панель" aria-label="Левая панель">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="2.5" width="12" height="11" rx="1.6"/><path d="M6 2.5v11"/></svg>
+    </button>
+  </aside>
+
+<aside class="side side-left" id="sideLeft">
+    <span class="side-resize" id="resizeLeft"></span>
+    <div class="side-scroll" id="sideLeftBody">
+<div class="kicker">Параметрическая система</div>
+  <h1 class="panel-title">Геометрия знака</h1>
+  <div class="muted">Четыре настоящих эллипса и пять сопряжений. Основа — твой исходный SVG.</div>
+  <div class="section">
+    <h3>01 · Овалы</h3>
+    <div id="geometryControls"></div>
+    <label class="line-toggle"><span>Одинаковые четыре овала</span><input checked disabled type="checkbox"/></label>
+  </div>
+  <div class="section">
+    <h3>02 · Композиция</h3>
+    <div id="layoutControls"></div>
+    <div class="muted">Смещение пары сохранено. При включённой привязке знак автоматически поворачивается, чтобы два исходных левых овала касались общей горизонтали.</div>
+  </div>
+  <div class="section" id="optimizerPanel">
+    <h3>03 · Оптимизация G2 <span style="font-size:9px;color:#5874c6">NEW</span></h3>
+    <div class="mode-tabs" role="group" aria-label="Режим управления точками"><button type="button" id="manualMode" class="active" aria-pressed="true">Ручной</button><button type="button" id="autoMode" aria-pressed="false">Автоподбор</button></div>
+    <div class="auto-card hide" id="autoPanel">
+      <h4>Минимальная вариация кривизны</h4>
+      <div class="muted">Ищем положения точек на эллипсах. Точная G2-геометрия и структура знака — обязательные ограничения. Локальный численный поиск: глобальный минимум не гарантируется.</div>
+      <div id="optimizerControls"></div>
+      <label class="inline-options">Участок <select id="autoScope"><option value="all">Весь знак</option><option value="upper">Верхняя перемычка</option><option value="middle">Центральная диагональ</option><option value="lower">Нижняя перемычка</option><option value="tails">Свободные росчерки</option></select></label>
+      <label class="line-toggle" style="padding-bottom:3px">Показать эталон пунктиром <input id="showReference" type="checkbox" checked/></label>
+      <button id="runOptimizer" class="primary stretch" style="margin-top:13px">✳ &nbsp; Найти более плавную форму</button>
+      <div class="auto-actions"><button id="captureReference" class="secondary-btn" title="Запомнить текущие положения точек как эталон композиции">Обновить эталон</button><button id="undoOptimizer" class="secondary-btn" disabled>Отменить подбор</button></div>
+      <div style="font-size:10px;line-height:1.5;color:#85899a;margin-top:10px">После ручной настройки узлов нажми «Обновить эталон», чтобы сохранить именно свою композицию.</div>
+      <div class="auto-status" id="autoStatus" role="status" aria-live="polite">Эталон — исходное расположение узлов. Оптимизируются только углы на эллипсах, размеры и центры остаются неизменными.</div>
+      <div class="auto-stats"><div class="auto-stat">Изменение энергии <b id="energyDelta">—</b></div><div class="auto-stat">Точность G2 <b id="g2Delta">8/8</b></div></div>
+    </div>
+  </div>
+  <div class="section" id="symmetryPanel">
+    <h3>04 · Центральная симметрия <span style="font-size:10px;color:#5073ca">180°</span></h3>
+    <label class="line-toggle" style="gap:12px"><span>Связать верхние и нижние точки</span><input type="checkbox" id="linkAnchors" checked/></label>
+    <div class="muted">Отражение одновременно по горизонтали и вертикали — поворот на 180° относительно центра композиции. Верхний правый овал ↔ нижний левый; верхний левый ↔ нижний правый. Соединительные точки и свободные окончания отражаются автоматически.</div>
+    <button class="secondary-btn stretch" id="reflectUpper" type="button" style="margin-top:12px">↻ Отразить верх → низ</button>
+    <div class="muted" id="symmetryStatus" style="margin-top:9px">Симметрия включена. Можно двигать любую точку в паре.</div>
+  </div>
+  <div class="section" id="baselinePanel">
+    <h3>05 · Базовая линия <span style="font-size:10px;color:#bc5651">NEW</span></h3>
+    <label class="line-toggle"><span>Привязать два левых овала</span><input id="baselineLock" type="checkbox" checked/></label>
+    <label class="line-toggle"><span>Показывать красную горизонталь</span><input id="showBaseline" type="checkbox" checked/></label>
+    <div class="muted">После поворота прежние левые овалы оказываются снизу. Их нижние крайние точки всегда на одной неподвижной линии, даже при изменении смещения второго ряда. Никакая петля не деформируется.</div>
+    <div id="baselineControls" style="margin-top:16px"></div>
+    <div class="auto-status" id="baselineStatus" style="margin-top:4px">Выполняется выравнивание…</div>
+    <div class="auto-actions" style="margin-top:12px">
+      <button type="button" class="secondary-btn" id="saveProject" title="Сохраняет все параметры, точки и настройки в JSON">Сохранить проект</button>
+      <button type="button" class="secondary-btn" id="openProject" title="Открыть ранее сохранённый JSON">Открыть проект</button>
+    </div>
+    <input id="projectFile" type="file" accept=".json,application/json" style="display:none"/>
+
+  </div>
+  <div class="section">
+    <h3>06 · Отображение</h3>
+    <label class="line-toggle">Опорные эллипсы <input type="checkbox" id="showEllipses" checked/></label>
+    <label class="line-toggle">Узлы и точки стыков <input type="checkbox" id="showPoints" checked/></label>
+    <label class="line-toggle">Направляющие <input type="checkbox" id="showGuides" checked/></label>
+    <label class="line-toggle">Гребёнка кривизны <input type="checkbox" id="showComb"/></label>
+  </div>
+  <div class="tip"><span style="font-size:17px">✳</span><span><b>Управление на холсте</b><br>Синие точки двигаются <b>вдоль эллипса</b>. Чёрные точки — свободные окончания. Красные центры меняют расположение модулей. Колесо — масштаб, Alt + перетаскивание — панорама.</span></div>
+    </div>
+  </aside>
+
+  <!-- холст: сжимается открытыми панелями -->
+  <main class="stage" id="stageHost">
+<div class="stage-wrap"><svg id="stage" xmlns="http://www.w3.org/2000/svg" aria-label="Редактируемый вензель с точками сопряжения"></svg></div>
+  <div class="corner bottom">Красная линия — общий уровень касания бывших левых овалов. Все узлы, кривизна G2 и управление смещением сохранены.</div>
+  <div class="corner zoom"><button id="zoomOut" title="Уменьшить">−</button><span class="zval" id="zoomText">100%</span><button id="zoomIn" title="Увеличить">+</button><button id="zoomFit" title="Вписать">⤢</button></div>
+  </main>
+
+<aside class="side side-right" id="sideRight">
+    <span class="side-resize" id="resizeRight"></span>
+    <div class="side-scroll" id="sideRightBody">
+<div class="kicker">Инспектор кривой</div>
+  <h2 class="panel-title">Точки & сопряжения</h2>
+  <div class="muted">Выбери синий узел на холсте, затем точно настрой угол подключения.</div>
+  <div class="inspect-sample"><svg id="mini" viewBox="-10 -10 120 76"></svg></div>
+  <div class="section" style="margin-top:18px;padding-top:18px">
+    <h3>Выделение</h3>
+    <div id="selected" class="selector">Точка не выбрана<small>Кликни по синему узлу или свободному концу</small></div>
+    <div style="margin-top:15px" id="selectedControls"></div>
+    <div class="muted" id="selectionHelp">Все сопряжения пересчитываются при движении.</div>
+  </div>
+  <div class="section">
+    <h3>Гладкость</h3>
+    <div id="diagnostics" class="alert"><strong>G2 в точках стыка</strong><p>Кривизна непрерывна на переходах между дугами и соединениями.</p></div>
+    <div class="measure"><span>Сопряжений</span><b>8</b></div>
+    <div class="measure"><span>Векторная структура</span><b>1 path</b></div>
+    <div class="measure"><span>Кривая</span><b id="segmentTypes">C + A</b></div>
+  </div>
+  <div class="export-pane"><div class="kicker">Файл</div><strong style="font-size:13px">monogram.svg</strong><p>Единый редактируемый путь. Настоящие эллиптические дуги, сопряжения Безье, прозрачный фон.</p><button class="primary stretch" id="exportSide">↧ &nbsp; Скачать SVG</button><button class="secondary-btn stretch" style="margin-top:8px" id="exportGrid">Скачать с направляющими</button></div>
+  <div class="help-note">В точках сопряжения соблюдается G2: общая касательная и одинаковая подписанная кривизна. При предельных положениях узлов возможна аппроксимация несколькими сегментами Безье — редактор покажет это в диагностике.</div>
+    </div>
+  </aside>
+
+<aside class="toolrail toolrail-r" id="railRight">
+    <button class="tl-btn on" id="btnRight" title="Правая панель" aria-label="Правая панель">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="2.5" width="12" height="11" rx="1.6"/><path d="M10 2.5v11"/></svg>
+    </button>
+    <div class="tl-sep"></div>
+    <a class="tl-btn big" href="../" title="Back to CurveLab" aria-label="Back to CurveLab" style="text-decoration:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.6 8.4c-1.9 0-3.4 1.6-3.4 3.6s1.5 3.6 3.4 3.6c1.6 0 2.7-.9 3.7-2.1l2.3-3c1-1.2 2.1-2.1 3.7-2.1 1.9 0 3.4 1.6 3.4 3.6s-1.5 3.6-3.4 3.6c-1.6 0-2.7-.9-3.7-2.1l-2.3-3c-1-1.2-2.1-2.1-3.7-2.1z"/>
+      </svg>
+    </a>
+  </aside>
+
+</div>
+
+<script>
+/* ============================================================
+   МЕХАНИКА КАРКАСА. Ничего про инструменты — только панели,
+   рейлы и ресайз. Инструмент подключает своё через registerTool().
+   ============================================================ */
+(function(){
+  'use strict';
+  var $ = function(id){ return document.getElementById(id); };
+
+  var K_LEFT = 'shell.leftCollapsed';
+  var K_RIGHT = 'shell.rightCollapsed';
+  var K_LW = 'shell.leftW';
+  var K_RW = 'shell.rightW';
+
+  /* ---------- сворачивание панелей ---------- */
+  function setLeft(open){
+    document.body.classList.toggle('left-collapsed', !open);
+    document.documentElement.classList.remove('boot-left-collapsed');
+    var b = $('btnLeft'); if (b) b.classList.toggle('on', open);
+    try { localStorage.setItem(K_LEFT, open ? '0' : '1'); } catch(e){}
+  }
+  function setRight(open){
+    document.body.classList.toggle('right-collapsed', !open);
+    document.documentElement.classList.remove('boot-right-collapsed');
+    var b = $('btnRight'); if (b) b.classList.toggle('on', open);
+    try { localStorage.setItem(K_RIGHT, open ? '0' : '1'); } catch(e){}
+  }
+  var openLeft  = !document.documentElement.classList.contains('boot-left-collapsed');
+  var openRight = !document.documentElement.classList.contains('boot-right-collapsed');
+  setLeft(openLeft);
+  setRight(openRight);
+
+  if ($('btnLeft'))  $('btnLeft').onclick  = function(){ openLeft = !openLeft;  setLeft(openLeft); };
+  if ($('btnRight')) $('btnRight').onclick = function(){ openRight = !openRight; setRight(openRight); };
+
+  /* ---------- ресайз панелей мышкой ---------- */
+  function makeResize(handleId, panelId, key, min, max, side){
+    var h = $(handleId), p = $(panelId);
+    if (!h || !p) return;
+    h.addEventListener('pointerdown', function(ev){
+      ev.preventDefault(); ev.stopPropagation();
+      var startX = ev.clientX;
+      var startW = p.getBoundingClientRect().width;
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      var last = startW;
+      function move(e){
+        var d = side === 'left' ? (e.clientX - startX) : (startX - e.clientX);
+        last = Math.max(min, Math.min(max, startW + d));
+        p.style.width = last + 'px';
+      }
+      function up(){
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        p.style.width = '';
+        document.documentElement.style.setProperty(
+          side === 'left' ? '--left-w' : '--right-w', Math.round(last) + 'px');
+        try { localStorage.setItem(key, String(Math.round(last))); } catch(e){}
+        window.dispatchEvent(new Event('resize'));
+      }
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    });
+  }
+  makeResize('resizeLeft', 'sideLeft', K_LW, 160, 520, 'left');
+  makeResize('resizeRight', 'sideRight', K_RW, 200, 560, 'right');
+
+  /* ---------- API для инструмента ---------- */
+  /* Инструмент вызывает registerTool({ ... }) и получает готовый каркас:
+     - topbar: массив элементов для верхней панели
+     - railLeft / railRight: кнопки рейлов
+     - stage: содержимое холста
+     - leftPanel / rightPanel: содержимое панелей
+     Ничего не ломается, если слот не заполнен. */
+  window.registerTool = function(tool){
+    tool = tool || {};
+    if (tool.onReady) { try { tool.onReady(); } catch(e){ console.error(e); } }
+    return { openLeft: function(){ openLeft = true;  setLeft(true); },
+             openRight: function(){ openRight = true; setRight(true); } };
+  };
+
+  /* Перерисовка содержимого холста инструмента (если ему нужно) */
+  window.dispatchEvent(new Event('shell:ready'));
+})();
+</script>
+<script>
+
+'use strict';
+// No dependencies, no network calls. Parametric, curvature-aware SVG geometry.
+const NS='http://www.w3.org/2000/svg', PI=Math.PI;
+const D={mode:'manual',autoPreserve:67,autoMaxAngle:20,showReference:true,rx:20,ry:15,gap:60,rowGap:40,shift:10,width:0.45,showEllipses:true,showPoints:true,showGuides:true,showComb:false,linkAnchors:true,baselineLock:true,showBaseline:true,baselineY:65,rotation:-75.9637565,
+  // Angle deviations in degrees from the nominal top / bottom ellipse points.
+  angles:{URb:0,URt:0,ULb:0,ULt:0,LRb:0,LRt:0,LLb:0,LLt:0},
+  topEnd:{x:-30,y:-15},topGrip:{x:-22.8,y:-4.29},
+  bottomEnd:{x:30,y:30},bottomGrip:{x:18.8,y:19.71},
+  cx:0,cy:0};
+const names={URb:'Верхний правый · нижний вход',URt:'Верхний правый · верхний выход',ULb:'Верхний левый · нижний вход',ULt:'Верхний левый · верхний выход',LRb:'Нижний правый · нижний вход',LRt:'Нижний правый · верхний выход',LLb:'Нижний левый · нижний вход',LLt:'Нижний левый · верхний выход',topFree:'Начало свободного росчерка',bottomFree:'Конец свободного росчерка',topGrip:'Ручка начала росчерка',bottomGrip:'Ручка конца росчерка'};
+const v=(x,y)=>({x,y}), add=(a,b)=>v(a.x+b.x,a.y+b.y),sub=(a,b)=>v(a.x-b.x,a.y-b.y),mul=(a,t)=>v(a.x*t,a.y*t),len=a=>Math.hypot(a.x,a.y),unit=a=>{let l=len(a)||1;return mul(a,1/l)},cross=(a,b)=>a.x*b.y-a.y*b.x,clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const fmt=n=>Number(n.toFixed(5)).toString(),pt=p=>`${fmt(p.x)} ${fmt(p.y)}`;
+const stage=document.getElementById('stage'),mini=document.getElementById('mini');let selected='URb',drag=null,geom=null,zoom=1,panc=v(0,0),view=null,lastError=null;
+let autoReference=Object.freeze({...D.angles}), priorOptimization=null, optimizationStats=null, optimizing=false;
+const els=()=>({UL:v(D.cx,D.cy),UR:v(D.cx+D.gap,D.cy),LL:v(D.cx+D.shift,D.cy+D.rowGap),LR:v(D.cx+D.gap+D.shift,D.cy+D.rowGap)});
+// Screen-space construction: old left column is the new lower pair.
+// The rotation aligns its two centres horizontally; identical ellipses have
+// identical support height. Rigid rotation retains every original G2 join.
+function layoutFrame(E=els()){
+ const pivot=mul(add(E.UR,E.LL),.5);
+ const direction=sub(E.LL,E.UL);
+ const angleDeg=D.baselineLock?(-Math.atan2(direction.y,direction.x)*180/PI):D.rotation;
+ const rad=angleDeg*PI/180,cc=Math.cos(rad),ss=Math.sin(rad);
+ const rotate=p=>{const q=sub(p,pivot);return add(pivot,v(q.x*cc-q.y*ss,q.x*ss+q.y*cc));};
+ // Support of the rotated ellipse in the world vertical direction;
+ // stroke/2 puts the OUTER stroke boundary on the red guide.
+ const support=Math.hypot(D.rx*ss,D.ry*cc)+D.width/2;
+ const yRef=rotate(E.UL).y+support;
+ const dy=D.baselineY-yRef;
+ const apply=p=>add(rotate(p),v(0,dy));
+ const inverse=p=>{const q=sub(sub(p,v(0,dy)),pivot);return add(pivot,v(q.x*cc+q.y*ss,-q.x*ss+q.y*cc));};
+ const lowerLeft=apply(E.UL),lowerRight=apply(E.LL);
+ return {angleDeg,rad,pivot,dy,support,apply,inverse,
+   tangentUL:lowerLeft.y+support,tangentLL:lowerRight.y+support,
+   error:Math.abs(lowerLeft.y-lowerRight.y),
+   transform:`translate(0 ${fmt(dy)}) rotate(${fmt(angleDeg)} ${pt(pivot)})`};
+}
+function transformedBounds(g,frame=layoutFrame(g.E),pad=12){
+ const xs=[],ys=[];
+ for(const seg of g.segs)for(const q of samples(seg,42)){const p=frame.apply(q.p);xs.push(p.x);ys.push(p.y);}
+ for(const c of Object.values(g.E)){
+  // bounding support in x/y for transformed ellipse construction guides
+  const p=frame.apply(c),xR=Math.hypot(D.rx*Math.cos(frame.rad),D.ry*Math.sin(frame.rad)),yR=Math.hypot(D.rx*Math.sin(frame.rad),D.ry*Math.cos(frame.rad));
+  xs.push(p.x-xR,p.x+xR);ys.push(p.y-yR,p.y+yR);
+ }
+ let left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
+ return {x:left-pad,y:top-pad,w:right-left+2*pad,h:bottom-top+2*pad};
+}
+
+// Reflection over BOTH horizontal and vertical axes = 180-degree rotation.
+// The geometric center is midway between the two module centers.
+// Reversed traversal swaps top/bottom attachment points.
+const pairAngle=id=>({URb:'LLt',URt:'LLb',ULb:'LRt',ULt:'LRb',LRb:'ULt',LRt:'ULb',LLb:'URt',LLt:'URb'})[id];
+const upperAngleIds=['URb','URt','ULb','ULt'];
+const negate=p=>v(-p.x,-p.y);
+function reflectUpperToLower(){
+ for(const id of upperAngleIds)D.angles[pairAngle(id)]=D.angles[id];
+ D.bottomEnd=negate(D.topEnd);D.bottomGrip=negate(D.topGrip);
+}
+function reflectTailEdit(id){
+ if(!D.linkAnchors)return;
+ if(id==='topFree')D.bottomEnd=negate(D.topEnd);
+ if(id==='bottomFree')D.topEnd=negate(D.bottomEnd);
+ if(id==='topGrip')D.bottomGrip=negate(D.topGrip);
+ if(id==='bottomGrip')D.topGrip=negate(D.bottomGrip);
+}
+function symmetryCenter(){const E=els();return mul(add(E.UR,E.LL),.5);}
+
+function getAnchors(E){const arr={};for(const id of Object.keys(D.angles)){
+ const side=id.slice(0,2),isBottom=id.endsWith('b'),dir=(side.endsWith('R')?-1:1), c=E[side],theta=(isBottom?90:(dir===-1?-90:270))+D.angles[id];
+ const t=theta*PI/180,sn=Math.sin(t),cs=Math.cos(t),der=v(-D.rx*sn,D.ry*cs),speed=len(der),T=mul(unit(der),dir),p=v(c.x+D.rx*cs,c.y+D.ry*sn),k=dir*D.rx*D.ry/Math.pow(speed,3);
+ arr[id]={id,p,T,k,theta,side,c,dir,isBottom}; }
+ return arr;}
+function evalBezier(P,t){let q=P.map(p=>({...p}));for(let n=q.length-1;n>0;n--){for(let i=0;i<n;i++)q[i]=add(mul(q[i],1-t),mul(q[i+1],t));}return q[0];}
+function bezD(P){const n=P.length-1;return P.slice(1).map((p,i)=>mul(sub(p,P[i]),n));}
+function bezDer(P,t){let d1=bezD(P),d2=bezD(d1);return {p:evalBezier(P,t),d1:evalBezier(d1,t),d2:evalBezier(d2,t)};}
+function curvature(d1,d2){return cross(d1,d2)/Math.pow(Math.max(1e-8,len(d1)),3);}
+function cubicG2(A,B){const Dv=sub(B.p,A.p),T0=A.T,T1=B.T, k0=A.k,k1=B.k,tt=cross(T0,T1),c0=cross(T0,Dv),c1=cross(T1,mul(Dv,-1));
+ let h0=Math.sqrt(Math.max(0.01,Math.abs((2*c0)/(3*(k0||.00001))))),h1=Math.sqrt(Math.max(0.01,Math.abs((2*c1)/(3*(k1||.00001)))));
+ h0=clamp(h0,0.25,Math.max(40,len(Dv)*2));h1=clamp(h1,0.25,Math.max(40,len(Dv)*2));
+ const obj=(x,y)=>{let f0=k0*x*x-2/3*(c0-y*tt),f1=k1*y*y-2/3*(c1-x*tt);return [f0,f1,f0*f0+f1*f1]};
+ const tries=[[h0,h1],[len(Dv)/3,len(Dv)/3],[len(Dv)/5,len(Dv)/5],[h0*.6,h1*1.4],[h0*1.3,h1*.7]];let best=null;
+ for(const seed of tries){let x=seed[0],y=seed[1];for(let j=0;j<40;j++){
+  let [f0,f1,loss]=obj(x,y);if(loss<1e-12)break;
+  let a=2*k0*x,b=2/3*tt,c=2/3*tt,d=2*k1*y,det=a*d-b*c;if(Math.abs(det)<1e-10)break;
+  let dx=(d*f0-b*f1)/det,dy=(-c*f0+a*f1)/det,ok=false;
+  for(let n=0;n<18;n++){let t=Math.pow(.5,n),xn=x-t*dx,yn=y-t*dy;if(xn<.02||yn<.02||xn>len(Dv)*5+20||yn>len(Dv)*5+20)continue;if(obj(xn,yn)[2]<loss){x=xn;y=yn;ok=true;break}}if(!ok)break;
+ }
+ let score=obj(x,y)[2];if(!best||score<best.score)best={x,y,score};}
+ if(best && best.score<1e-5 && best.x>0 && best.y>0){let P=[A.p,add(A.p,mul(T0,best.x)),sub(B.p,mul(T1,best.y)),B.p];
+ // Reject highly looping geometries, but never mislabel a successful cubic as approximate.
+ let ref=len(Dv),length=0;for(let i=1,prev=P[0];i<=40;i++){let cur=evalBezier(P,i/40);length+=len(sub(cur,prev));prev=cur;}
+ if(length<Math.max(100,ref)*2.8)return {type:'C',P,exact:true}; }
+ return {type:'fallback',A,B};}
+// When a single cubic has no feasible positive-handle G2 solution, two-point curvature
+// Hermite quintic is subdivided into 12 cubic Hermite approximants. This preserves exact
+// end positions/tangents; approximated curvature at the ellipse joins is numerically close.
+function fallbackG2(A,B){let d=len(sub(B.p,A.p)),s=clamp(d*.9,5,120),P0=A.p,P5=B.p;
+ let T0=A.T,T1=B.T,N0=v(-T0.y,T0.x),N1=v(-T1.y,T1.x),v0=mul(T0,s),v1=mul(T1,s),a0=mul(N0,A.k*s*s),a1=mul(N1,B.k*s*s);
+ let P1=add(P0,mul(v0,1/5)),P2=add(add(P0,mul(v0,2/5)),mul(a0,1/20)),P4=sub(P5,mul(v1,1/5)),P3=add(sub(P5,mul(v1,2/5)),mul(a1,1/20));
+ let Q=[P0,P1,P2,P3,P4,P5],segs=[];let N=16;
+ for(let i=0;i<N;i++){let t0=i/N,t1=(i+1)/N,h=t1-t0,d0=bezDer(Q,t0),d1=bezDer(Q,t1);segs.push({type:'C',P:[d0.p,add(d0.p,mul(d0.d1,h/3)),sub(d1.p,mul(d1.d1,h/3)),d1.p],exact:false});}
+ return segs;}
+function bridge(a,b,name){const candidate=cubicG2(a,b);return candidate.type==='C'?[{...candidate,name}]:fallbackG2(a,b).map((x,i)=>({...x,name:name+' · '+(i+1)}));}
+function topTail(start,grip,B){let T=B.T,k=B.k,m=cross(T,sub(grip,B.p)),q=(2/3)*m/k;if(Number.isFinite(q)&&q>1e-5){let h=Math.sqrt(q);if(h<len(sub(B.p,start))*5+40)return [{type:'C',P:[start,grip,sub(B.p,mul(T,h)),B.p],exact:true,name:'Начальный росчерк'}]}
+ return fallbackG2({p:start,T:unit(sub(grip,start)),k:0},B).map((x,i)=>({...x,name:'Начальный росчерк · '+i}));}
+function bottomTail(A,grip,end){let T=A.T,k=A.k,m=cross(T,sub(grip,A.p)),q=(2/3)*m/k;if(Number.isFinite(q)&&q>1e-5){let h=Math.sqrt(q);if(h<len(sub(end,A.p))*5+40)return [{type:'C',P:[A.p,add(A.p,mul(T,h)),grip,end],exact:true,name:'Конечный росчерк'}]}
+ return fallbackG2(A,{p:end,T:unit(sub(end,grip)),k:0}).map((x,i)=>({...x,name:'Конечный росчерк · '+i}));}
+function ellipseArc(A,B,side){let start=A.theta,end=B.theta,delta=(end-start)*PI/180;
+ if(side==='right'){while(delta>=0)delta-=2*PI;while(delta< -2*PI)delta+=2*PI;}else{while(delta<=0)delta+=2*PI;while(delta>2*PI)delta-=2*PI;}
+ // derive continuous angle values from the actual delta, not from modulo seam.
+ return {type:'A',A,B,delta,sweep:side==='right'?0:1,large:Math.abs(delta)>PI?1:0,side};}
+function compute(){let E=els(),A=getAnchors(E),freeTop=add(E.UR,D.topEnd),topGrip=add(E.UR,D.topGrip),freeBottom=add(E.LL,D.bottomEnd),bottomGrip=add(E.LL,D.bottomGrip);
+ const segs=[...topTail(freeTop,topGrip,A.URb),ellipseArc(A.URb,A.URt,'right'),...bridge(A.URt,A.ULb,'Верхняя перемычка'),ellipseArc(A.ULb,A.ULt,'left'),...bridge(A.ULt,A.LRb,'Центральная диагональ'),ellipseArc(A.LRb,A.LRt,'right'),...bridge(A.LRt,A.LLb,'Нижняя перемычка'),ellipseArc(A.LLb,A.LLt,'left'),...bottomTail(A.LLt,bottomGrip,freeBottom)];
+ return {E,A,segs,freeTop,topGrip,freeBottom,bottomGrip,fallback:segs.some(s=>s.exact===false)};}
+function pathData(g){let out=`M ${pt(g.freeTop)}`;for(const s of g.segs){if(s.type==='C')out+=` C ${pt(s.P[1])} ${pt(s.P[2])} ${pt(s.P[3])}`;else out+=` A ${fmt(D.rx)} ${fmt(D.ry)} 0 ${s.large} ${s.sweep} ${pt(s.B.p)}`;}return out;}
+const node=(tag,attrs={},parent)=>{let el=document.createElementNS(NS,tag);for(const [k,val] of Object.entries(attrs))el.setAttribute(k,val);if(parent)parent.appendChild(el);return el;};
+function samples(s,n=35){let pts=[];if(s.type==='C'){for(let i=0;i<=n;i++){let q=bezDer(s.P,i/n);pts.push({...q,k:curvature(q.d1,q.d2)})}}
+ else {let {A,delta}=s;let dir=Math.sign(delta);for(let i=0;i<=n;i++){let t=(A.theta*PI/180)+delta*i/n,sn=Math.sin(t),cs=Math.cos(t),p=v(A.c.x+D.rx*cs,A.c.y+D.ry*sn),tangent=mul(v(-D.rx*sn,D.ry*cs),dir),acc=v(-D.rx*cs,-D.ry*sn);pts.push({p,d1:tangent,d2:acc,k:curvature(tangent,acc)});}}return pts;}
+function boundsFor(g){let xs=[],ys=[];for(const s of g.segs){for(const p of samples(s,32)){xs.push(p.p.x);ys.push(p.p.y)}}let left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys),pad=Math.max(8,D.width*4);return {x:left-pad,y:top-pad,w:right-left+pad*2,h:bottom-top+pad*2};}
+window.__lfZoom = function(){ return zoom; };
+window.__lfPanc = function(){ return { x: panc.x, y: panc.y }; };
+window.__lfSetView = function(z, p){
+  if (typeof z === 'number' && z > 0) zoom = z;
+  if (p && typeof p.x === 'number') panc = { x: p.x, y: p.y };
+  try { updateViewport(); render(); } catch(e){}
+};
+let baseCenter=v(35,20);function updateViewport(){if(!stage.clientWidth||!stage.clientHeight)return;const w=stage.clientWidth,h=stage.clientHeight,aspect=w/h,baseline=182/zoom;
+ let vw=baseline,vh=baseline/aspect;if(aspect<1){vh=baseline;vw=baseline*aspect;}
+ view={x:baseCenter.x+panc.x-vw/2,y:baseCenter.y+panc.y-vh/2,w:vw,h:vh};stage.setAttribute('viewBox',`${fmt(view.x)} ${fmt(view.y)} ${fmt(view.w)} ${fmt(view.h)}`);
+ document.getElementById('zoomText').textContent=Math.round(zoom*100)+'%';}
+function screenPt(e){const p=stage.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const m=stage.getScreenCTM();return m?p.matrixTransform(m.inverse()):v(0,0);}
+function addControlNode(parent,point,id,color,label,r=2){let group=node('g',{},parent);node('circle',{cx:fmt(point.x),cy:fmt(point.y),r:r+2.3,fill:'transparent','data-id':id,class:'hit'},group);
+ node('circle',{cx:fmt(point.x),cy:fmt(point.y),r:r,stroke:'#fff','stroke-width':.75,fill:color,'data-id':id,class:'hit node'+(selected===id?' sel':''),'vector-effect':'non-scaling-stroke'},group);
+ if(label)node('text',{x:fmt(point.x+3.3),y:fmt(point.y-3),class:'point-label'},group).textContent=label;return group;}
+function addComb(parent,g){for(const s of g.segs){let n=s.type==='A'?27:16;const pts=samples(s,n);for(let i=1;i<n;i+=2){const q=pts[i],T=unit(q.d1),N=v(-T.y,T.x),L=clamp(q.k*230,-12,12);let end=add(q.p,mul(N,L));node('line',{x1:fmt(q.p.x),y1:fmt(q.p.y),x2:fmt(end.x),y2:fmt(end.y),stroke:s.type==='A'?'#dc9d9a':'#8ab2ea','stroke-width':.24},parent);}}}
+
+// -------------------------------------------------------------
+// Bounded shape-preserving minimum-variation-of-curvature search.
+// Curve-segment energy is the numerical integral ∫ (dκ/ds)^2 ds.
+// Cubic and elliptical portions are integrated by Simpson's rule.
+// Ellipse radii and centres remain fixed during optimization; the chosen
+// arc endpoints may move. All 8 join conditions G2
+// are checked analytically. Any approximate fallback is INFEASIBLE.
+// -------------------------------------------------------------
+const angleIds=Object.keys(D.angles);
+const AUTO_GROUPS={all:['URb','URt','ULb','ULt','LRb','LRt','LLb','LLt'],upper:['URt','ULb'],middle:['ULt','LRb'],lower:['LRt','LLb'],tails:['URb','LLt']};
+function setAngleVector(a){for(const id of angleIds)D.angles[id]=a[id];}
+function snapshotAngles(){return {...D.angles};}
+function candidateAngles(partial,reference=autoReference){let angles={...reference,...partial};if(D.linkAnchors){for(const id of upperAngleIds)angles[pairAngle(id)]=angles[id];}return angles;}
+function getActiveIds(scope){let ids=AUTO_GROUPS[scope]||AUTO_GROUPS.all;return D.linkAnchors?[...new Set(ids.map(id=>upperAngleIds.includes(id)?id:pairAngle(id)))].filter(id=>upperAngleIds.includes(id)):[...ids];}
+function smoothnessEnergyForCubic(P){
+ let N=32,h=1/N,integral=0;
+ // derivative coefficients for a cubic Bézier polynomial
+ let a=sub(P[1],P[0]),b=add(sub(P[2],mul(P[1],2)),P[0]),c=add(sub(P[3],mul(P[2],3)),add(mul(P[1],3),mul(P[0],-1)));
+ // Derivatives of cubic polynomial: V, A and jerk.
+ let jerk=mul(c,6);
+ for(let i=0;i<=N;i++){
+  let t=i*h,V=add(add(mul(a,3),mul(b,6*t)),mul(c,3*t*t)),A=add(mul(b,6),mul(c,6*t));
+  let speed=len(V);if(speed<.35)return Infinity;
+  let C=cross(V,A),DT= (cross(V,jerk)*speed*speed-3*C*(V.x*A.x+V.y*A.y))/Math.pow(speed,5);
+  let integrand=DT*DT/speed;if(!Number.isFinite(integrand))return Infinity;
+  integral+=(i===0||i===N?1:i%2===0?2:4)*integrand;
+ }
+ return integral*h/3;
+}
+function smoothnessEnergyForEllipse(s){
+ const N=40,h=1/N,a=D.rx,b=D.ry,delta=s.delta,start=s.A.theta*PI/180;
+ let energy=0;
+ for(let i=0;i<=N;i++){
+  let t=start+delta*i*h,sn=Math.sin(t),cs=Math.cos(t),speed=Math.hypot(-a*sn,b*cs);
+  let dot=(a*a-b*b)*sn*cs;
+  // κ = ab / speed³; dκ/dt = -3ab*(v·a)/speed^5
+  let dk=-3*a*b*dot/Math.pow(speed,5);
+  let val=dk*dk/speed;
+  energy+=(i===0||i===N?1:i%2===0?2:4)*val;
+ }
+ return Math.abs(delta)*h*energy/3;
+}
+function checkG2Exact(g){
+ if(g.fallback||g.segs.length!==9)return false;
+ const checks=[['URb',0,1],['URt',2,0],['ULb',2,1],['ULt',4,0],['LRb',4,1],['LRt',6,0],['LLb',6,1],['LLt',8,0]];
+ for(const [id,index,t] of checks){const s=g.segs[index];if(!s||s.type!=='C'||!s.exact)return false;
+  const der=bezDer(s.P,t),k=curvature(der.d1,der.d2);
+  const target=g.A[id].k;if(!Number.isFinite(k)||Math.abs(k-target)>2e-5)return false;
+  if(len(der.d1)<.01)return false;
+ }
+ return true;
+}
+function curveLength(P){let prev=P[0],total=0;for(let i=1;i<=25;i++){let p=evalBezier(P,i/25);total+=len(sub(p,prev));prev=p;}return total;}
+function evaluationRaw(angles){
+ const old=snapshotAngles();setAngleVector(angles);let g;
+ try{g=compute()}finally{setAngleVector(old)}
+ if(!checkG2Exact(g))return null;
+ let E=0,totalLength=0;
+ for(const [j,s] of g.segs.entries()){
+  if(s.type==='A'){E+=smoothnessEnergyForEllipse(s);continue;}
+  let distance=len(sub(s.P[3],s.P[0])),l=curveLength(s.P),r=l/Math.max(1,distance);
+  // Do not allow overshooting loops / reversed construction.
+  if(r>1.65||!Number.isFinite(l))return null;
+  totalLength+=l;
+  let en=smoothnessEnergyForCubic(s.P);
+  if(!Number.isFinite(en))return null;
+  E+=en;
+ }
+ return {g,E:E*Math.pow(D.ry,3),length:totalLength};
+}
+function referencePath(){const old=snapshotAngles();setAngleVector(autoReference);let g;
+ try{g=compute()}finally{setAngleVector(old)}
+ return g;
+}
+function refDeviation(g,rg){let sum=0,count=0,scale=Math.max(12,D.rx+D.ry);
+ for(let j=0;j<Math.min(g.segs.length,rg.segs.length);j++){
+  let a=g.segs[j],b=rg.segs[j];if(a.type!=='C'||b.type!=='C')continue;
+  for(const t of [.25,.5,.75]){let diff=sub(evalBezier(a.P,t),evalBezier(b.P,t));sum+=Math.pow(len(diff)/scale,2);count++;}
+ }
+ return count?sum/count:0;
+}
+function optimizerObjective(angles,baseline,reference,referenceGeom,maxDelta){
+ const ev=evaluationRaw(angles);if(!ev)return {score:Infinity,energy:Infinity};
+ let energyRatio=ev.E/Math.max(1e-5,baseline.E),drift=0;
+ for(const id of angleIds){let delta=angles[id]-reference[id];drift+=(delta/maxDelta)**2;}
+ drift/=angleIds.length;
+ let shape=refDeviation(ev.g,referenceGeom);
+ // Preservation at 100 heavily discourages drift, but curvature improvement
+ // can still win when extremely compelling; at 0 smoothness dominates.
+ let w=.07+5.0*Math.pow(D.autoPreserve/100,2.2);
+ let score=energyRatio+w*(drift*.9+shape*3.5);
+ return {score,energy:ev.E,drift,shape,ev};
+}
+function executeOptimization(){
+ if(optimizing)return;optimizing=true;
+ const button=document.getElementById('runOptimizer'),scope=document.getElementById('autoScope').value;
+ button.disabled=true;button.textContent='Расчёт…';
+ setAutoStatus('Перебираю допустимые точки, проверяя точные G2-сопряжения и минимальную вариацию кривизны.', '');
+ // next frame allows the busy state to paint; no remote calls or server needed.
+ setTimeout(()=>{
+  let before=snapshotAngles(),base=evaluationRaw(before),ref=referencePath(),target={...autoReference};
+  const referenceBaseline=evaluationRaw(target),maxDelta=D.autoMaxAngle;
+  if(!base){setAutoStatus('Текущая форма использует приближённые стыки. Верни узлы ближе к вершинам овалов и повтори.', 'bad');finishOptimization();return;}
+  if(!referenceBaseline){setAutoStatus('Эталон не имеет восьми точных G2-стыков. Нажми «Обновить эталон» в допустимом положении или сбрось параметры.', 'bad');finishOptimization();return;}
+  let active=getActiveIds(scope),center={...before},lo={},hi={};
+  // Preserve the current non-selected angles and constrain selected angles
+  // to a feasible neighbourhood of the frozen reference.
+  for(const id of active){lo[id]=Math.max(-48,target[id]-maxDelta);hi[id]=Math.min(48,target[id]+maxDelta);center[id]=clamp(center[id],lo[id],hi[id]);}
+  if(D.linkAnchors)for(const id of active)center[pairAngle(id)]=center[id];
+  const objective=c=>optimizerObjective(c,referenceBaseline,target,ref,maxDelta);
+  let bestAngles={...center},best=objective(bestAngles);
+  if(!Number.isFinite(best.score)){bestAngles={...target};best=objective(bestAngles);}
+  if(!Number.isFinite(best.score)){setAutoStatus('В выбранных границах нет допустимого начального решения с точным G2.', 'bad');finishOptimization();return;}
+  let count=0;
+  for(const step of [9,5,2.5,1.25,.6,.25]){
+   for(let pass=0;pass<4;pass++){
+    let improved=false;
+    for(const id of active){
+     for(const sign of [1,-1]){
+      let val=clamp(bestAngles[id]+sign*step,lo[id],hi[id]);if(Math.abs(val-bestAngles[id])<1e-9)continue;
+      let trial={...bestAngles,[id]:val};if(D.linkAnchors)trial[pairAngle(id)]=val;
+      let check=objective(trial);count++;
+      if(check.score<best.score-1e-8){best=check;bestAngles=trial;improved=true;}
+     }
+    }
+    if(!improved)break;
+   }
+  }
+  const initial=objective(before);
+  // Only adopt objectively smoother solutions with exact G2.
+  const gain=best.score<initial.score-1e-6 && best.energy<initial.energy-1e-6;
+  if(gain){priorOptimization=before;setAngleVector(bestAngles);selectedUI();render();syncSelectedControls();}
+  let after=gain?best:initial;
+  optimizationStats={beforeEnergy:initial.energy,afterEnergy:after.energy,evals:count,gain};
+  document.getElementById('undoOptimizer').disabled=!gain;
+  const improvement=100*(1-after.energy/initial.energy);
+  document.getElementById('energyDelta').textContent=(improvement>=0?'−':'+')+Math.abs(improvement).toFixed(1)+'%';
+  document.getElementById('g2Delta').textContent='8/8';
+  if(gain){setAutoStatus(`Готово: ${count} проверок, энергия ${improvement>=0?'уменьшена на':'изменена на'} ${Math.abs(improvement).toFixed(1)}%. Изменялись только точки стыка; 8/8 G2 подтверждены.`, 'good');}
+  else{setAutoStatus(`В пределах ±${maxDelta}° и текущей близости к эталону улучшение не найдено. Исходная геометрия сохранена (${count} проверок).`,'');}
+  finishOptimization();
+ },35);
+}
+function finishOptimization(){optimizing=false;const b=document.getElementById('runOptimizer');b.disabled=false;b.textContent='✳  Найти более плавную форму';}
+function invalidateOptimizer(){priorOptimization=null;optimizationStats=null;const undo=document.getElementById('undoOptimizer');if(undo)undo.disabled=true;const delta=document.getElementById('energyDelta');if(delta)delta.textContent='—';}
+function setAutoStatus(text,kind){const e=document.getElementById('autoStatus');e.className='auto-status'+(kind?' '+kind:'');e.textContent=text;}
+function syncSelectedControls(){for(const key of ['rx','ry','gap','rowGap','shift','width']){let el=document.getElementById(key);if(el){el.value=D[key];labelRange(el)}}}
+function refreshMode(){D.mode=document.getElementById('autoMode').classList.contains('active')?'auto':'manual';document.getElementById('autoPanel').classList.toggle('hide',D.mode!=='auto');}
+function changeMode(mode){document.getElementById('manualMode').classList.toggle('active',mode==='manual');document.getElementById('autoMode').classList.toggle('active',mode==='auto');for(const id of ['manualMode','autoMode'])document.getElementById(id).setAttribute('aria-pressed',String((id==='autoMode')===(mode==='auto')));refreshMode();render();}
+function initOptimizer(){
+ document.getElementById('optimizerControls').innerHTML=sliderHTML('autoPreserve','Близость к исходной форме',0,100,1,D.autoPreserve)+sliderHTML('autoMaxAngle','Макс. отклонение точки (°)',2,35,1,D.autoMaxAngle);
+ for(const k of ['autoPreserve','autoMaxAngle']){const el=document.getElementById(k);el.oninput=()=>{D[k]=+el.value;labelRange(el)};}
+ document.getElementById('manualMode').onclick=()=>changeMode('manual');document.getElementById('autoMode').onclick=()=>changeMode('auto');
+ document.getElementById('autoShortcut').onclick=()=>{changeMode('auto');document.getElementById('optimizerPanel').scrollIntoView({block:'start',behavior:'smooth'});};
+ document.getElementById('showReference').onchange=e=>{D.showReference=e.target.checked;render();};
+ document.getElementById('runOptimizer').onclick=executeOptimization;
+ document.getElementById('captureReference').onclick=()=>{const g=evaluationRaw(snapshotAngles());if(!g){setAutoStatus('Невозможно запомнить эталон: сейчас не все сопряжения удовлетворяют точному G2.','bad');return;}autoReference=Object.freeze(snapshotAngles());priorOptimization=null;document.getElementById('undoOptimizer').disabled=true;optimizationStats=null;document.getElementById('energyDelta').textContent='—';setAutoStatus('Текущие точки сохранены как эталон. Можно подбирать более плавную форму, не меняя её композицию.','good');render();};
+ document.getElementById('undoOptimizer').onclick=()=>{if(!priorOptimization)return;setAngleVector(priorOptimization);priorOptimization=null;document.getElementById('undoOptimizer').disabled=true;optimizationStats=null;document.getElementById('energyDelta').textContent='—';setAutoStatus('Предыдущие положения точек восстановлены.','');selectedUI();render();};
+}
+
+function render(){geom=compute();let g=geom;stage.replaceChildren();const defs=node('defs',{},stage);const pattern=node('pattern',{id:'gridPattern',width:10,height:10,patternUnits:'userSpaceOnUse'},defs);node('path',{d:'M 10 0 L 0 0 0 10',fill:'none',stroke:'#232a32','stroke-width':.22},pattern);
+ node('rect',{x:-5000,y:-5000,width:10000,height:10000,fill:'url(#gridPattern)'},stage);
+ const frame=layoutFrame(g.E);
+ if(D.showBaseline){node('line',{x1:-5000,y1:fmt(D.baselineY),x2:5000,y2:fmt(D.baselineY),stroke:'#e04445','stroke-width':.4,'vector-effect':'non-scaling-stroke','pointer-events':'none'},stage);}
+ const art=node('g',{id:'artwork',transform:frame.transform},stage);
+ if(D.showGuides){const guid=node('g',{stroke:'#d7d9d8','stroke-width':.3,'stroke-dasharray':'1.2 1.9'},art);for(const c of Object.values(g.E)){
+ node('path',{d:`M ${fmt(c.x-28)} ${fmt(c.y)} H ${fmt(c.x+28)} M ${fmt(c.x)} ${fmt(c.y-22)} V ${fmt(c.y+22)}`},guid);}}
+ if(D.showEllipses){const ell=node('g',{stroke:'#e6a7a3',fill:'none','stroke-width':.45},art);for(const c of Object.values(g.E))node('ellipse',{cx:fmt(c.x),cy:fmt(c.y),rx:D.rx,ry:D.ry},ell);}
+ if(D.mode==='auto'&&D.showReference){const old=snapshotAngles();setAngleVector(autoReference);let refG;try{refG=compute()}finally{setAngleVector(old)};node('path',{d:pathData(refG),class:'ghostpath'},art);}
+ const path=node('path',{d:pathData(g),stroke:'#e8eef5','stroke-width':D.width,'stroke-linecap':'round','stroke-linejoin':'round',fill:'none',id:'constructed-monogram'},art);
+ if(D.showComb){addComb(node('g',{},art),g)}
+ if(D.showPoints){const ctrl=node('g',{},art);
+ // Control grips, visible only when tail selected.
+ if(['topFree','topGrip'].includes(selected)){node('line',{x1:fmt(g.freeTop.x),y1:fmt(g.freeTop.y),x2:fmt(g.topGrip.x),y2:fmt(g.topGrip.y),stroke:'#7a9cdb','stroke-dasharray':'1.1 1','stroke-width':.45},ctrl);addControlNode(ctrl,g.topGrip,'topGrip','#8daaff',null,1.7)}
+ if(['bottomFree','bottomGrip'].includes(selected)){node('line',{x1:fmt(g.freeBottom.x),y1:fmt(g.freeBottom.y),x2:fmt(g.bottomGrip.x),y2:fmt(g.bottomGrip.y),stroke:'#7a9cdb','stroke-dasharray':'1.1 1','stroke-width':.45},ctrl);addControlNode(ctrl,g.bottomGrip,'bottomGrip','#8daaff',null,1.7)}
+ for(const [id,a] of Object.entries(g.A))addControlNode(ctrl,a.p,id,'#2769ff',null,1.8);
+ if(D.linkAnchors && Object.hasOwn(D.angles,selected)){
+   const a=g.A[pairAngle(selected)];node('circle',{cx:fmt(a.p.x),cy:fmt(a.p.y),r:3.6,fill:'none',stroke:'#5a80ff','stroke-width':.65,'stroke-dasharray':'1.15 .8','pointer-events':'none'},ctrl);
+ }
+ for(const [id,p] of [['topFree',g.freeTop],['bottomFree',g.freeBottom]])addControlNode(ctrl,p,id,'#2a2b2c',null,2.0);
+ // Center anchors are subtly differentiated from tangent anchors.
+ for(const [id,c] of Object.entries(g.E))addControlNode(ctrl,c,'center'+id,'#e2796c',null,1.4);
+ }
+ // Small separate miniature of the actual geometry
+ mini.replaceChildren();let b=transformedBounds(g,frame,7);mini.setAttribute('viewBox',`${fmt(b.x)} ${fmt(b.y)} ${fmt(b.w)} ${fmt(b.h)}`);
+ node('path',{d:pathData(g),transform:frame.transform,stroke:'#202020','stroke-width':D.width,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'},mini);
+ updateViewport();updateDiagnostics();updateBaselineStatus(frame);}
+function updateDiagnostics(){if(!geom)return;const d=document.getElementById('diagnostics');if(geom.fallback){d.className='alert warn';d.innerHTML='<strong>G2 · приближённый резервный режим</strong><p>Положение точек не допускает устойчивого одиночного кубического G2-сопряжения. Использованы короткие аппроксимирующие сегменты. Чтобы вернуться к точному режиму, смести точки ближе к вершинам эллипсов.</p>';document.getElementById('methodBadge').textContent='G2 · APPROX';}
+ else{d.className='alert';d.innerHTML='<strong>G2 · точно в 8 стыках</strong><p>Каждый стык эллипса и кубической кривой имеет общую касательную и совпадающую подписанную кривизну (в пределах численной точности).</p>';document.getElementById('methodBadge').textContent='G2 · EXACT';}
+ document.getElementById('segmentTypes').textContent=geom.fallback?'C + A (approx)':'C + A (exact)';}
+function sliderHTML(id,label,min,max,step,value){let pct=((value-min)/(max-min)*100).toFixed(1)+'%';return `<div class="field"><div class="frow"><label for="${id}">${label}</label><span class="num" id="label-${id}">${Number(value).toFixed(step<1?1:0)}</span></div><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${value}" style="--pct:${pct}"/></div>`;}
+const specsGeom=[['rx','Ширина полуоси',12,36,.5],['ry','Высота полуоси',8,27,.5]],specsLayout=[['gap','Расстояние между парами',43,108,1],['rowGap','Интервал по вертикали',28,90,1],['shift','Смещение нижнего ряда',-25,32,1],['width','Толщина линии',.55,4,.1]];
+function buildSliders(){document.getElementById('geometryControls').innerHTML=specsGeom.map(a=>sliderHTML(...a,D[a[0]])).join('');document.getElementById('layoutControls').innerHTML=specsLayout.map(a=>sliderHTML(...a,D[a[0]])).join('');for(const cfg of [...specsGeom,...specsLayout]){let [id,,min,max]=cfg;let el=document.getElementById(id);el.oninput=()=>{invalidateOptimizer();D[id]=+el.value;labelRange(el);render()};}}
+function labelRange(el){let label=document.getElementById('label-'+el.id);if(label)label.textContent=Number(el.value).toFixed((Number(el.step)||1)<1?1:0);el.style.setProperty('--pct',((+el.value-(+el.min))/(+el.max-(+el.min))*100)+'%');}
+function selectedUI(){let obj=document.getElementById('selected'),controls=document.getElementById('selectedControls'),help=document.getElementById('selectionHelp');
+ if(Object.hasOwn(D.angles,selected)){
+  obj.innerHTML=`${names[selected]}<small>Точка скользит по эллипсу${D.linkAnchors?' · зеркальная пара: '+names[pairAngle(selected)]:''}</small>`;
+  controls.innerHTML=sliderHTML('angle','Сдвиг точки по эллипсу',-48,48,1,D.angles[selected]);
+  let el=document.getElementById('angle');el.oninput=()=>{invalidateOptimizer();setAnchor(selected,+el.value);labelRange(el);render()};help.textContent=D.linkAnchors?'Связанная точка отражается по двум осям (поворот 180°); угол и G2 пересчитываются автоматически.':'G2-переход пересчитывается при каждом перемещении. Угол отсчитывается от вершины овала.';
+ }else if(['topFree','bottomFree','topGrip','bottomGrip'].includes(selected)){
+  obj.innerHTML=`${names[selected]}<small>Перетащи точку непосредственно на холсте</small>`;controls.innerHTML='<div class="muted">Свободный конец и его управляющую ручку можно перетаскивать в любом направлении. При этом стык с овалом остаётся G2, пока сохраняется геометрическая реализуемость.</div>';help.textContent=D.linkAnchors?'Свободное окончание и его ручка отражаются в паре вокруг центра всей композиции.':'Ручка свободного конца появляется при его выделении.';
+ }else if(selected?.startsWith('center')){obj.innerHTML='Положение модуля<small>Перемещается вместе со связанными элементами</small>';controls.innerHTML='<div class="muted">Используй параметры расстояния и смещения слева для точной настройки.</div>';help.textContent='Центры не меняют форму самих эллипсов.';
+ }else {obj.innerHTML='Точка не выбрана';controls.innerHTML='';help.textContent='Кликни по узлу на холсте.';}}
+function setAnchor(id,a){D.angles[id]=clamp(a,-48,48);if(D.linkAnchors)D.angles[pairAngle(id)]=D.angles[id];}
+function snapPoint(id,p){if(Object.hasOwn(D.angles,id)){let a=geom.A[id],c=a.c,ang=Math.atan2((p.y-c.y)/D.ry,(p.x-c.x)/D.rx)*180/PI,base=a.isBottom?90:(a.dir===-1?-90:270);
+ let offset=ang-base;while(offset>180)offset-=360;while(offset< -180)offset+=360;setAnchor(id,offset);
+ }else if(id==='topFree'){D.topEnd=sub(p,geom.E.UR);reflectTailEdit(id)}else if(id==='bottomFree'){D.bottomEnd=sub(p,geom.E.LL);reflectTailEdit(id)}
+ else if(id==='topGrip'){D.topGrip=sub(p,geom.E.UR);reflectTailEdit(id)}else if(id==='bottomGrip'){D.bottomGrip=sub(p,geom.E.LL);reflectTailEdit(id)}
+ else if(id==='centerUL'){D.cx+=p.x-geom.E.UL.x;D.cy+=p.y-geom.E.UL.y;}
+ else if(id==='centerUR'){D.gap=clamp(p.x-geom.E.UL.x,43,108);}
+ else if(id==='centerLL'){D.shift=clamp(p.x-geom.E.UL.x,-25,32);D.rowGap=clamp(p.y-geom.E.UL.y,28,90)}
+ else if(id==='centerLR'){D.gap=clamp(p.x-geom.E.LL.x,43,108);}
+ }
+/* See docs/CODE-MAP.md for module responsibilities and invariants. */
+
+/* Активные касания: id -> {x, y} */
+const touches = new Map();
+let pinchStart = null;   // { d0, zoom0, mid0, pan0 }
+let panTwo = null;       // { mid0, pan0 }
+
+function pointerXY(e) {
+  const r = stage.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+function dist2(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+function mid2(a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
+
+stage.addEventListener('pointerdown', (e) => {
+  const id = e.target.getAttribute && e.target.getAttribute('data-id');
+
+  /* Касание пальцем — копим для жестов. */
+  if (e.pointerType === 'touch') {
+    touches.set(e.pointerId, pointerXY(e));
+    try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+
+    if (touches.size === 2) {
+      /* Два пальца: и панорама, и возможный щипок. */
+      const [a, b] = [...touches.values()];
+      drag = null;
+      pinchStart = { d0: dist2(a, b), zoom0: zoom, mid0: mid2(a, b), pan0: { ...panc } };
+      panTwo = { mid0: mid2(a, b), pan0: { ...panc } };
+      e.preventDefault();
+      return;
+    }
+    if (touches.size > 2) { e.preventDefault(); return; }
+  }
+
+  /* Точка объекта — тянем точку (как раньше). */
+  if (id && D.showPoints) {
+    selected = id; selectedUI();
+    drag = { id, p0: screenPt(e) };
+    try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+    render();
+    e.preventDefault();
+    return;
+  }
+
+  /* Пустое место или Alt/средняя кнопка — панорама. */
+  if (e.altKey || e.button === 1 || e.pointerType === 'touch') {
+    drag = { id: 'pan', p0: screenPt(e), pan0: { ...panc } };
+    try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  }
+});
+
+stage.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch' && touches.has(e.pointerId)) {
+    touches.set(e.pointerId, pointerXY(e));
+  }
+
+  /* ДВА ПАЛЬЦА: щипок = зум, сдвиг = панорама (одновременно). */
+  if (touches.size === 2 && pinchStart) {
+    const [a, b] = [...touches.values()];
+    const d = dist2(a, b);
+    const mid = mid2(a, b);
+
+    if (pinchStart.d0 > 8) {
+      zoom = clamp(pinchStart.zoom0 * (d / pinchStart.d0), .5, 12);
+    }
+    /* сдвиг середины между пальцами = панорама */
+    const dx = mid.x - pinchStart.mid0.x;
+    const dy = mid.y - pinchStart.mid0.y;
+    panc = add(pinchStart.pan0, { x: dx, y: dy });
+
+    updateViewport();
+    e.preventDefault();
+    return;
+  }
+
+  if (!drag) return;
+
+  if (drag.id !== 'pan') invalidateOptimizer();
+  let p = screenPt(e);
+  if (drag.id === 'pan') {
+    panc = add(drag.pan0, sub(drag.p0, p));
+    updateViewport();
+  } else {
+    snapPoint(drag.id, layoutFrame().inverse(p));
+    render();
+    if (Object.hasOwn(D.angles, drag.id)) {
+      let el = document.getElementById('angle');
+      if (el) { el.value = D.angles[drag.id]; labelRange(el); }
+    }
+    for (const key of ['rx', 'ry', 'gap', 'rowGap', 'shift', 'width']) {
+      let el = document.getElementById(key);
+      if (el) { el.value = D[key]; labelRange(el); }
+    }
+  }
+  e.preventDefault();
+});
+
+function endPointer(e) {
+  if (e && e.pointerType === 'touch') {
+    touches.delete(e.pointerId);
+    if (touches.size < 2) { pinchStart = null; panTwo = null; }
+  }
+  drag = null;
+}
+stage.addEventListener('pointerup', endPointer);
+stage.addEventListener('pointercancel', endPointer);
+
+stage.addEventListener('dblclick', () => { panc = v(0, 0); zoom = 1; updateViewport(); });
+
+/* КОЛЕСО: обычный скролл двумя пальцами на трекпаде — панорама.
+   Ctrl+колесо (или Cmd) — масштаб, как в редакторе. */
+stage.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const hasPadAxis = Math.abs(e.deltaX) > 0;
+  const isPinch = e.ctrlKey || e.metaKey;
+
+  /* Два пальца на трекпаде (deltaX есть) — всегда панорама.
+     Пинч тачпада даёт чисто deltaY с ctrlKey — это зум.
+     Как в редакторе CurveLab. */
+  if (!isPinch || hasPadAxis) {
+    let dx = e.deltaX, dy = e.deltaY;
+    if (e.shiftKey && !dx) { dx = dy; dy = 0; }
+    /* Как в редакторе: шаг панорамы ЗАВИСИТ от масштаба.
+       В редакторе это view.w/W — у нас эквивалент 1/zoom.
+       На сильном зуме холст движется мелкими шагами, на отдалении — крупными. */
+    /* Шаг как в редакторе: deltaY * (view.w / ширина_экрана).
+       view.w в единицах сцены = BASE_W / zoom, экран — clientWidth.
+       Значит step = BASE_W / zoom / W. */
+    /* Редактор: state.view.x += dx * sx, где sx = view.w / W.
+       У редактора view.w при 100% ≈ 1587, W ≈ 1356 → sx ≈ 1.17.
+       У loopform viewBox.w = 176 при экране ~700 → свой sx.
+       Подбираем так, чтобы шаг был такой же по ОЩУЩЕНИЮ: ~1.0 на тик. */
+    const W = stage.clientWidth || 900;
+    const step = (176 / zoom) / W * 3;   /* шаг панорамы: вдвое медленнее */
+    const unit = e.deltaMode === 1 ? 16 : 1;
+    panc = add(panc, { x: dx * unit * step, y: dy * unit * step });
+    updateViewport();
+    return;
+  }
+
+  /* ЗУМ К КУРСОРУ. Точка под пальцем/курсором остаётся на месте.
+     Считаем в единицах сцены: находим сценовую точку под курсором
+     ДО зума, меняем zoom, затем сдвигаем baseCenter так, чтобы та же
+     сценовая точка снова оказалась под курсором. */
+  const k = Math.pow(1.016, e.deltaY);
+  const before = zoom;
+  zoom = clamp(zoom / k, .5, 12);
+  if (zoom === before) { updateViewport(); return; }
+
+  const r = stage.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
+
+  /* сценовая точка под курсором при старом масштабе */
+  const aspect = r.width / r.height;
+  let b0 = 182 / before, vw0 = b0, vh0 = b0 / aspect;
+  if (aspect < 1) { vh0 = b0; vw0 = b0 * aspect; }
+  const view0 = {
+    x: baseCenter.x + panc.x - vw0 / 2,
+    y: baseCenter.y + panc.y - vh0 / 2,
+    w: vw0, h: vh0
+  };
+  const sx = view0.x + (mx / r.width) * vw0;
+  const sy = view0.y + (my / r.height) * vh0;
+
+  /* новый вид */
+  let b1 = 182 / zoom, vw1 = b1, vh1 = b1 / aspect;
+  if (aspect < 1) { vh1 = b1; vw1 = b1 * aspect; }
+
+  /* ставим baseCenter+panc так, чтобы (sx,sy) лёг под курсор */
+  panc = {
+    x: (sx - (mx / r.width) * vw1) + vw1 / 2 - baseCenter.x,
+    y: (sy - (my / r.height) * vh1) + vh1 / 2 - baseCenter.y
+  };
+  updateViewport();
+}, { passive: false });
+
+function downloadText(text,name){let blob=new Blob([text],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},600);}
+function exportSvg(withGuides=false){
+ const g=compute(),f=layoutFrame(g.E),b=transformedBounds(g,f,Math.max(9,D.width*5));
+ const vb=`${fmt(b.x)} ${fmt(b.y)} ${fmt(b.w)} ${fmt(b.h)}`;
+ const L=D.showBaseline&&withGuides?`<line x1="${fmt(b.x)}" x2="${fmt(b.x+b.w)}" y1="${fmt(D.baselineY)}" y2="${fmt(D.baselineY)}" stroke="#d98b82" stroke-width="0.4"/>`:'';
+ let guide='';
+ if(withGuides){guide='<g fill="none" stroke="#c98a80" stroke-width=".35">'+Object.values(g.E).map(c=>`<ellipse cx="${fmt(c.x)}" cy="${fmt(c.y)}" rx="${fmt(D.rx)}" ry="${fmt(D.ry)}"/>`).join('')+'</g>'+Object.values(g.E).map(c=>`<circle cx="${fmt(c.x)}" cy="${fmt(c.y)}" r=".8" fill="#db6a61"/>`).join('')+Object.values(g.A).map(a=>`<circle cx="${fmt(a.p.x)}" cy="${fmt(a.p.y)}" r=".75" fill="#2769ff"/>`).join('');}
+ const svg=`<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${fmt(b.w*5)}" height="${fmt(b.h*5)}" viewBox="${vb}">
+  <title>Loopform — baseline aligned G2 monogram</title>
+  <desc>Single editable SVG path; exact elliptical arcs, G2 joins where indicated in the editor. The path is rigidly transformed to the horizontal baseline.</desc>
+  ${L}
+  <g transform="${f.transform}">
+    ${guide}
+    <path id="monogram" d="${pathData(g)}" fill="none" stroke="#e8eef5" stroke-width="${fmt(D.width)}" stroke-linejoin="round" stroke-linecap="round"/>
+  </g>
+</svg>`;
+ downloadText(svg,withGuides?'loopform-baseline-construction.svg':'loopform-baseline.svg');
+}
+
+function updateBaselineStatus(frame=layoutFrame()){
+ const el=document.getElementById('baselineStatus');if(!el)return;
+ const angle=document.getElementById('rotation');
+ if(angle){angle.disabled=D.baselineLock;angle.value=clamp(frame.angleDeg,+angle.min,+angle.max);labelRange(angle);}
+ const err=frame.error;
+ el.className='auto-status'+(err<1e-7?' good':'');
+ el.innerHTML=`Поворот <b>${frame.angleDeg.toFixed(2)}°</b> · уровень <b>Y = ${D.baselineY.toFixed(1)}</b><br>`+
+ (D.baselineLock?`Две нижние касательные совпадают (разница ${err.toExponential(1)} ед.).`:`Ручной поворот: расхождение опор ${err.toFixed(2)} ед.`);
+}
+function saveProject(){
+ const project={format:'loopform-studio',version:3,state:JSON.parse(JSON.stringify(D)),reference:{...autoReference}};
+ const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='loopform-project.json';document.body.appendChild(a);a.click();
+ setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},700);
+}
+async function openProject(file){
+ try{
+  const data=JSON.parse(await file.text());
+  if(data.format!=='loopform-studio'||!data.state||typeof data.state!=='object')throw Error('Файл не является проектом Loopform.');
+  const n=data.state;
+  for(const key of ['rx','ry','gap','rowGap','shift','width','cx','cy','autoPreserve','autoMaxAngle','baselineY','rotation']){
+   if(typeof n[key]==='number'&&Number.isFinite(n[key]))D[key]=n[key];
+  }
+  D.rx=clamp(D.rx,12,36);D.ry=clamp(D.ry,8,27);D.gap=clamp(D.gap,43,108);
+  D.rowGap=clamp(D.rowGap,28,90);D.shift=clamp(D.shift,-25,32);D.width=clamp(D.width,.55,4);
+  D.baselineY=clamp(D.baselineY,0,110);D.rotation=clamp(D.rotation,-155,-15);
+  for(const key of ['showReference','showEllipses','showPoints','showGuides','showComb','linkAnchors','baselineLock','showBaseline'])if(typeof n[key]==='boolean')D[key]=n[key];
+  for(const [name,point] of [['topEnd',n.topEnd],['topGrip',n.topGrip],['bottomEnd',n.bottomEnd],['bottomGrip',n.bottomGrip]]){
+   if(point&&Number.isFinite(point.x)&&Number.isFinite(point.y))D[name]=v(point.x,point.y);
+  }
+  for(const key of Object.keys(D.angles))if(n.angles&&Number.isFinite(n.angles[key]))D.angles[key]=clamp(n.angles[key],-48,48);
+  if(D.linkAnchors)reflectUpperToLower();
+  autoReference=Object.freeze({...D.angles});invalidateOptimizer();
+  selected='URb';panc=v(0,0);zoom=1;
+  buildSliders();initBaseline();initOptimizer();setSwitches();selectedUI();render();
+  document.getElementById('showReference').checked=D.showReference;
+  changeMode(n.mode==='auto'?'auto':'manual');
+  setAutoStatus('Параметры проекта загружены. Текущая форма принята за эталон композиции.','good');
+ }catch(e){window.alert('Не удалось открыть проект: '+e.message);}
+}
+function initBaseline(){
+ const area=document.getElementById('baselineControls');
+ area.innerHTML=sliderHTML('baselineY','Положение линии по Y',0,110,.5,D.baselineY)+
+  sliderHTML('rotation','Поворот (если привязка выключена)',-155,-15,.5,D.rotation);
+ for(const id of ['baselineY','rotation']){
+  const el=document.getElementById(id);
+  el.oninput=()=>{D[id]=+el.value;labelRange(el);render()};
+ }
+ document.getElementById('saveProject').onclick=saveProject;
+ document.getElementById('openProject').onclick=()=>document.getElementById('projectFile').click();
+ document.getElementById('projectFile').onchange=e=>{if(e.target.files[0])openProject(e.target.files[0]);e.target.value='';};
+ for(const [id,key] of [['baselineLock','baselineLock'],['showBaseline','showBaseline']]){
+  const el=document.getElementById(id);el.checked=D[key];el.onchange=()=>{
+    if(key==='baselineLock'&& !el.checked)D.rotation=layoutFrame().angleDeg;
+    D[key]=el.checked;render();
+  };
+ }
+}
+function setSwitches(){
+ for(const [id,key] of [['showEllipses','showEllipses'],['showPoints','showPoints'],['showGuides','showGuides'],['showComb','showComb']]){
+  let el=document.getElementById(id);el.checked=D[key];el.onchange=()=>{D[key]=el.checked;render()};
+ }
+ let lock=document.getElementById('linkAnchors');lock.checked=D.linkAnchors;
+ lock.onchange=()=>{
+  invalidateOptimizer();D.linkAnchors=lock.checked;
+  if(D.linkAnchors){reflectUpperToLower();autoReference=Object.freeze(snapshotAngles());setAutoStatus('Симметрия 180° включена; текущая форма принята за композиционный эталон.','good');}
+  document.getElementById('symmetryStatus').textContent=D.linkAnchors?'Включена: изменение любой точки отражается на противоположной.':'Выключена: все восемь точек и оба окончания независимы.';
+  selectedUI();render();
+ };
+ document.getElementById('reflectUpper').onclick=()=>{
+  invalidateOptimizer();D.linkAnchors=true;lock.checked=true;
+  reflectUpperToLower();autoReference=Object.freeze(snapshotAngles());
+  document.getElementById('symmetryStatus').textContent='Нижние точки и окончание отражены от верхних. Связь включена.';
+  setAutoStatus('Симметричная композиция сохранена как эталон.','good');
+  selectedUI();render();
+ };
+}
+function zoomClick(d){zoom=clamp(zoom*d,.5,5);updateViewport()}
+document.getElementById('zoomIn').onclick=()=>zoomClick(1.2);document.getElementById('zoomOut').onclick=()=>zoomClick(1/1.2);document.getElementById('zoomFit').onclick=()=>{zoom=1;panc=v(0,0);updateViewport()};
+document.getElementById('exportTop').onclick=()=>exportSvg(false);document.getElementById('exportSide').onclick=()=>exportSvg(false);document.getElementById('exportGrid').onclick=()=>exportSvg(true);
+document.getElementById('reset').onclick=()=>{autoReference=Object.freeze(Object.fromEntries(angleIds.map(k=>[k,0])));priorOptimization=null;optimizationStats=null;document.getElementById('energyDelta').textContent='—';document.getElementById('undoOptimizer').disabled=true;setAutoStatus('Параметры и эталон сброшены.','');D.baselineLock=true;D.showBaseline=true;D.baselineY=65;D.rotation=-75.9637565;D.rx=20;D.ry=15;D.gap=60;D.rowGap=40;D.shift=10;D.width=1.8;D.cx=0;D.cy=0;D.angles=Object.fromEntries(Object.keys(D.angles).map(k=>[k,0]));D.topEnd={x:-30,y:-15};D.topGrip={x:-22.8,y:-4.29};D.bottomEnd={x:30,y:30};D.bottomGrip={x:18.8,y:19.71};if(D.linkAnchors)reflectUpperToLower();selected='URb';panc=v(0,0);zoom=1;buildSliders();initBaseline();selectedUI();render()};
+window.addEventListener('resize',updateViewport);
+if(D.linkAnchors)reflectUpperToLower();buildSliders();setSwitches();initOptimizer();initBaseline();selectedUI();render();
+// Expose deterministic geometry for integration tests only; no external dependency.
+window.Loopform={state:D,compute,pathData,exportSvg,checkG2Exact,evaluationRaw,executeOptimization,pairAngle,reflectUpperToLower,symmetryCenter,layoutFrame,transformedBounds,saveProject,getReference:()=>({...autoReference}),getOptimizationStats:()=>optimizationStats};
+
+</script>
+<script>
+
+/* КАРКАС: шторки слева/справа сворачиваются кнопками с рейлов, состояние помнится. */
+(function(){
+  var body = document.getElementById('aBody');
+  var app  = document.getElementById('app');
+  if (!body || !app) return;
+  var L = document.getElementById('lfLeft'), R = document.getElementById('lfRight');
+  var sideL = app.querySelector('aside.left'), sideR = app.querySelector('aside.right');
+  var KEY_L = 'loopform.leftOpen', KEY_R = 'loopform.rightOpen';
+  var openL = true, openR = true;
+
+  /* Панели лежат ПОВЕРХ холста: раскладку не трогаем, только показываем/скрываем. */
+  function cols(){
+    app.classList.toggle('left-hidden', !openL);
+    app.classList.toggle('right-hidden', !openR);
+  }
+
+  function apply(which, open){
+    if (which === 'l') openL = open; else openR = open;
+    var b = which === 'l' ? L : R;
+    if (b) b.classList.toggle('on', open);
+    cols();
+  }
+  var sl = localStorage.getItem(KEY_L), sr = localStorage.getItem(KEY_R);
+  apply('l', sl !== '0');
+  apply('r', sr !== '0');
+  if (L) L.onclick = function(){
+    apply('l', !openL);
+    localStorage.setItem(KEY_L, openL ? '1' : '0');
+    setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 220);
+  };
+  if (R) R.onclick = function(){
+    apply('r', !openR);
+    localStorage.setItem(KEY_R, openR ? '1' : '0');
+    setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 220);
+  };
+  window.addEventListener('resize', function(){ cols(); });
+})();
+
+</script>
+<script>
+/* Иконка «панель» в топбаре — тот же тумблер правой панели, что и на рейле. */
+(function(){
+  var b = document.getElementById('btnPanelToggle');
+  var r = document.getElementById('btnRight');
+  if (b && r) b.onclick = function(){ r.click(); };
+})();
+/* После изменения размеров холста — пересчитать сцену. */
+(function(){
+  function refit(){
+    try { if (typeof updateViewport === 'function') updateViewport();
+          if (typeof render === 'function') render(); } catch(e){}
+  }
+  window.addEventListener('load', function(){ setTimeout(refit, 80); setTimeout(refit, 350); });
+  window.addEventListener('resize', function(){ setTimeout(refit, 80); });
+  document.addEventListener('click', function(){ setTimeout(refit, 120); });
+})();
+</script>
+<script>
+</script>
+<script>
+/* АВТООБНОВЛЕНИЕ. Сервер следит за файлами и шлёт 'shell' — страница
+   перезагружается сама. Зум и сдвиг помним в localStorage,
+   чтобы после перезагрузки вид не сбрасывался. */
+(function(){
+  var K = 'loopform.viewState';
+
+  function save(){
+    try {
+      var st = {};
+      try { st.zoom = (typeof window.__lfZoom === 'function') ? window.__lfZoom() : null; } catch(e){}
+      if (st.zoom == null) return;
+      st.panc = window.__lfPanc ? window.__lfPanc() : null;
+      st.at = Date.now();
+      localStorage.setItem(K, JSON.stringify(st));
+    } catch(e){}
+  }
+
+  function restore(){
+    var raw; try { raw = localStorage.getItem(K); } catch(e){ return; }
+    if (!raw) return;
+    var st; try { st = JSON.parse(raw); } catch(e){ return; }
+    if (!st || Date.now() - st.at > 60000) return;
+    try { if (window.__lfSetView) window.__lfSetView(st.zoom, st.panc); } catch(e){}
+  }
+
+  window.addEventListener('load', function(){ setTimeout(restore, 30); });
+  window.addEventListener('wheel', save, true);
+  window.addEventListener('pointerup', save, true);
+
+  var es = null;
+  function connect(){
+    if (!window.EventSource) return;
+    try { es = new EventSource('../api/watch'); } catch(e){ return; }
+    es.addEventListener('shell', function(){
+      sessionStorage.setItem('lfReloads', String(Number(sessionStorage.getItem('lfReloads')||0)+1));
+      setTimeout(function(){ try { save(); } catch(e){} location.reload(); }, 100);
+    });
+    es.onerror = function(){
+      try { es.close(); } catch(e){}
+      setTimeout(connect, 3000);
+    };
+  }
+  connect();
+})();
+</script>
+</body>
+</html>
+
+ 
+  
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,8 @@
+[Service]
+DynamicUser=yes
+ExecStart=/usr/bin/python3 -I /opt/nikita-web/reader-door.py
+LoadCredential=reader:/etc/nginx/conf.d/instance-site-access.conf
+ProtectSystem=strict
+ProtectHome=yes
+PrivateNetwork=yes
+NoNewPrivileges=yes

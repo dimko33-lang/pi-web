@@ -1,0 +1,10 @@
+{
+  "common": ["telegram_search", "web_search", "web_read", "lightcone_archive", "debri_archive", "science", "generate_image", "edit_image", "adjust_image", "workspace", "send_article"],
+  "owner": ["read", "bash", "edit", "write", "telegram_read", "telegram_draft", "telegram_send", "manage_access", "restart_assistant"],
+  "channel": ["telegram_read", "telegram_recall"],
+  "channel_owner": ["telegram_read", "telegram_recall", "telegram_draft", "telegram_send"],
+  "lightcone": [],
+  "debri": [],
+  "public_research": [],
+  "guest": []
+}

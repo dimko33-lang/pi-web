@@ -1,0 +1,1876 @@
+{
+  "files": {
+    "etc/curvelab-route/upstream.conf": {
+      "mode": "0644",
+      "sha256": "5f0e95e62d169d176b10f88d06554a1e28a05ba91c8985678aba200da61149dd",
+      "source": "exact"
+    },
+    "etc/nginx/conf.d/00-map-size.conf": {
+      "mode": "0644",
+      "sha256": "a2bf2afbb45ee3232113e2bed1cae533628136f72937302102ec2da936d15a87",
+      "source": "exact"
+    },
+    "etc/nginx/conf.d/instance-site-access.conf": {
+      "mode": "0600",
+      "sha256": "830d8abb35c2e6c7a19d78483b4f9ad31102444cf5a7a8757c68ab0fec90dcff",
+      "source": "adapted-private-routing"
+    },
+    "etc/nginx/conf.d/nikita-legacy-articles.conf": {
+      "mode": "0600",
+      "sha256": "d072e8031965a8f76a29d305af0fa7ca8ed9d13e091912af43c7a4a86154bd17",
+      "source": "adapted-private-routing"
+    },
+    "etc/nginx/conf.d/nikita-salon-access.conf": {
+      "mode": "0600",
+      "sha256": "b74a49a18f7893e7b2a531cfde9abf2bf22f78768e0433f21aba8753b86db141",
+      "source": "adapted-private-routing"
+    },
+    "etc/nginx/nginx.conf": {
+      "mode": "0644",
+      "sha256": "48c6a4ec1e1fd28ccf968490f07e34a1d7f755793b2108a3ed8670b1ee2a0aa2",
+      "source": "exact"
+    },
+    "etc/nginx/sites-available/arri-film": {
+      "mode": "0644",
+      "sha256": "86ba316e6a731610d7470b21eedb44cb3de0149f4479fbddfe4ae6846ae878a2",
+      "source": "adapted"
+    },
+    "etc/nginx/sites-available/curvelab-editor": {
+      "mode": "0644",
+      "sha256": "eb5fa2eecf5398261f9dbdde70fbb224e952118a22daa61f211d603e639f4f85",
+      "source": "adapted"
+    },
+    "etc/nginx/sites-available/instance-site-reader": {
+      "mode": "0644",
+      "sha256": "fcd2273ee232f45fc66a3ca5c6c09739a6d7964c04a094155cd97d0a96b4bd19",
+      "source": "adapted"
+    },
+    "etc/nginx/sites-available/panel-instance-site-acme": {
+      "mode": "0644",
+      "sha256": "b3094fe133fab23a45278a73fb0b923f16d24c5c20465b06206a7d55cc2cc8ce",
+      "source": "adapted"
+    },
+    "etc/nginx/sites-available/pi-web-public": {
+      "mode": "0644",
+      "sha256": "a6846001b965bdd0ddf874a49913a99c00f4855b6eab899c515a35f747bb11b0",
+      "source": "adapted"
+    },
+    "etc/nginx/sites-available/restore-acme": {
+      "mode": "0644",
+      "sha256": "e4795e7057772ee0f5410d9ce754d316fafc42f2758d0486c9971705cb4173be",
+      "source": "adapted"
+    },
+    "etc/nginx/snippets/nikita-home-save.conf": {
+      "mode": "0644",
+      "sha256": "464c2a706f778cacdfbb95fbec2d698a823663517a71a045b2f08fd5915bbe41",
+      "source": "exact"
+    },
+    "etc/nginx/snippets/nikita-public-site.conf": {
+      "mode": "0644",
+      "sha256": "2c067b38fc869b51305e4f139863d44e4355dcadc266270fd47a17ec1d694be1",
+      "source": "adapted"
+    },
+    "etc/nginx/snippets/pi-nikita-site-entry.conf": {
+      "mode": "0644",
+      "sha256": "1d8afe8fa7f9f7ab709ba341e7a84f4d95c72ae9fe7f8b649373ea533be92d45",
+      "source": "exact"
+    },
+    "etc/nikita-home-save/RESTORE.md": {
+      "mode": "0644",
+      "sha256": "a727fcd0546db8823743c51d6ef99b939c6af6a05906106d6b752726261399f7",
+      "source": "adapted"
+    },
+    "etc/nikita-home-save/projects.json": {
+      "mode": "0644",
+      "sha256": "7d4c9dcd6e786ce7cd43ad5c3fe1a93a8411cef63edec4523e733e99236011a9",
+      "source": "exact"
+    },
+    "etc/pi-web-speech/@@INSTANCE@@/worker.py": {
+      "mode": "0644",
+      "sha256": "c8f1fa4983fd96defa3687d3ece4605cc1d77cbdf8cc2410ce81ba6809b2588d",
+      "source": "exact"
+    },
+    "etc/polkit-1/rules.d/49-nikita-maintenance.rules": {
+      "mode": "0644",
+      "sha256": "0230640b346653e6b0bda9955332f156a7fb87701e2c605998b1ba84d4b20849",
+      "source": "exact"
+    },
+    "etc/sudoers.d/pi-browser-launch": {
+      "mode": "0440",
+      "sha256": "43f9308f46ee91f2f0b63a95f099ad577f026d61649c2e2c41f5946fb8cc6b9d",
+      "source": "exact"
+    },
+    "etc/systemd/system/curvelab-deps.socket": {
+      "mode": "0644",
+      "sha256": "158da4fb6ddd89a029e8b18f569e3b13a92a4709e47f92f3d2810c418c0a059d",
+      "source": "exact"
+    },
+    "etc/systemd/system/curvelab-deps@.service": {
+      "mode": "0644",
+      "sha256": "915751a84f6741df0c31354661ca6ca2f90444f6459e5dee5cc10ff999435cf9",
+      "source": "exact"
+    },
+    "etc/systemd/system/curvelab-editor.service": {
+      "mode": "0644",
+      "sha256": "8898d5ee18adfca13b5dfe916f654db64328f3bb2b7a55a78859c631252f8fad",
+      "source": "exact"
+    },
+    "etc/systemd/system/curvelab-runner.socket": {
+      "mode": "0644",
+      "sha256": "a11df7ff0c0d5675c8d80e755500aa6bfe6d5215099655edea63fc92f044191e",
+      "source": "exact"
+    },
+    "etc/systemd/system/curvelab-runner@.service": {
+      "mode": "0644",
+      "sha256": "7b4477fe9a357fe3cf6cdf15285a3b882209427817d4171c0d18fe5f0caf71f2",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-home-save.socket": {
+      "mode": "0644",
+      "sha256": "de07cb4e2bbf4a61f925eb34d424e3034359bd9b30447c0419ae3a75e267c63a",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-home-save@.service": {
+      "mode": "0644",
+      "sha256": "fa97cd8f728db16d9706ec8d5a31f2a6a94b86be014202f4b98e9578cc8ae3c3",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-image.service": {
+      "mode": "0644",
+      "sha256": "89bf5b5079c5fe819128cff9a2f9351f3ae6a11147cf9fe462984834488c6ca3",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-reader-door.service": {
+      "mode": "0644",
+      "sha256": "ae908954985912da89e15842f34887cdd77b4005135c189488cc1e2194914434",
+      "source": "adapted"
+    },
+    "etc/systemd/system/nikita-reader-door.service.d/salon.conf": {
+      "mode": "0600",
+      "sha256": "fa49946457bcf34159db371a733c7ec20c04fe4adfaa2621e2d003225d24541c",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-reader-door.socket": {
+      "mode": "0644",
+      "sha256": "08ec8c2895df5ed47ec1ce44613a58d4c292a74d02ba8f1e8e64bfe13625685a",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-restart.service": {
+      "mode": "0644",
+      "sha256": "4fc61872c0d47b2f98cd15f0e1809b87e70cfad20ba3a68e584267fa45d612ee",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-salon-history.service": {
+      "mode": "0644",
+      "sha256": "8d8313a1574ce9226cfa1d1b7a4ad356447b00b0fd4249e5e20e42ac0a56f8b4",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-salon-history.timer": {
+      "mode": "0644",
+      "sha256": "c32b1a0e11ba4ccb387684560a989bd123baa103bd52ce302dd5419bd364073e",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-salon-piwep.service": {
+      "mode": "0644",
+      "sha256": "81625182ba47ab74ef7542195ed83bd97db070991c2a34878ed3251f048bb4d3",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-salon-piwep.timer": {
+      "mode": "0644",
+      "sha256": "22b4824c074dcf92ea57e153d4915bd13a28b9cff055d8ce3e1f50ec75606970",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-science.service": {
+      "mode": "0644",
+      "sha256": "8475747e405eb1a9d28e2fde3d2bbd4987f814ec8ff654cb8673a54f2f9c85ed",
+      "source": "exact"
+    },
+    "etc/systemd/system/nikita-web.service": {
+      "mode": "0644",
+      "sha256": "bba57efcfd1f72686dff6b7d740a76b9d86953dc885e70eb05d50fa9bf77f2c2",
+      "source": "exact"
+    },
+    "etc/systemd/system/pi-nikita-entry.service": {
+      "mode": "0644",
+      "sha256": "1a7ae7635a8654a25bbca84c79753e0dac8d9e3a388a7fa335c27a8067dcd73a",
+      "source": "exact"
+    },
+    "etc/systemd/system/pi-nikita-entry.service.d/90-preview.conf": {
+      "mode": "0644",
+      "sha256": "23bce508fe08bdf16ed3ddf370854886b005cdb0d24405a97783eef15d16c262",
+      "source": "exact"
+    },
+    "etc/systemd/system/pi-nikita-entry.service.d/95-browser-entry.conf": {
+      "mode": "0644",
+      "sha256": "2035fc78ce7ed760b988ddaf017a59eaf67c2d4e219ffaf06600512d4adbb120",
+      "source": "exact"
+    },
+    "etc/systemd/system/pi-nikita.service": {
+      "mode": "0644",
+      "sha256": "ff1e73107dd8a43c357ed552a4d9bc05d8fc735b20244380c6b15793453bf4ac",
+      "source": "adapted"
+    },
+    "etc/systemd/system/pi-nikita.service.d/40-shared-prompt.conf": {
+      "mode": "0644",
+      "sha256": "0120886145f28617c896bc028e88c83beb870a8cfacfa31617c9f1c21af8045e",
+      "source": "exact"
+    },
+    "etc/systemd/system/pi-nikita.service.d/50-conversation-profiles.conf": {
+      "mode": "0644",
+      "sha256": "61f4e675fb25459a9e990e06e86c6b8570c08706b8485ff8503748248591fcab",
+      "source": "adapted"
+    },
+    "etc/systemd/system/pi-nikita.service.d/90-preview.conf": {
+      "mode": "0644",
+      "sha256": "6546fa8e8a83958b4c4b34cb37663f78b96b71dde77cd4ccdd1bba8117ca58ad",
+      "source": "adapted"
+    },
+    "etc/systemd/system/pi-nikita.service.d/95-browser-admin.conf": {
+      "mode": "0644",
+      "sha256": "f2ebed24839efcde5bc353da00319572ceea750e171b4f4a42c5d44fe8ee490c",
+      "source": "exact"
+    },
+    "etc/systemd/system/pi-nikita.slice": {
+      "mode": "0644",
+      "sha256": "d9ca4e324564582688f72530302fdf47e156848cbe3363775e8c1c9f46c4cd4c",
+      "source": "exact"
+    },
+    "etc/systemd/system/pi-web-circle-@@INSTANCE@@.socket": {
+      "mode": "0644",
+      "sha256": "da0ba17e1a74b030a18a305e6a8882a539a8299309b75e916d6821388a921326",
+      "source": "adapted"
+    },
+    "etc/systemd/system/pi-web-circle-@@INSTANCE@@@.service": {
+      "mode": "0644",
+      "sha256": "71ac6a0ebe007d4a187f0e28b1b661a64349e58b09171685747ed30c77a1e1e4",
+      "source": "adapted"
+    },
+    "etc/systemd/system/pi-web-gacrux-@@INSTANCE@@.socket": {
+      "mode": "0644",
+      "sha256": "e582bf6e55a35d2cd8e7e18172a53022c299c0022e008fef045539d231280630",
+      "source": "adapted"
+    },
+    "etc/systemd/system/pi-web-gacrux-@@INSTANCE@@@.service": {
+      "mode": "0644",
+      "sha256": "9bd05d29c28925378b8239b45e2709a93c3bf02df6f8a45dfe8fede3cfa9ffcf",
+      "source": "adapted"
+    },
+    "etc/systemd/system/pi-web-heygen-@@INSTANCE@@.socket": {
+      "mode": "0644",
+      "sha256": "15f9817c28128bb9699fcb6347b8427e0b2340fed3dee1fc8f4026cb60108b87",
+      "source": "adapted"
+    },
+    "etc/systemd/system/pi-web-heygen-@@INSTANCE@@@.service": {
+      "mode": "0644",
+      "sha256": "17c480874ae7dea106085063bb04b487b7fa5a35691d57fc1465aacb27f2809c",
+      "source": "adapted"
+    },
+    "etc/systemd/system/srv-nikita\\x2dprojects-curvelab.mount": {
+      "mode": "0644",
+      "sha256": "7713c1f8e4ce4152482c89269fb855bc0f42ea3f11426b807cf97f1da1306713",
+      "source": "exact"
+    },
+    "etc/systemd/system/tg-agent.service": {
+      "mode": "0644",
+      "sha256": "faf198fec68a90263e5200f04f408e831e52d58edab118d469f760aad5a64123",
+      "source": "exact"
+    },
+    "etc/systemd/system/tg-agent.service.d/20-lightcone-archive.conf": {
+      "mode": "0644",
+      "sha256": "705d1ff936b002a6d339ced38a4d778e0ec1546bbc2c35af58bf92293d715d94",
+      "source": "exact"
+    },
+    "etc/systemd/system/tg-agent.service.d/22-debri-archive.conf": {
+      "mode": "0644",
+      "sha256": "4056f846558a3d5d1dd31dd677d4ccec9dd02aa81c1178d17f115675e641e6ce",
+      "source": "exact"
+    },
+    "etc/systemd/system/tg-agent.service.d/25-live-archive.conf": {
+      "mode": "0644",
+      "sha256": "01c5305f1143ba8e24cc1ed00dfe913758f7b6bd3023bcb74c72da684dd3bb9b",
+      "source": "exact"
+    },
+    "etc/systemd/system/tg-agent.service.d/30-science.conf": {
+      "mode": "0644",
+      "sha256": "2b1a39a4c64352d2b363c447aa404ea4954225f940cd2a20f682a600ff1421cc",
+      "source": "exact"
+    },
+    "etc/systemd/system/tg-agent.service.d/40-image.conf": {
+      "mode": "0644",
+      "sha256": "e7260f24f3d4e73008010e20abf4c41e87ae977eb6fb2b30e315df68616e27c7",
+      "source": "exact"
+    },
+    "etc/systemd/system/tg-agent.service.d/45-public-site.conf": {
+      "mode": "0644",
+      "sha256": "1cadf7e8dcf1f42ab557fbdc7f7f10b368c2c688189e46efd9d60004bdd3e926",
+      "source": "exact"
+    },
+    "etc/systemd/system/tg-agent.service.d/46-arri-site.conf": {
+      "mode": "0644",
+      "sha256": "1762ce0270d4454f9341d35780d9798bd0591ec5a3f93a4501c067d5912430dc",
+      "source": "adapted"
+    },
+    "etc/systemd/system/tg-agent.service.d/47-pi-web-site.conf": {
+      "mode": "0644",
+      "sha256": "db72b9b26a6a18b89d7d24c5194491aa515839bb470469ebe37cdf6278c5b58b",
+      "source": "adapted"
+    },
+    "etc/systemd/system/var-lib-nikita\\x2dscience-work.mount": {
+      "mode": "0644",
+      "sha256": "122e16b00fcfaacc961842c7ba9d38aeda79aca2d0fae299d950838e414f64b4",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/package-lock.json": {
+      "mode": "0644",
+      "sha256": "cf1281e9235db95d3751212fc40a8889aada9aa9d6720394ad4ec8a8ae780d06",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/package.json": {
+      "mode": "0644",
+      "sha256": "8935191f5834c01b61d7ac238191acc97d7e5859e4918789ee840554ad24c859",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/project/curvelab.html": {
+      "mode": "0644",
+      "sha256": "3839a49b74705def35c54f3932c0cf3a2857542c15039f8cdd9617d9c5eee363",
+      "source": "adapted"
+    },
+    "opt/curvelab-editor/public/editor/camera.js": {
+      "mode": "0644",
+      "sha256": "ae6fbeaa3419e93acfe1da737a7e03950d96923defdfc2467a578050fb0154c1",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/public/editor/chrome.css": {
+      "mode": "0644",
+      "sha256": "88eafc313f3c79193c6743a0f1880ebd1db537c9c8f7e6688371dbdc0b4d002e",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/public/editor/selection-hover.js": {
+      "mode": "0644",
+      "sha256": "454f91f87576c364e86c6ff7dd38aa8ec1d5b056704dda17d76b67e7aa048ea7",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/public/favicon.svg": {
+      "mode": "0644",
+      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/public/loopform.html": {
+      "mode": "0644",
+      "sha256": "9a0054cee9c35386b411d8bde8918ac8d3e54562b955019b063a2611e53849d4",
+      "source": "adapted"
+    },
+    "opt/curvelab-editor/public/presence.js": {
+      "mode": "0644",
+      "sha256": "8e2481c38dd0adfc0bde0540f49ab768d6e0fb1e1bf9e4ae0f0a6f4416bc8998",
+      "source": "adapted"
+    },
+    "opt/curvelab-editor/public/shell.html": {
+      "mode": "0644",
+      "sha256": "f3e0a1a8a9dd0e6246e1fffcc33aa7dc704ac197321f654cc2ea508e64859984",
+      "source": "adapted"
+    },
+    "opt/curvelab-editor/server/code-backups.ts": {
+      "mode": "0644",
+      "sha256": "049ff5106d06f65cfc641d4368ed37a67c5b43b2e2ddac5889acf016fe258637",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/server/editor-auth.ts": {
+      "mode": "0644",
+      "sha256": "a5498a99c5c74023ebba9a00056411d4e7cc33fbd086879c2572a397762990ec",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/server/main.ts": {
+      "mode": "0644",
+      "sha256": "d1cbf77b5ab51086f79ba6dc70db11fad88a454a4e7da61b04e6b950edbff94e",
+      "source": "exact"
+    },
+    "opt/curvelab-editor/server/presence.ts": {
+      "mode": "0644",
+      "sha256": "65ecdeceb4325bfc96daf74067813a4911fb2db9204f8a2df09cb2d3df6148e4",
+      "source": "adapted"
+    },
+    "opt/curvelab-editor/server/snapshots.ts": {
+      "mode": "0644",
+      "sha256": "b0fb7b0f54814d68dbdf7ffc8fef6acde057908b4c3695ddadd8690f4894b3f1",
+      "source": "exact"
+    },
+    "opt/nikita-circle-reserve/circle_match.py": {
+      "mode": "0644",
+      "sha256": "3fa25a110ab6a3d7529af662cd839731f9cc47d31f7ce311ec80ff6345499ae1",
+      "source": "exact"
+    },
+    "opt/nikita-circle-reserve/circle_media.py": {
+      "mode": "0644",
+      "sha256": "aca1e4f5750a98590c94907b5c7be4550707d210ce8a75415cd0dd6967cde8d4",
+      "source": "exact"
+    },
+    "opt/nikita-circle-reserve/circle_render.py": {
+      "mode": "0644",
+      "sha256": "91aed61116fb4464159ec98e59acfe3152cb62363170188b42e1add57c9fb278",
+      "source": "exact"
+    },
+    "opt/nikita-circle-reserve/circle_worker.py": {
+      "mode": "0644",
+      "sha256": "e438ed3e47301a741bd96a88c52bf17d5f63bf6b5aebff8bc90b17f77c10241c",
+      "source": "exact"
+    },
+    "opt/nikita-image/image_worker.py": {
+      "mode": "0644",
+      "sha256": "ae89005c1e664b33f118084185301e8802da866c1d3b465d9bbb4a3e23e5ee62",
+      "source": "exact"
+    },
+    "opt/nikita-image/requirements.lock": {
+      "mode": "0644",
+      "sha256": "99a6ee43ad476e21ed615dfc2300e6ac481593cb8c3565716c404d9c4f89482c",
+      "source": "exact"
+    },
+    "opt/nikita-science/Dockerfile": {
+      "mode": "0644",
+      "sha256": "1f6acb9356aeed51a1cbf9ba3823721eadec66666ea9719df5f822ba36475531",
+      "source": "exact"
+    },
+    "opt/nikita-science/requirements.lock": {
+      "mode": "0644",
+      "sha256": "58ac3ead07d92a0f952108f9063e58585429af2edcceae9c4b182c65493a9fcf",
+      "source": "exact"
+    },
+    "opt/nikita-science/worker.py": {
+      "mode": "0700",
+      "sha256": "2997a7bce912d553511571dc64ffa606aa9d408c410d7a2e94536c21138c89cc",
+      "source": "exact"
+    },
+    "opt/nikita-web/reader-door.py": {
+      "mode": "0644",
+      "sha256": "84ef4ce0409650febafccbc5c07c54e5f27ed8ef58abe03124a5fb0a62efd2c3",
+      "source": "adapted"
+    },
+    "opt/nikita-web/requirements.lock": {
+      "mode": "0644",
+      "sha256": "12ebe7d1c19946fb493ab0e8f6375b655d0c9ad16942799d216566467fb6715c",
+      "source": "exact"
+    },
+    "opt/nikita-web/web_service.py": {
+      "mode": "0644",
+      "sha256": "c3772386a8a8ed9a2451efd870ce0facc92e0733d5ad896bb0386dfdd0868fd1",
+      "source": "exact"
+    },
+    "opt/nikita-web/web_worker.py": {
+      "mode": "0644",
+      "sha256": "65d852bdf9889a7079286c85a1e2274a4a1cb075cf95ad27b1667bf614362479",
+      "source": "exact"
+    },
+    "opt/pi-web-heygen-@@INSTANCE@@/circle_match.py": {
+      "mode": "0644",
+      "sha256": "3fa25a110ab6a3d7529af662cd839731f9cc47d31f7ce311ec80ff6345499ae1",
+      "source": "exact"
+    },
+    "opt/pi-web-heygen-@@INSTANCE@@/circle_media.py": {
+      "mode": "0644",
+      "sha256": "aca1e4f5750a98590c94907b5c7be4550707d210ce8a75415cd0dd6967cde8d4",
+      "source": "exact"
+    },
+    "opt/pi-web-heygen-@@INSTANCE@@/heygen_render.py": {
+      "mode": "0644",
+      "sha256": "28187a7a37e7755b232b64a0b4b4f7f9784538e8d292a7afbdc8b926cf57b72a",
+      "source": "exact"
+    },
+    "opt/pi-web-runtime/package-lock.json": {
+      "mode": "0644",
+      "sha256": "68791d04847c916c466b5e75c12ad70c335ef01ba75bb7648aa6855d3fc0f825",
+      "source": "exact"
+    },
+    "opt/pi-web-runtime/package.json": {
+      "mode": "0644",
+      "sha256": "c93fb19affbe235a1132a3b51de40e10d81193d62943b29e9ea2cb6f4f3ddef7",
+      "source": "exact"
+    },
+    "opt/projects/debri-reader/releases/20261112T205217Z/public/app.js": {
+      "mode": "0644",
+      "sha256": "9fb93cfbb2dcb9a4232b8b49c4b990c8e78f12ba67a824710f33968c7fd47383",
+      "source": "exact"
+    },
+    "opt/projects/debri-reader/releases/20261112T205217Z/public/index.html": {
+      "mode": "0644",
+      "sha256": "d30b97ebc6c8bae382b1c9a6a461a200bb35a6348a455516a5ac43620f2d3f36",
+      "source": "adapted"
+    },
+    "opt/projects/debri-reader/releases/20261112T205217Z/public/style.css": {
+      "mode": "0644",
+      "sha256": "aff5f3433464cf31e4eaf9aed5588942d075c21dc11030b161991d3a450baa77",
+      "source": "exact"
+    },
+    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/app.js": {
+      "mode": "0644",
+      "sha256": "cd963277b34f70067371bb320895e2e1d3d9075b186b175c467170c35bd460da",
+      "source": "exact"
+    },
+    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/index.html": {
+      "mode": "0644",
+      "sha256": "413b21ebe2fd277eb5551b4a03c0ad910c6fd0c13dda9c52417c067fd5d34a39",
+      "source": "exact"
+    },
+    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/style.css": {
+      "mode": "0644",
+      "sha256": "aff5f3433464cf31e4eaf9aed5588942d075c21dc11030b161991d3a450baa77",
+      "source": "exact"
+    },
+    "opt/workspace-branding/nikita.js": {
+      "mode": "0644",
+      "sha256": "4df95e0ce7247a4ada9fef67e89996817ebb63982afb456c87e5901ec64a60f6",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/arri/public/booth-still.js": {
+      "mode": "0644",
+      "sha256": "a8f739d1eea9c85bef8561cb0f708ba36641069ba50d9ed33ee8df900913f07b",
+      "source": "exact"
+    },
+    "srv/nikita-projects/arri/public/index.html": {
+      "mode": "0644",
+      "sha256": "b5f353ddd0cf4169d0cf7b655781e1e0349ef8db4bf194bd1b86919742b75c71",
+      "source": "exact"
+    },
+    "srv/nikita-projects/arri/public/nochnoy-seans.svg": {
+      "mode": "0644",
+      "sha256": "f798db475e266892597c146983cbb083d42886172b3cac2fef046208f2c12c70",
+      "source": "exact"
+    },
+    "srv/nikita-projects/arri/public/site.css": {
+      "mode": "0644",
+      "sha256": "a4a24c30306442dfb6ba844bdc4913da9af4d952c9203333b704f464224a0dc9",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/package-lock.json": {
+      "mode": "0644",
+      "sha256": "cf1281e9235db95d3751212fc40a8889aada9aa9d6720394ad4ec8a8ae780d06",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/package.json": {
+      "mode": "0644",
+      "sha256": "8935191f5834c01b61d7ac238191acc97d7e5859e4918789ee840554ad24c859",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/project/curvelab.html": {
+      "mode": "0644",
+      "sha256": "3839a49b74705def35c54f3932c0cf3a2857542c15039f8cdd9617d9c5eee363",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/editor/camera.js": {
+      "mode": "0644",
+      "sha256": "ae6fbeaa3419e93acfe1da737a7e03950d96923defdfc2467a578050fb0154c1",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/editor/chrome.css": {
+      "mode": "0644",
+      "sha256": "88eafc313f3c79193c6743a0f1880ebd1db537c9c8f7e6688371dbdc0b4d002e",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/editor/selection-hover.js": {
+      "mode": "0644",
+      "sha256": "454f91f87576c364e86c6ff7dd38aa8ec1d5b056704dda17d76b67e7aa048ea7",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/favicon.svg": {
+      "mode": "0644",
+      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/loopform.html": {
+      "mode": "0644",
+      "sha256": "9a0054cee9c35386b411d8bde8918ac8d3e54562b955019b063a2611e53849d4",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/presence.js": {
+      "mode": "0644",
+      "sha256": "8e2481c38dd0adfc0bde0540f49ab768d6e0fb1e1bf9e4ae0f0a6f4416bc8998",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/shell.html": {
+      "mode": "0644",
+      "sha256": "f3e0a1a8a9dd0e6246e1fffcc33aa7dc704ac197321f654cc2ea508e64859984",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/code-backups.ts": {
+      "mode": "0644",
+      "sha256": "049ff5106d06f65cfc641d4368ed37a67c5b43b2e2ddac5889acf016fe258637",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/editor-auth.ts": {
+      "mode": "0644",
+      "sha256": "a5498a99c5c74023ebba9a00056411d4e7cc33fbd086879c2572a397762990ec",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/main.ts": {
+      "mode": "0644",
+      "sha256": "d1cbf77b5ab51086f79ba6dc70db11fad88a454a4e7da61b04e6b950edbff94e",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/presence.ts": {
+      "mode": "0644",
+      "sha256": "65ecdeceb4325bfc96daf74067813a4911fb2db9204f8a2df09cb2d3df6148e4",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/snapshots.ts": {
+      "mode": "0644",
+      "sha256": "b0fb7b0f54814d68dbdf7ffc8fef6acde057908b4c3695ddadd8690f4894b3f1",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/runner-build/Dockerfile": {
+      "mode": "0600",
+      "sha256": "6c819abb9eeb92a9739bd970064cf302cb483dda2ae69570fb122d99ebc064a3",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/runner-build/package-lock.json": {
+      "mode": "0600",
+      "sha256": "cf1281e9235db95d3751212fc40a8889aada9aa9d6720394ad4ec8a8ae780d06",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/runner-build/package.json": {
+      "mode": "0600",
+      "sha256": "8935191f5834c01b61d7ac238191acc97d7e5859e4918789ee840554ad24c859",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/package-lock.json": {
+      "mode": "0644",
+      "sha256": "cf1281e9235db95d3751212fc40a8889aada9aa9d6720394ad4ec8a8ae780d06",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/package.json": {
+      "mode": "0644",
+      "sha256": "8935191f5834c01b61d7ac238191acc97d7e5859e4918789ee840554ad24c859",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/project/curvelab.html": {
+      "mode": "0644",
+      "sha256": "3839a49b74705def35c54f3932c0cf3a2857542c15039f8cdd9617d9c5eee363",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/work/public/editor/camera.js": {
+      "mode": "0644",
+      "sha256": "ae6fbeaa3419e93acfe1da737a7e03950d96923defdfc2467a578050fb0154c1",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/public/editor/chrome.css": {
+      "mode": "0644",
+      "sha256": "88eafc313f3c79193c6743a0f1880ebd1db537c9c8f7e6688371dbdc0b4d002e",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/public/editor/selection-hover.js": {
+      "mode": "0644",
+      "sha256": "454f91f87576c364e86c6ff7dd38aa8ec1d5b056704dda17d76b67e7aa048ea7",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/public/favicon.svg": {
+      "mode": "0644",
+      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/public/loopform.html": {
+      "mode": "0644",
+      "sha256": "9a0054cee9c35386b411d8bde8918ac8d3e54562b955019b063a2611e53849d4",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/work/public/presence.js": {
+      "mode": "0644",
+      "sha256": "8e2481c38dd0adfc0bde0540f49ab768d6e0fb1e1bf9e4ae0f0a6f4416bc8998",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/work/public/shell.html": {
+      "mode": "0644",
+      "sha256": "f3e0a1a8a9dd0e6246e1fffcc33aa7dc704ac197321f654cc2ea508e64859984",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/work/server/code-backups.ts": {
+      "mode": "0644",
+      "sha256": "049ff5106d06f65cfc641d4368ed37a67c5b43b2e2ddac5889acf016fe258637",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/server/editor-auth.ts": {
+      "mode": "0644",
+      "sha256": "a5498a99c5c74023ebba9a00056411d4e7cc33fbd086879c2572a397762990ec",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/server/main.ts": {
+      "mode": "0644",
+      "sha256": "d1cbf77b5ab51086f79ba6dc70db11fad88a454a4e7da61b04e6b950edbff94e",
+      "source": "exact"
+    },
+    "srv/nikita-projects/curvelab/work/server/presence.ts": {
+      "mode": "0644",
+      "sha256": "65ecdeceb4325bfc96daf74067813a4911fb2db9204f8a2df09cb2d3df6148e4",
+      "source": "adapted"
+    },
+    "srv/nikita-projects/curvelab/work/server/snapshots.ts": {
+      "mode": "0644",
+      "sha256": "b0fb7b0f54814d68dbdf7ffc8fef6acde057908b4c3695ddadd8690f4894b3f1",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/ENVIRONMENT.md": {
+      "mode": "0644",
+      "sha256": "c6e8f6470dbb6d332f2de9bd0b229956fb0b88bd9dc0d2f7bd755bb59798ad31",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/INTERACTIVE-CARDS.md": {
+      "mode": "0644",
+      "sha256": "809467d2d2d1adc472660f70752488bb810c4dcfd1e2e3b5f418c38fffaef2ec",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/README.md": {
+      "mode": "0644",
+      "sha256": "c1c5e047086926afa6e7be0bc195a08125e68792aa2de367bb3793f6917e2c9d",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/RESTORE.md": {
+      "mode": "0644",
+      "sha256": "a9d5b1b6ab5932786e67360ae0fe899709b55b21b7b59c944b07cd4b8311c326",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/deploy/pi-web.service": {
+      "mode": "0644",
+      "sha256": "dea36a017353a9b1f4b01c8aa61d344be179bdbc5df4c309004080235ad6ecf3",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/models.json": {
+      "mode": "0644",
+      "sha256": "8702a51903a29086d5739b9908303b1d965b0d22c72f46d50814f2e8ba635868",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/package-lock.json": {
+      "mode": "0644",
+      "sha256": "0f491f434de684ee65148cb75e8096c4677c169bd49152f3a7292214ff5eb8ad",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/package.json": {
+      "mode": "0644",
+      "sha256": "d09c77501060b1b29b87658380e86473b9fd643079fb86b78dde313e42ef2a63",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/projects/lab/index.html": {
+      "mode": "0600",
+      "sha256": "06045d0a9e2dd7af20f2ac8e3974e7b56bae2b5435813f18e482e74bd13f2012",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-images.js": {
+      "mode": "0644",
+      "sha256": "ce35abede35542685df07bfdf40b815210f45d5b5a51e45d87b36bf7caa80502",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-last-message-time.js": {
+      "mode": "0644",
+      "sha256": "56d856d28de9d75160cff134eb30f8622ae796974ac1f431eb74637b586f1936",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-message-actions.js": {
+      "mode": "0644",
+      "sha256": "a58adf1caa28a8b7b205871c385c8b4d9c654df85cffc8cc3861d9a24b381f71",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-popover-anchor.js": {
+      "mode": "0644",
+      "sha256": "2d779b3cbd84ce7de0874a367bad3f3d4d67ab72e2f7023c023ced103ef43fb6",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-popovers.css": {
+      "mode": "0644",
+      "sha256": "e5176bb372604ee7afe46a737bddb0e613edd4788ae7f2eb7dac386ac303b436",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-thinking.js": {
+      "mode": "0644",
+      "sha256": "4a4de3c07d4b2664f61dba57fe7b36cda16942e7f33a4460ca2baa9a1ee73ac7",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.css": {
+      "mode": "0644",
+      "sha256": "28e1d9fb776b630d3103ed9f261bdc0bd36f9a1429683fbfafa2a19060e10d25",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.html": {
+      "mode": "0644",
+      "sha256": "96423241c0efa48fa7a0e22b02925b8ea9985bd8e47b2168a3d402cca2c32515",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.js": {
+      "mode": "0644",
+      "sha256": "d5d41752ee54340d0a4d2199a565345df05924bbefd55eca9a4fb871347b1915",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.css": {
+      "mode": "0640",
+      "sha256": "50dc6733965ff9034e43a0687c2745d0ecdd5a1be6f76271fd12f174c5bce796",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.html": {
+      "mode": "0640",
+      "sha256": "3cc5bd8d9d2e0931cb7e18111a5c8ce3b10357eaf0c3fd6fb6215ae0a7033cdf",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.js": {
+      "mode": "0640",
+      "sha256": "2f5194240c04c9f9d27e03168f7d19158bd086a5e7423aa9c868e24aafebcc90",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/favicon.svg": {
+      "mode": "0644",
+      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/file-browser.css": {
+      "mode": "0644",
+      "sha256": "5fb871c776232294520d9a25546a94a51c70f28d40cd24dc80fa3ec3d99b5447",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/file-browser.js": {
+      "mode": "0644",
+      "sha256": "bb207d7238b709a0b30957b8c501bcc2632de1a12d68ad8245738acf318e7888",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/files.html": {
+      "mode": "0644",
+      "sha256": "56ea7179423313eb76e94adf3c66c258291b41ccc4a20b32b6c56f909219d54a",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/fullscreen-control.js": {
+      "mode": "0640",
+      "sha256": "450d4b9c460f70f03159fdd6ebc30a2ba248dfa80c01cf97cf9f451dcc8529b8",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/interactive-cards.css": {
+      "mode": "0644",
+      "sha256": "1aa6bc6d5ac820c12c504e47739b627c622a4303af30a8f39aa2a57770b7b3f2",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/interactive-cards.js": {
+      "mode": "0644",
+      "sha256": "2f3849b7550930202dc2337266f835cad98e6f62417343bcb5efcb7619f981e1",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/legacy-storage.js": {
+      "mode": "0644",
+      "sha256": "ee409b5f12df6c4359b655d5ada3387322eaa0beeb69c9652eafd0c9f6155d63",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/notice.css": {
+      "mode": "0644",
+      "sha256": "dc3524909e244bf62568c41550c812678c1df456414cb33950e4cd25544e8c07",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/notice.js": {
+      "mode": "0644",
+      "sha256": "d026ad78a09dc3425df15e4b66cac44cc71e55af808ecfcbbb69d8e0e91c0545",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/profile-picker.js": {
+      "mode": "0640",
+      "sha256": "9369a17e55c7afdfe0d3b0c4bd4874d40e310cc565be960672b91a316bc5c532",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/profile-thinking.js": {
+      "mode": "0640",
+      "sha256": "02836c139949c71fc766d8668df90bbe135f063e7316165b1510b93d85e7b6f2",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/scientific-content.css": {
+      "mode": "0640",
+      "sha256": "bd37cf6ed2b015327880baa06df55cfb601ce2e6545388733579a5e2bf761de6",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/source-save.css": {
+      "mode": "0644",
+      "sha256": "c54a9e612004c15a98fea7c3f9cadff3a37cd5f67c3b8abaf18aaf73fa908a57",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/source-save.js": {
+      "mode": "0644",
+      "sha256": "f997cb7640eaeb103f1f37e8ebdc4c514d96b32cf6e7164bb9148ea9d6963eb3",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/surface-colors.css": {
+      "mode": "0644",
+      "sha256": "21574b7ce09bcc8667289c2dd8190859977b48efd24a0891a7e975605e5dea9a",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/inter/InterVariable-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "e564f652916db6c139570fefb9524a77c4d48f30c92928de9db19b6b5c7a262a",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/inter/InterVariable.woff2": {
+      "mode": "0644",
+      "sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_AMS-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "0cdd387c9590a1a9f9794560022dbb59654a7d86f187aa0c81495ad42d3a7308",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "de7701e42cf1f4cf0b766c03fb27977207eee2f4fd5d76fa82188406da43ea4c",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "5d53e70ad607c2352162dec9e0923fb54ecdafaccbf604cd8dcf7d00facb989b",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Fraktur-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "74444efd593c005e3f4573b44524704c0af0a937fe911cca9e94068d0d140d3f",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Fraktur-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "51814d270d06ff0255dba0799994fa4d8c84d11f09951d47595f4abb1f3602dc",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Main-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "0f60d1b897938ec918c8ce073092411baf9438f6739465693ff18b0f9d20b021",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Main-BoldItalic.woff2": {
+      "mode": "0644",
+      "sha256": "99cd42a3c072d918f2f44984a807cf7aa16e13545fd0875fc07c6c65f99e715b",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Main-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "97479ca6cce906abc961ecac96faa5f9ca2e61b8e7670d475826bcdee9a7c267",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Main-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "c2342cd8b869e01752a9321dc17213fc40d4d04c79688c1d43f2cf316abd7866",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Math-BoldItalic.woff2": {
+      "mode": "0644",
+      "sha256": "dc47344dbb6cb5b655c8460d561f4df5f501b90c804ad3c6cec65fe322351ab1",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Math-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "7af58c5ec8f132a2ddde9027c6d7814decce4d3b822a11192a42a20e2e973264",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_SansSerif-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "e99ae51144bf1232efcc1bfe5add36262c6866b0faab24fa75740e1b98577a62",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_SansSerif-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "00b26ac825e2095056396e0553b8ac26d3f8ad158c3826e28b4c45b385c4714a",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_SansSerif-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "68e8c73ef42afd3ccec58bf0fba302cce448938e7fc020a5e31f8a952eee1342",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Script-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "036d4e95149b69ff9bcc0cd55771efeb25ffa3947293e69acd78d5ac328c684b",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Size1-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "6b47c40166b6dbe21a5dfca7718413f2147fd2399be1ba605d8ad39cedf25dfe",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Size2-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "d04c54219f9eaec6d4d4fd42dfb28785975a4794d6b2fc71e566b9cd6db842dd",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Size3-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "73d591271b1604960cb10bb90fee021670af7297017e0e98480b332d11f51995",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Size4-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "a4af7d414440a1c1790825cfb700cf9cf43b0f2c4b04f0ebc523011ad9853ec0",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Typewriter-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/katex.min.css": {
+      "mode": "0644",
+      "sha256": "c9eac1c75c95f7dcbb6db0210cf0a49a150d07aaf599292e5f9ca099c596a119",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/katex.min.js": {
+      "mode": "0644",
+      "sha256": "a29d2961d3146de5949d78ac7c1a9d93ae54955bad22a6db4fbe836e88e8bf48",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/agent.ts": {
+      "mode": "0644",
+      "sha256": "f23e266df2a926d5e98fd66d7bfbf3b83bae5393c4fbfbf3ce3491340b0c828d",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/auth.ts": {
+      "mode": "0644",
+      "sha256": "cda7859c7756f67bb6455b1376616b61f36b94936ca5ee0b1c3cdb626de21ce6",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/chat-images.ts": {
+      "mode": "0644",
+      "sha256": "3185c6bcd490098b3e787f99a7418590f08a949b8a92539333974a87610b0d8a",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/chat-live.ts": {
+      "mode": "0644",
+      "sha256": "cc071500e67a7a72a49ad5707f7d537e8a064848f428d9dca15428c61a1df5c4",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/chat-thinking.ts": {
+      "mode": "0644",
+      "sha256": "940c6d269cfda7fc79b3f9dea55360c20e9033f90e35235c5d8d7a671ab5a881",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/conversation-profiles.ts": {
+      "mode": "0644",
+      "sha256": "7bf5cb22399211f7e43815bec71d1ed143368da53f983debecd87ad256080574",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/execution.ts": {
+      "mode": "0644",
+      "sha256": "520569a144107bf7ed34db4e6ef0c0a90aedce4531b9fb3e4547bc031a078f66",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/files.ts": {
+      "mode": "0644",
+      "sha256": "c4b7bb5651cf15ddd111318957560543b40b21b47a7fd8b02037e2bd58360dbf",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/START-HERE.md": {
+      "mode": "0644",
+      "sha256": "89b40bbbc24bac39bf0d6a1918b33da34744fc5702b9e6547a0113ca2b890787",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/changes.md": {
+      "mode": "0644",
+      "sha256": "85292043ae909f142b6f82f99d679f90f3d23c93d6c075939d30084a58b5ba60",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/telegram.md": {
+      "mode": "0644",
+      "sha256": "94decc01c6d2efc07d70dca23965733b7c947043bf17462d86e7f40d038fa96d",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/voice-input.md": {
+      "mode": "0644",
+      "sha256": "a73b8fe41ef5692697980fa0b18aee523e835d1ac7dfafe060e4aa6c8f362f2e",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/voice-output.md": {
+      "mode": "0644",
+      "sha256": "a94ee5c39aab764af45d510044a88a0fea851f064e95b4541f79d98b2495fbb2",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/history.ts": {
+      "mode": "0644",
+      "sha256": "ab84d800f16049da852d03a370c7519a097e6a6070842d3d004efaadc6849483",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/legacy-compat.ts": {
+      "mode": "0644",
+      "sha256": "76bc142be5b4c4aca660ee98b4b40bd523773c62013c0215d96260aea097d5bd",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/main.ts": {
+      "mode": "0644",
+      "sha256": "889983c884b70ffdd3939cb08142fe57a0d02da638507072739ad4b0f1d6d46a",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/message-deletion.ts": {
+      "mode": "0644",
+      "sha256": "2972119387fccaf500c29e90b6f792d0a73b3c78c4dd963cc4b82a446e0036ea",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/models.ts": {
+      "mode": "0644",
+      "sha256": "7508c5a78559c686334be078340d67e31d99552a854222d4dd2bb95bd95eccd8",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/owner-request-inspection.ts": {
+      "mode": "0644",
+      "sha256": "3b9cc2ee5a5a6d7e638a23cb395d017098ea84c15c2928db835419027cebf08f",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-context-extension.ts": {
+      "mode": "0644",
+      "sha256": "f506014905bc9c1a362219da9dc11a0843989f9d966629356398f1ec78f55e6c",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-context-reader.mjs": {
+      "mode": "0644",
+      "sha256": "c88d71b855298e314fb6bdfdabbe3b3aeff3e61c3698edde32f3ebf5c79f2f03",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-context.ts": {
+      "mode": "0644",
+      "sha256": "18abcfb1832b1a0603087143f59cb4df92d5a03c01bedd98abcc243b48e322c3",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-response-neutral.ts": {
+      "mode": "0644",
+      "sha256": "7f0fca23a1414e19f4249ea90b8640930031dec2a6fcfba643325926181a92b3",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-vision.ts": {
+      "mode": "0644",
+      "sha256": "903c525aa9b35c56884e0e21a00c3861e867b60753c8f8073aa09b7c001ff3e1",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/reasoning-accumulator.ts": {
+      "mode": "0644",
+      "sha256": "08419ff5241cba41d073af87eea0e10cd9f87eb8df49379dc9896f716b823ff0",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/source-archive.ts": {
+      "mode": "0644",
+      "sha256": "6b5dfad3bab0f82a1ea6fc92b1cdeefc899e3b7518c17d546f405462256bdd4c",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/stream-delivery.ts": {
+      "mode": "0644",
+      "sha256": "fac0c4c75d5400cb817d0658a274606c090be1349ca16f1e8d342fc834baabad",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/tool-environment.ts": {
+      "mode": "0644",
+      "sha256": "2b2f8155a161ada9494878504299494ebed0f5adea2ec5ca2883b25a1d362d5d",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/transcript-deletion.ts": {
+      "mode": "0644",
+      "sha256": "1481c81a87f12ac9414546d6a99b9200df18769d4420720500bbad57ad19ba6e",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/usage.ts": {
+      "mode": "0644",
+      "sha256": "2f7ac2e166868fe9bf9fd3c4570c057c13d94f2a5b5e7485bea342b9d3aa559f",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/vision-browser.ts": {
+      "mode": "0644",
+      "sha256": "7e12337b90af41a27a23e14bb490d1a5317d7355e5bde5925d6faa61479751a7",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/vision.ts": {
+      "mode": "0644",
+      "sha256": "339c0e19248d153eb9c8c138292271b515a743b7d532a1d83d66f77509707118",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/start.sh": {
+      "mode": "0644",
+      "sha256": "39d6fd4288107b29c87ab598b3c914fb4aec45c313184026378db1696b534156",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/tests/access-link.mjs": {
+      "mode": "0644",
+      "sha256": "af0d8b7980ae33c1a88ef970b7ef6a7f56319b162cb7550818479e43a76e59cb",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/tests/conversation-profiles.mjs": {
+      "mode": "0600",
+      "sha256": "9cc3d6d6d29c35c724909b9bce053f29bd60a631e7a1f48cb368e2850801bdde",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/tests/profile-tools.mjs": {
+      "mode": "0600",
+      "sha256": "2e24e605205c97fc8c3fd0b40ca847c94597706fe842d48c43261135ac6e99f1",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/tests/scientific-content.mjs": {
+      "mode": "0600",
+      "sha256": "3687b871cc000e74499fc8de502a494158080aad97458f04a67804ad6527164f",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/site-entry/main.mjs": {
+      "mode": "0644",
+      "sha256": "11f92e15866ca00754d391e36cab094a0d19818c07dea3a7b41ba0b4c8dc3655",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/site-entry/navigation.js": {
+      "mode": "0644",
+      "sha256": "c3991a03dfe384751b0cca84dcc1c170702c6e124b5b9fbb703018deda473395",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/site-entry/test.mjs": {
+      "mode": "0644",
+      "sha256": "6a8400611179dd5a64a98106f0c7e39528a889234cdb401426d8fbfa5e46f290",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_runtime.py": {
+      "mode": "0600",
+      "sha256": "05e7a845cd0f1bcc72317d7b1dad933f39e0706f699a83e77cfbd4bcbf90d67f",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_server.py": {
+      "mode": "0600",
+      "sha256": "10e22ba6fbef004e482b8ffd9d31198ee0716b5bab495cb74a7b98e883bdb387",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_tools.ts": {
+      "mode": "0600",
+      "sha256": "7f2db68255972d60399045cbc926eb3c2cb7bec40107cf189e3ffd6b6ec63328",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/approval_state.py": {
+      "mode": "0600",
+      "sha256": "824cddc8f17eeda69442d57567c8aad5c4d4b3544cc7648f76f59203d8478a40",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/archive_sync.py": {
+      "mode": "0600",
+      "sha256": "585fb3483373c94f91f2e661ac843e3d6334c2192e789ea2cb6272726722cf32",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/circle_command.py": {
+      "mode": "0644",
+      "sha256": "f62686112c48bf76fd57b0780615cdabe89e2b26a1562e0e3279f43b502fd540",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/circle_media.py": {
+      "mode": "0644",
+      "sha256": "aca1e4f5750a98590c94907b5c7be4550707d210ce8a75415cd0dd6967cde8d4",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/circle_reply.py": {
+      "mode": "0644",
+      "sha256": "1e1ce91a1d2899eb638d527c186697dc683c0aa37025b8f82e6006648f10a89e",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/circle_transcripts.py": {
+      "mode": "0644",
+      "sha256": "93c5a530dd36c156f1f81b8ff256cf87ae0220a03db604a6a1cf2c2bcce56e54",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/config.py": {
+      "mode": "0640",
+      "sha256": "9dcf076d64a52e6394f33840bdf3bdb8baa54b25035f47801183af543af8d52a",
+      "source": "private-input-adapter"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/conversation_profiles.py": {
+      "mode": "0600",
+      "sha256": "7021cb7a03885a4ceeab14f3a0d63996137108cd5902f85b68db3994cf436704",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/debri_archive.py": {
+      "mode": "0644",
+      "sha256": "9e49132f7e065148e6fe1eafe5769b33048654e577031493fb6cfa87b6706469",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/group_photos.py": {
+      "mode": "0600",
+      "sha256": "5f04aa6b5706b118c6b37a8258e784106aa2bcebff57d70ed9cae5228a60097b",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/image_delivery.py": {
+      "mode": "0600",
+      "sha256": "71c1668cb2ffe5f0d9a92c66bd32a7d51412e8ae298b422f3e4012b52e6cc4ba",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/lc_recovery.py": {
+      "mode": "0600",
+      "sha256": "d5d2d847f525e64851ed3b63fd2e1562691ef741df3150ba25e349e4bb3f8379",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/lightcone_archive.py": {
+      "mode": "0600",
+      "sha256": "1509942900fccf25b5464bd5da19a2019502f2cf9aa454342104817bc83828d7",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/lightcone_context.py": {
+      "mode": "0600",
+      "sha256": "1d0b1c3ca06b0c074470a8c74169a6b737b02e076b86fcdf269aadf1458be16f",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/live_archive.py": {
+      "mode": "0600",
+      "sha256": "1efed5a09034298570ae3d152b7df829e0019e8ee5489c0ebef1191f43619d4c",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/mathrender/package-lock.json": {
+      "mode": "0644",
+      "sha256": "e4b21ea31859406ee18f3b1fac8f7ac57fc76eb326b7b5c2cc51346fadb163b1",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/mathrender/package.json": {
+      "mode": "0644",
+      "sha256": "c1b835a1f98fc58cc30576dbf81736a342f64c29e398326706e1cec4072587f8",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/mathrender/render.js": {
+      "mode": "0644",
+      "sha256": "b4c456dad096a0b44739012e52df145642b20e5bc771725aa049b227182cf7a7",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/frames.cjs": {
+      "mode": "0644",
+      "sha256": "05722f6092f3ced3335fed23e443afc1b4ed9e1af95f42a44d6d90543d84c844",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/package-lock.json": {
+      "mode": "0644",
+      "sha256": "17fedad367451b98a37247cd8252aff1f4fd0b9b967e29d8ee93612f637f89df",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/package.json": {
+      "mode": "0644",
+      "sha256": "00b161c657b7aca6d15e5891b9439cd303150afeb835dc2f2934319af381b609",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/voice-pack.cjs": {
+      "mode": "0644",
+      "sha256": "3126c660396c24aa7f680cdacca34509ec1b01a3fe37e602bccd00391bda248c",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/voice-pcm.cjs": {
+      "mode": "0644",
+      "sha256": "579b0a0334644d14d8ce70c435aa73bcd2d337ca50584bd67492976d95fe7efa",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/model_settings.py": {
+      "mode": "0644",
+      "sha256": "1fe8017f89888ea4059790cd2fe9d83e68ba508114876dbc5060d3d5167508ad",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/motion_frames.py": {
+      "mode": "0644",
+      "sha256": "9ec438b00a420534e947f6d3bac4ae7d2b7274044ede47bdaefb0f96a5d00aa2",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/participant_memory.py": {
+      "mode": "0644",
+      "sha256": "0aa4a13d033dffcd496b609892caa7e19c9f515b352a1ab2b30990f07b5b1aba",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/piweb_recall.py": {
+      "mode": "0600",
+      "sha256": "6a04e3e9b73a0d7bb12e3c7ac9638366ca2bd1cff6043f4fb8b205b9e6575443",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/public_site.py": {
+      "mode": "0644",
+      "sha256": "4046724e2e2950f3ffa699314dcf664c5fb9d84d52234de5b739e01df7ebc630",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/qwen_tts.py": {
+      "mode": "0644",
+      "sha256": "32d693b2c793c2cbf2122e1aa882bc9b58583bb167f823032ebe8e652c66109c",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/read_chat.py": {
+      "mode": "0755",
+      "sha256": "7e0da0de52a6f260590e14f886fb7e9e54351c43978a0a3f2eed8107a923d77f",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/recent_context.py": {
+      "mode": "0600",
+      "sha256": "b9274e04b59b067b4ec2cd6037a06a67bfb1a24109aa6da8a0dbfd9994efa11e",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/reply_delivery.py": {
+      "mode": "0644",
+      "sha256": "9d1578c1e665327ca53c41a7a82e9e535ae401814f1d4b8e9d5759811451dcaf",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/requirements.lock": {
+      "mode": "0644",
+      "sha256": "1dcbdc5ee6946a86d2face6d44f8f100fda6a259965822743b577e4ba369e450",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/restart_checked.py": {
+      "mode": "0700",
+      "sha256": "572259817376c229bd633f8434e9d68c655da004c0b0e3decfa6bfa083213ac1",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/rich_replies.py": {
+      "mode": "0600",
+      "sha256": "1dfa50da49041e2b05658f2cc19df151b075372f5be5889004c5834e0fdc852d",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/send_art.py": {
+      "mode": "0644",
+      "sha256": "c161fb60550c2bda9179abe10f5fd16caa9306bd722d44db0672733ba89696a6",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/send_chat.py": {
+      "mode": "0755",
+      "sha256": "c5c42364bc6f56e65ab6df00fd8faa33de4058eb349422d25bb753dab9642cbe",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/send_formula.py": {
+      "mode": "0644",
+      "sha256": "53d9df2b4be6b8c104b50c41961ebab2f6c79bcf0d6f23619fbaec69ba331a5c",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/showcase_reply.py": {
+      "mode": "0644",
+      "sha256": "257e9bd059f6fef0feff11eb71a3756cb60ed6aea0eeb8a7c5b896d3179c0a3e",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/speech_assets.py": {
+      "mode": "0644",
+      "sha256": "acfff5dca6c04e8914294c428e3b4de92adde6add5269602b66a0b1f29865d4c",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/spoken_reply.py": {
+      "mode": "0644",
+      "sha256": "b0d1e786a6e0d5abc20724caf46725d8438e3c98827547ae7b774848b0506a31",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/telegram_blocks.py": {
+      "mode": "0600",
+      "sha256": "6b4e19197919c5c8b0ec0210f7d2342ca166f083290917a1da70154d2ad81d45",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/telegram_search.py": {
+      "mode": "0600",
+      "sha256": "b2cad866e0ea4a5cce3a12204b6b425a8a9a67a3f0a82489c8ff19e4ec708109",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/telegraph_publish.py": {
+      "mode": "0600",
+      "sha256": "631456c990c2bc24f4a714ca68b8fb362a79a29564ba5bd19a601b5b869e7e3c",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/tool-policy.json": {
+      "mode": "0644",
+      "sha256": "3eb4f9e020d29658d33dabba89df9e96a8a702be2f7cac5b1f606055e373055b",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/tool_policy.py": {
+      "mode": "0644",
+      "sha256": "1e848196f8acd4a64c3595661e07a18573cead990ef5e552c5b9d01c71cce27a",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/turn_wait.py": {
+      "mode": "0600",
+      "sha256": "41383672113acba7bafc71f56228e7d907d59a30ceac5070ad4962c83d3fd7a6",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/typing_client.py": {
+      "mode": "0600",
+      "sha256": "be478a50e7f81a86f86eb5d5b9cffd99405102489307a640af801e0f0862df0a",
+      "source": "adapted"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/voice_assets.py": {
+      "mode": "0644",
+      "sha256": "dec384188d604b592bb33d9c5a7860eb6361ed06239ad7dc23a449208b325ef5",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/voice_notes.py": {
+      "mode": "0644",
+      "sha256": "97e797dd1055333bb9b5cfcb44e4ffbe266bd2e7ccda5a191448784099c680ed",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/voice_recognize.py": {
+      "mode": "0644",
+      "sha256": "3ab8cfb7488e3f312c5cbbbfe1222a64a80e26fe52910e97e27248b2d37b49c6",
+      "source": "exact"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/web_client.py": {
+      "mode": "0644",
+      "sha256": "7c108db68b9be8011dc5604bdeed27f482297761ea61ec3660dc016365547eb9",
+      "source": "exact"
+    },
+    "usr/local/lib/curvelab-deps.py": {
+      "mode": "0644",
+      "sha256": "0738f64a7b8c6369a505f988544309abbbef98dc6ed8b097c6f7226bb68a4641",
+      "source": "exact"
+    },
+    "usr/local/lib/curvelab-http-relay.cjs": {
+      "mode": "0644",
+      "sha256": "df7da399bdbed4fa132a221540f23fbba3fcc648bc29f6c1e5b41df54b6f1f79",
+      "source": "exact"
+    },
+    "usr/local/lib/curvelab-relay.cjs": {
+      "mode": "0644",
+      "sha256": "15fb210204f57108c2b3af283273b5b0d9a3e0c8fe28a93bd01d962a1f6ea39a",
+      "source": "exact"
+    },
+    "usr/local/lib/curvelab-release.py": {
+      "mode": "0644",
+      "sha256": "6d47eada05d9bdd8d85d2136565d2de072734414728dbbc8da3f70c5125abf18",
+      "source": "adapted"
+    },
+    "usr/local/lib/curvelab-runner.py": {
+      "mode": "0644",
+      "sha256": "c64fc116b819ece053c1290425f16e4f07c9bf4302d4b91c5f5f15c1f0e6c7f3",
+      "source": "exact"
+    },
+    "usr/local/lib/nikita-home-save.py": {
+      "mode": "0644",
+      "sha256": "5d3598d2382fc80292044104ed3def3f57ef1e7729c1597534e26aef3f133500",
+      "source": "exact"
+    },
+    "usr/local/lib/nikita-salon-history.py": {
+      "mode": "0644",
+      "sha256": "ac056870c66f53505bce12510713339df68229b6fc14b429e179a36293a5abcf",
+      "source": "adapted"
+    },
+    "usr/local/lib/nikita-salon-piwep.py": {
+      "mode": "0644",
+      "sha256": "ea5fb0801868e35536a847d05ef261ce9966ff406d2131f87476c9aa2665e061",
+      "source": "adapted"
+    },
+    "usr/local/sbin/nikita-tg-login": {
+      "mode": "0700",
+      "sha256": "84c40092ebf37edaf2c5476feb4cedd218ad32ba4fc0c62c472c0f7303415fd9",
+      "source": "adapted"
+    },
+    "usr/local/sbin/nikita-tg-qr": {
+      "mode": "0700",
+      "sha256": "72a343f35670fdd84aa34d5df31f96fe93486b7ce7067ea3150d0d5371b42db4",
+      "source": "adapted"
+    },
+    "usr/local/sbin/pi-web-launch": {
+      "mode": "0755",
+      "sha256": "99ca221a23bcb5a466a0fc8570f577559dc208452965708851b4f2cf0f37f8fa",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/app.js": {
+      "mode": "0644",
+      "sha256": "fe54242b493d530d891f67169fa4d7277cc667fd93d30493279c6ad3c69a3ace",
+      "source": "adapted"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_AMS-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "0cdd387c9590a1a9f9794560022dbb59654a7d86f187aa0c81495ad42d3a7308",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Caligraphic-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "de7701e42cf1f4cf0b766c03fb27977207eee2f4fd5d76fa82188406da43ea4c",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Caligraphic-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "5d53e70ad607c2352162dec9e0923fb54ecdafaccbf604cd8dcf7d00facb989b",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Fraktur-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "74444efd593c005e3f4573b44524704c0af0a937fe911cca9e94068d0d140d3f",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Fraktur-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "51814d270d06ff0255dba0799994fa4d8c84d11f09951d47595f4abb1f3602dc",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Main-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "0f60d1b897938ec918c8ce073092411baf9438f6739465693ff18b0f9d20b021",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Main-BoldItalic.woff2": {
+      "mode": "0644",
+      "sha256": "99cd42a3c072d918f2f44984a807cf7aa16e13545fd0875fc07c6c65f99e715b",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Main-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "97479ca6cce906abc961ecac96faa5f9ca2e61b8e7670d475826bcdee9a7c267",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Main-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "c2342cd8b869e01752a9321dc17213fc40d4d04c79688c1d43f2cf316abd7866",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Math-BoldItalic.woff2": {
+      "mode": "0644",
+      "sha256": "dc47344dbb6cb5b655c8460d561f4df5f501b90c804ad3c6cec65fe322351ab1",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Math-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "7af58c5ec8f132a2ddde9027c6d7814decce4d3b822a11192a42a20e2e973264",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_SansSerif-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "e99ae51144bf1232efcc1bfe5add36262c6866b0faab24fa75740e1b98577a62",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_SansSerif-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "00b26ac825e2095056396e0553b8ac26d3f8ad158c3826e28b4c45b385c4714a",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_SansSerif-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "68e8c73ef42afd3ccec58bf0fba302cce448938e7fc020a5e31f8a952eee1342",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Script-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "036d4e95149b69ff9bcc0cd55771efeb25ffa3947293e69acd78d5ac328c684b",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Size1-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "6b47c40166b6dbe21a5dfca7718413f2147fd2399be1ba605d8ad39cedf25dfe",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Size2-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "d04c54219f9eaec6d4d4fd42dfb28785975a4794d6b2fc71e566b9cd6db842dd",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Size3-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "73d591271b1604960cb10bb90fee021670af7297017e0e98480b332d11f51995",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Size4-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "a4af7d414440a1c1790825cfb700cf9cf43b0f2c4b04f0ebc523011ad9853ec0",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Typewriter-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/katex.min.css": {
+      "mode": "0644",
+      "sha256": "c9eac1c75c95f7dcbb6db0210cf0a49a150d07aaf599292e5f9ca099c596a119",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/assets/katex/katex.min.js": {
+      "mode": "0644",
+      "sha256": "a29d2961d3146de5949d78ac7c1a9d93ae54955bad22a6db4fbe836e88e8bf48",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/index.html": {
+      "mode": "0644",
+      "sha256": "8e3fd22caf2e800670b0d2d089dcb2fd11634dd9d9e73c83cf12fe30762d7abf",
+      "source": "adapted"
+    },
+    "var/lib/nikita-live-archive/lc-app.js": {
+      "mode": "0644",
+      "sha256": "6146421d73f9aae0b530823959f0b4ac47a0abdd0efd67cfeb7b0389d08796b9",
+      "source": "adapted"
+    },
+    "var/lib/nikita-live-archive/lc-guest.html": {
+      "mode": "0644",
+      "sha256": "d29b0b0b416a19320f764d264e0924dddc1d4d830b539a241f43d0ca61d8c6c7",
+      "source": "exact"
+    },
+    "var/lib/nikita-live-archive/lc-index.html": {
+      "mode": "0644",
+      "sha256": "63ab23aaedc89f2214d681497cb2b2545f445c96bc36fec9323516f5264daf71",
+      "source": "adapted"
+    },
+    "var/lib/nikita-live-archive/render.js": {
+      "mode": "0644",
+      "sha256": "5aac43e88f96c3e16f30ee40adf444deeadc8809468274cbe253db02dff0e2f6",
+      "source": "exact"
+    },
+    "var/www/nikita-site/app.js": {
+      "mode": "0644",
+      "sha256": "48ddbdd88df76c7e48b0d16d0c4d4c7d939f21c831d05e4b731fd5b1ff10221a",
+      "source": "adapted"
+    },
+    "var/www/nikita-site/index.html": {
+      "mode": "0644",
+      "sha256": "70b621540e668d5df56a175f4407dedbd0ad9f66e1c17cb3f6fb1a258b434286",
+      "source": "adapted"
+    },
+    "var/www/nikita-site/style.css": {
+      "mode": "0644",
+      "sha256": "79e98bf5fff12eb0211250e68fe1e77395139e24452dcca7638ed41a3703a0f0",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_AMS-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "0cdd387c9590a1a9f9794560022dbb59654a7d86f187aa0c81495ad42d3a7308",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "de7701e42cf1f4cf0b766c03fb27977207eee2f4fd5d76fa82188406da43ea4c",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "5d53e70ad607c2352162dec9e0923fb54ecdafaccbf604cd8dcf7d00facb989b",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Fraktur-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "74444efd593c005e3f4573b44524704c0af0a937fe911cca9e94068d0d140d3f",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Fraktur-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "51814d270d06ff0255dba0799994fa4d8c84d11f09951d47595f4abb1f3602dc",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Main-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "0f60d1b897938ec918c8ce073092411baf9438f6739465693ff18b0f9d20b021",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Main-BoldItalic.woff2": {
+      "mode": "0644",
+      "sha256": "99cd42a3c072d918f2f44984a807cf7aa16e13545fd0875fc07c6c65f99e715b",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Main-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "97479ca6cce906abc961ecac96faa5f9ca2e61b8e7670d475826bcdee9a7c267",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Main-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "c2342cd8b869e01752a9321dc17213fc40d4d04c79688c1d43f2cf316abd7866",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Math-BoldItalic.woff2": {
+      "mode": "0644",
+      "sha256": "dc47344dbb6cb5b655c8460d561f4df5f501b90c804ad3c6cec65fe322351ab1",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Math-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "7af58c5ec8f132a2ddde9027c6d7814decce4d3b822a11192a42a20e2e973264",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_SansSerif-Bold.woff2": {
+      "mode": "0644",
+      "sha256": "e99ae51144bf1232efcc1bfe5add36262c6866b0faab24fa75740e1b98577a62",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_SansSerif-Italic.woff2": {
+      "mode": "0644",
+      "sha256": "00b26ac825e2095056396e0553b8ac26d3f8ad158c3826e28b4c45b385c4714a",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_SansSerif-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "68e8c73ef42afd3ccec58bf0fba302cce448938e7fc020a5e31f8a952eee1342",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Script-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "036d4e95149b69ff9bcc0cd55771efeb25ffa3947293e69acd78d5ac328c684b",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Size1-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "6b47c40166b6dbe21a5dfca7718413f2147fd2399be1ba605d8ad39cedf25dfe",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Size2-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "d04c54219f9eaec6d4d4fd42dfb28785975a4794d6b2fc71e566b9cd6db842dd",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Size3-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "73d591271b1604960cb10bb90fee021670af7297017e0e98480b332d11f51995",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Size4-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "a4af7d414440a1c1790825cfb700cf9cf43b0f2c4b04f0ebc523011ad9853ec0",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Typewriter-Regular.woff2": {
+      "mode": "0644",
+      "sha256": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/katex.min.css": {
+      "mode": "0644",
+      "sha256": "c9eac1c75c95f7dcbb6db0210cf0a49a150d07aaf599292e5f9ca099c596a119",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/katex/katex.min.js": {
+      "mode": "0644",
+      "sha256": "a29d2961d3146de5949d78ac7c1a9d93ae54955bad22a6db4fbe836e88e8bf48",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/marked.js": {
+      "mode": "0644",
+      "sha256": "d7931d1cd7bf727dd756c871637edcc9e0f8538003b927368400ec1ee47a9dd9",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/plotly.js": {
+      "mode": "0644",
+      "sha256": "1a0376cb7d1e09ba7ad3396f3974f1715b268397e29ee6b4e0ddb1fbcda19553",
+      "source": "exact"
+    },
+    "var/www/nikita-site/vendor/purify.js": {
+      "mode": "0644",
+      "sha256": "e7cb1db3d3bb7f1bbcdea1ca8377690d4002a952f781ba6e8831c8067edec8e0",
+      "source": "exact"
+    },
+    "var/www/pi-web-card/home.html": {
+      "mode": "0644",
+      "sha256": "99d6cde1d27e3049b5518160cb492982be8ccca2f7a2385fa72c3371d4a7ced1",
+      "source": "adapted"
+    },
+    "var/www/pi-web-card/pi-web-card-c83fed50.png": {
+      "mode": "0644",
+      "sha256": "c83fed5040cf2dedc9ea06ca5e01f111e033ec0cff0c86b7392b2686199e3780",
+      "source": "exact"
+    },
+    "var/www/pi-web-card/pi-web-card-v2.png": {
+      "mode": "0644",
+      "sha256": "f5d5d7374aec4fc617468a27d87dc0d35808cbf6462ee4cc56554a54a3c6ea16",
+      "source": "exact"
+    },
+    "var/www/pi-web-card/pi-web-curl-graphite-v4.png": {
+      "mode": "0644",
+      "sha256": "56ebf514eb44d9af41621d78408ed1f9770da0efdd053565215171bfe494b98e",
+      "source": "exact"
+    },
+    "var/www/pi-web-card/pi-web-install-graphite.png": {
+      "mode": "0644",
+      "sha256": "f5d5d7374aec4fc617468a27d87dc0d35808cbf6462ee4cc56554a54a3c6ea16",
+      "source": "exact"
+    },
+    "var/www/pi-web-card/robots.txt": {
+      "mode": "0644",
+      "sha256": "b43382c7797e775b5a49524658430b0565c8b7b5f2f6255f82076085be797403",
+      "source": "exact"
+    },
+    "var/www/pi-web-card/share.html": {
+      "mode": "0644",
+      "sha256": "ecd18fb9647448da44f169c977ca482fd51328827158321ec3f037b9a105e8aa",
+      "source": "adapted"
+    },
+    "var/www/pi-web-public/exchange/index.html": {
+      "mode": "0644",
+      "sha256": "d4f0385fe7d9d30fb3adf5165a3e468d43ceaf5fcf84f3bf70787fd32a8d06a2",
+      "source": "exact"
+    }
+  },
+  "links": {
+    "etc/nginx/sites-enabled/arri-film": "../sites-available/arri-film",
+    "etc/nginx/sites-enabled/curvelab-editor": "../sites-available/curvelab-editor",
+    "etc/nginx/sites-enabled/instance-site-reader": "../sites-available/instance-site-reader",
+    "etc/nginx/sites-enabled/panel-instance-site-acme": "../sites-available/panel-instance-site-acme",
+    "etc/nginx/sites-enabled/pi-web-public": "../sites-available/pi-web-public",
+    "etc/nginx/sites-enabled/restore-acme": "../sites-available/restore-acme",
+    "opt/projects/debri-reader/public": "/opt/projects/debri-reader/releases/20261112T205217Z/public",
+    "opt/projects/lightcone-reader/public": "/opt/projects/lightcone-reader/releases/20261112T214655Z/public",
+    "opt/tg-agent": "/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent",
+    "usr/local/bin/node": "/opt/node22/bin/node"
+  }
+}

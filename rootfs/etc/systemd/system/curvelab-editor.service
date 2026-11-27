@@ -1,0 +1,18 @@
+[Unit]
+Description=Standalone CurveLab editor
+After=network.target
+[Service]
+User=curvelab-editor
+Group=curvelab-editor
+WorkingDirectory=/opt/curvelab-editor
+EnvironmentFile=/etc/curvelab-editor.env
+Environment=PATH=/opt/node22/bin:/usr/bin:/bin
+ExecStart=/opt/node22/bin/node --import tsx server/main.ts
+Restart=on-failure
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/opt/curvelab-editor/data /opt/curvelab-editor/.snapshots /opt/curvelab-editor/project
+[Install]
+WantedBy=multi-user.target

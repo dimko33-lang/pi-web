@@ -1,0 +1,7 @@
+[Unit]
+Description=Collect new salon messages
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=3min
+[Install]
+WantedBy=timers.target

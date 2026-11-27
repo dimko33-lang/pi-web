@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="color-scheme" content="dark">
+  <title>Messages</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="assets/katex/katex.min.css">
+  <script defer src="assets/katex/katex.min.js"></script>
+  <script defer src="render.js"></script>
+  <script type="module" src="app.js?v=reader-nav-1"></script>
+<style>:root { --divider-ink:#383838; color-scheme: dark; background: #000; color: #bdbdbd; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; font-size: 14px; line-height: 1.6; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #000; }
+main { max-width: 1120px; margin: 0 auto; padding: 12px 48px 96px; min-width: 0; }
+a { color: inherit; text-decoration-color: #555; text-underline-offset: .18em; overflow-wrap: anywhere; }
+a:hover { color: #d0d0d0; text-decoration-color: #999; }
+a:focus-visible { outline: 1px solid #888; outline-offset: 5px; }
+nav { margin-bottom: 32px; font-size: .8rem; color: #858585; }
+nav a { text-decoration: none; color: #bdbdbd; }
+.salon-header {position:sticky;top:0;z-index:10;background:#000;border:0;padding:0 12px;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;min-height:32px}
+.salon-nav {display:flex;align-items:center;flex-wrap:wrap;gap:0 .75em;margin:0;min-height:32px;font:400 1rem/32px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.salon-nav[hidden] {display:none}
+.salon-nav::-webkit-scrollbar {display:none}
+.salon-nav a {position:relative;flex:none;color:#515050}
+.salon-nav a[aria-current],.salon-nav a:hover,.salon-nav a:focus-visible {color:#eee}
+.salon-nav a+a::before {content:"";position:absolute;left:-.375em;top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
+html {scroll-padding-top:32px}
+
+h1,.status,.count,.identity,.back,.empty{font-size:1rem}.message-date{display:block;color:#858585;font-size:1rem;line-height:1.6;margin:.35rem 0 0;white-space:normal}.message{border-bottom:1px solid var(--divider-ink)}.message + .message{border-top:0}.message-body>:last-child{margin-bottom:0}.authors li{padding:7px 0;border-bottom:1px solid var(--divider-ink)}.archive-summary{color:#858585}@media(max-width:680px){main{padding:10px 22px 64px}.message{padding:16px 0}}</style>
+</head>
+<body>
+<header class="salon-header"><nav class="salon-nav" aria-label="Navigation"><a id="panel-link" href="https://@@PANEL_HOST@@/profiles" referrerpolicy="no-referrer">nikita</a><a id="piwep-tab" href="https://@@PANEL_HOST@@/go/hub?chat=piwep">Pi Web</a><a id="curvelab-tab" href="https://@@PANEL_HOST@@/go/hub?chat=curvelab">CurveLab</a><a id="arri-tab" href="https://@@PANEL_HOST@@/go/hub?chat=arri">ARRI</a><a id="lightcone-tab" href="https://@@PANEL_HOST@@/go/hub?chat=lightcone">LightCone</a><a id="lake-tab" href="https://@@PANEL_HOST@@/go/hub?chat=lake">Soul Lake</a><a id="owner_dm-tab" href="https://@@PANEL_HOST@@/go/hub?chat=owner_dm">My DM</a><a id="guest_dm-tab" href="https://@@PANEL_HOST@@/go/hub?chat=guest_dm">Other DMs</a><a id="notes-tab" href="https://@@PANEL_HOST@@/go/hub">Notes</a><a id="web-chat" referrerpolicy="no-referrer" href="https://@@PANEL_HOST@@/">Chat</a><a href="https://@@PANEL_HOST@@/go/lightcone" title="LightCone authors" referrerpolicy="no-referrer">LC</a><a href="https://@@PANEL_HOST@@/go/debri" title="Debri Physics authors" referrerpolicy="no-referrer" aria-current="page">DB</a></nav></header>
+  <main id="app" aria-busy="true"><p class="status" role="status">Loading…</p></main>
+  <noscript>Enable JavaScript to browse authors and messages.</noscript>
+</body>
+</html>

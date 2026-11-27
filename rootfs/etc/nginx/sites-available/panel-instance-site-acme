@@ -1,0 +1,63 @@
+log_format pi_nikita '$remote_addr [$time_local] "$request_method $uri $server_protocol" $status $body_bytes_sent';
+server {
+ listen 80;
+ listen [::]:80;
+ server_name @@PANEL_HOST@@;
+ access_log /var/log/nginx/pi-nikita.access.log pi_nikita;
+ location /.well-known/acme-challenge/ { root /var/www/instance-site-acme; }
+ location / { return 301 https://@@PANEL_HOST@@$request_uri; }
+}
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name @@PANEL_HOST@@;
+    access_log /var/log/nginx/pi-nikita.access.log pi_nikita;
+    ssl_certificate /etc/letsencrypt/live/@@PANEL_HOST@@/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/@@PANEL_HOST@@/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    client_max_body_size 64m;
+    location ^~ /api/workspace-backup/ { return 503; }
+    location ^~ /api/platform-backup/ { return 404; }
+    location = /_site/workspace-title.js {
+        alias /opt/workspace-branding/nikita.js;
+        default_type application/javascript;
+        add_header Cache-Control "no-store" always;
+        add_header X-Content-Type-Options nosniff always;
+    }
+    include /etc/nginx/snippets/pi-nikita-site-entry.conf;
+    include /etc/nginx/snippets/nikita-home-save.conf;
+    location = /go/debri { auth_request /_nikita_save_check; proxy_pass_request_headers off; proxy_pass_request_body off; proxy_set_header Content-Length ""; proxy_pass http://unix:/run/nikita-reader-door.sock:/issue/debri; }
+    location = /go/hub { auth_request /_nikita_save_check; proxy_pass_request_headers off; proxy_pass_request_body off; proxy_set_header Content-Length ""; proxy_pass http://unix:/run/nikita-reader-door.sock:/issue/hub; }
+    location = /go/lightcone { auth_request /_nikita_save_check; proxy_pass_request_headers off; proxy_pass_request_body off; proxy_set_header Content-Length ""; proxy_pass http://unix:/run/nikita-reader-door.sock:/issue/lightcone; }
+
+    location ^~ /aeronav/ { return 404; }
+    location = /lab { return 404; }
+    location ^~ /lab/ { return 404; }
+    location = /files/upload {
+        client_max_body_size 0;
+        proxy_pass http://127.0.0.1:5670;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_request_buffering off;
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+    location / {
+        proxy_set_header Accept-Encoding "";
+    sub_filter '</head>' '<script src="/_site/workspace-title.js"></script></head>';
+        sub_filter_once on;
+        proxy_pass http://127.0.0.1:5670;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+}

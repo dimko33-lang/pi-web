@@ -1,0 +1,15 @@
+[Unit]
+Description=Archive outgoing Telegram messages for the private salon
+After=network-online.target
+[Service]
+Type=oneshot
+User=pi-nikita
+WorkingDirectory=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONPATH=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent
+ExecStart=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/venv/bin/python /usr/local/lib/nikita-salon-history.py
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/nikita-salon-history
+PrivateTmp=yes
+TimeoutStartSec=infinity

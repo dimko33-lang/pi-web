@@ -1,0 +1,18 @@
+# Pi Web managed HeyGen broker: @@INSTANCE@@
+[Service]
+DynamicUser=yes
+StateDirectory=pi-web-heygen-@@INSTANCE@@
+StateDirectoryMode=0700
+LoadCredential=heygen-key:/etc/pi-web-speech/@@INSTANCE@@/heygen-key
+LoadCredential=portrait.jpg:/etc/pi-web-speech/@@INSTANCE@@/heygen-portrait.jpg
+ExecStart=/opt/pi-web-heygen-@@INSTANCE@@/venv/bin/python -B /opt/pi-web-heygen-@@INSTANCE@@/heygen_render.py
+Environment=CIRCLE_FFMPEG=/opt/pi-web-heygen-@@INSTANCE@@/ffmpeg
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+NoNewPrivileges=yes
+RuntimeMaxSec=915
+UMask=0077

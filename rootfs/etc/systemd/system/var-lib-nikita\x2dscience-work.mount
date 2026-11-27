@@ -1,0 +1,8 @@
+[Unit]
+Description=Bounded ephemeral scientific work files for Nikita
+Before=nikita-science.service
+[Mount]
+What=tmpfs
+Where=/var/lib/nikita-science/work
+Type=tmpfs
+Options=rw,nosuid,nodev,noexec,size=256m,nr_inodes=8192,mode=0700

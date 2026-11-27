@@ -1,0 +1,10 @@
+[Unit]
+Description=Nikita workspace aggregate resources
+[Slice]
+CPUAccounting=true
+MemoryAccounting=true
+CPUQuota=200%
+MemoryHigh=1500M
+MemoryMax=2G
+MemorySwapMax=512M
+TasksMax=768

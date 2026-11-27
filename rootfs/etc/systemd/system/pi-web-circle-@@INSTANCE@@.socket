@@ -1,0 +1,11 @@
+[Unit]
+Description=Nika demo circle socket
+[Socket]
+ListenStream=/run/pi-web-circle-@@INSTANCE@@.sock
+Accept=yes
+SocketUser=pi-nikita
+SocketMode=0600
+MaxConnections=1
+RemoveOnStop=yes
+[Install]
+WantedBy=sockets.target

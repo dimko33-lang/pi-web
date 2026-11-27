@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /$
+Allow: /?card=2$
+Allow: /pi-web-card-v2.png$
+Allow: /pi-web-install-graphite.png$
+Allow: /pi-web-curl-graphite-v4.png$
+Allow: /pi-web-card-c83fed50.png$
+Disallow: /

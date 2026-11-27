@@ -1,0 +1,115 @@
+#!/usr/bin/python3 -I
+"""Owner browser launcher. Only the dedicated web UID may invoke this via sudo."""
+import json, os, pathlib, pwd, re, signal, sys
+USER = pwd.getpwnam('pi-browser')
+BASE = pathlib.Path('/srv/pi-workspaces/browser')
+APP = BASE / 'rootfs/opt/pi-web'
+HOME = BASE / 'rootfs/root'
+STATE = pathlib.Path('/var/lib/pi-browser-admin/state.json')
+
+def enabled():
+    return json.loads(STATE.read_text()).get('root') is True
+
+def main():
+    if os.geteuid() != 0 or os.environ.get('SUDO_UID') != str(USER.pw_uid):
+        raise PermissionError('Only the owner browser service may use this launcher')
+    action = sys.argv[1] if len(sys.argv) == 2 else ''
+    if action in ('status', 'enable', 'disable'):
+        if action != 'status':
+            tmp = STATE.with_suffix('.tmp')
+            tmp.write_text(json.dumps({'root': action == 'enable'}))
+            tmp.chmod(0o600)
+            tmp.replace(STATE)
+        print(json.dumps({'root': enabled()}))
+        return
+    if action in ('cancel', 'forget'):
+        job = sys.stdin.read(100).strip()
+        if not re.fullmatch(r'[0-9a-f-]{36}', job):
+            raise ValueError('Invalid job ID')
+        jobs = STATE.parent/'jobs'
+        jobs.mkdir(mode=0o700,exist_ok=True)
+        record = jobs/job
+        cancelled = jobs/('cancelled-'+job)
+        if action == 'cancel': cancelled.touch(mode=0o600)
+        else: cancelled.unlink(missing_ok=True)
+        if record.exists():
+            info = json.loads(record.read_text())
+            record.unlink()
+            if action == 'cancel':
+                try:
+                    started = pathlib.Path(f'/proc/{info["pid"]}/stat').read_text().rsplit(')',1)[1].split()[19]
+                    if started == info['started']:
+                        os.killpg(info['group'], signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                except FileNotFoundError:
+                    pass
+        return
+    if action == 'cleanup':
+        for root in (APP/'sessions', HOME/'.pi'):
+            if root.is_symlink():
+                raise RuntimeError('Invalid runtime directory')
+            for folder, dirs, files in os.walk(root, followlinks=False):
+                for name in ['.', *dirs, *files]:
+                    p = pathlib.Path(folder)/name
+                    if not p.is_symlink():
+                        os.chown(p, USER.pw_uid, USER.pw_gid, follow_symlinks=False)
+        return
+    if action != 'exec':
+        raise ValueError('Unsupported operation')
+    raw = sys.stdin.buffer.read(4*1024*1024+1)
+    if len(raw) > 4*1024*1024:
+        raise ValueError('Request too large')
+    request = json.loads(raw)
+    command, args, env, cwd = (request[k] for k in ('command','args','env','cwd'))
+    if not isinstance(command,str) or not command.startswith('/') or not isinstance(args,list) or not all(isinstance(v,str) for v in args):
+        raise ValueError('Invalid executable or arguments')
+    if not isinstance(env,dict) or not all(isinstance(k,str) and isinstance(v,str) for k,v in env.items()):
+        raise ValueError('Invalid environment')
+    requested_root = request.get('root') is True
+    if requested_root and not enabled():
+        raise PermissionError('Root mode is off')
+    # Never pass the sudo context or browser login secret to the model subprocess.
+    env = {k:v for k,v in env.items() if not k.startswith('SUDO_') and 'PASSWORD' not in k}
+    job = request.get('job')
+    if job:
+        if not isinstance(job,str) or not re.fullmatch(r'[0-9a-f-]{36}',job):
+            raise ValueError('Invalid job ID')
+        jobs = STATE.parent/'jobs'
+        jobs.mkdir(mode=0o700,exist_ok=True)
+        record = jobs/job
+        temporary = jobs/(job+'.tmp')
+        with temporary.open('x') as f:
+            started = pathlib.Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]
+            json.dump({'pid':os.getpid(),'group':os.getpgrp(),'started':started},f)
+        temporary.replace(record)
+        if (jobs/('cancelled-'+job)).exists():
+            raise RuntimeError('Turn cancelled before launch')
+    os.chdir(cwd)
+    fd = os.open('/dev/null',os.O_RDONLY)
+    os.dup2(fd,0)
+    if fd: os.close(fd)
+    if requested_root:
+        os.setgroups([])
+        os.setgid(0)
+        os.setuid(0)
+        os.execve(command,[command,*args],env)
+    # Ordinary turns see the host read-only and can write only to browser runtime
+    # directories. They cannot read login sessions, entry keys, or the web password.
+    options=['--die-with-parent','--unshare-pid','--unshare-ipc','--unshare-uts','--ro-bind','/','/']
+    for path in (HOME, BASE/'rootfs/opt/projects', APP/'data', APP/'sessions'):
+        options += ['--bind',str(path),str(path)]
+    options += ['--ro-bind','/dev/null',str(APP/'data/sessions.json'),
+                '--tmpfs',str(BASE/'rootfs/etc'),'--tmpfs','/root',
+                '--tmpfs','/tmp','--tmpfs','/run','--dev','/dev','--proc','/proc',
+                '--clearenv']
+    for k,v in env.items(): options += ['--setenv',k,v]
+    options += ['/usr/bin/setpriv','--reuid',str(USER.pw_uid),'--regid',str(USER.pw_gid),
+                '--init-groups','--no-new-privs','--bounding-set=-all','--',command,*args]
+    os.execv('/usr/bin/bwrap',['/usr/bin/bwrap',*options])
+
+try:
+    main()
+except Exception as exc:
+    print('Browser launcher: '+str(exc),file=sys.stderr)
+    sys.exit(1)

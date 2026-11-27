@@ -1,0 +1,40 @@
+[Unit]
+Description=Private ChatGPT image generator for Nikita
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nikita-image
+Group=pi-nikita
+WorkingDirectory=/opt/nikita-image
+Environment=HOME=/var/lib/nikita-image
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/nikita-image/venv/bin/python /opt/nikita-image/image_worker.py
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+RuntimeDirectory=nikita-image
+RuntimeDirectoryMode=0750
+StateDirectory=nikita-image
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectProc=invisible
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+InaccessiblePaths=-/srv/pi-workspaces -/root -/opt/projects -/opt/tg-agent -/etc/pi-web.env -/etc/site-entry.json
+MemoryMax=768M
+TasksMax=32
+CPUQuota=100%
+
+[Install]
+WantedBy=multi-user.target

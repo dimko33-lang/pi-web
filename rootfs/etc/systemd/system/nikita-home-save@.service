@@ -1,0 +1,16 @@
+[Service]
+ExecStart=/usr/bin/python3 -I /usr/local/lib/nikita-home-save.py
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+UMask=0077
+PrivateTmp=yes
+PrivateNetwork=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/nikita-home-save
+InaccessiblePaths=/etc/ssh /etc/letsencrypt /etc/shadow /etc/gshadow /root
+NoNewPrivileges=yes
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH CAP_CHOWN CAP_FOWNER CAP_DAC_OVERRIDE
+Nice=10
+RuntimeMaxSec=5min

@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import net from 'node:net';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+const root = path.resolve(import.meta.dirname, '..');
+const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'pi-web-access-'));
+for (const name of ['server', 'public', 'models.json']) fs.cpSync(path.join(root, name), path.join(temp, name), { recursive: true });
+fs.mkdirSync(path.join(temp, 'data'));
+fs.symlinkSync(path.join(root, 'node_modules'), path.join(temp, 'node_modules'));
+fs.writeFileSync(path.join(temp, 'package.json'), '{"type":"module"}');
+const listener = net.createServer().listen(0, '127.0.0.1');
+await once(listener, 'listening');
+const port = listener.address().port;
+await new Promise(resolve => listener.close(resolve));
+const base = `http://127.0.0.1:${port}`;
+const child = spawn(process.execPath, ['--import', 'tsx', 'server/main.ts'], { cwd: temp, env: { ...process.env, PORT: String(port), PI_WEB_PASSWORD: 'test-private-link', PI_WEB_PASSWORD_HASH: '', PI_WEB_AGENT_ROOT: temp, PI_WEB_SESSIONS_DIR: path.join(temp, 'sessions') }, stdio: ['ignore', 'pipe', 'pipe'] });
+try {
+  await once(child.stdout, 'data');
+  for (const route of ['/chat.html', '/chat-thinking.js', '/files/', '/files/api/list', '/api/chat/history', '/api/project/download/source', '/api/settings']) assert.equal((await fetch(base + route)).status, 401, route);
+  const preview = await fetch(base, { headers: { 'User-Agent': 'TelegramBot (like TwitterBot)' } });
+  assert.equal(preview.status, 200);
+  const html = await preview.text();
+  assert.ok(html.includes('property="og:title" content="pi-web"'));
+  assert.ok(!/CurveLab|curvelab\.ru|chatInput|<script/.test(html), 'Public landing page must contain metadata only, not the private app');
+  const crawlerLogin = await fetch(base + '/?key=test-private-link', { headers: { 'User-Agent': 'TelegramBot (like TwitterBot)' } });
+  assert.equal(crawlerLogin.status, 200, 'Cookie-less crawler must reach public metadata after redirect');
+  assert.ok((await crawlerLogin.text()).includes('property="og:title" content="pi-web"'));
+  assert.equal((await fetch(base + '/?key=wrong', { redirect: 'manual' })).status, 401);
+  const login = await fetch(base + '/?key=test-private-link', { redirect: 'manual' });
+  assert.equal(login.status, 302);
+  assert.equal(login.headers.get('location'), '/');
+  const cookie = login.headers.get('set-cookie').split(';')[0];
+  for (const route of ['/', '/api/chat/history', '/chat-thinking.js']) assert.equal((await fetch(base + route, { headers: { Cookie: cookie } })).status, 200, route);
+  const capture = await fetch(base + '/api/vision/capture', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: 'chat' }) });
+  assert.equal(capture.status, 403, 'Cookie bypass must not bypass the capture capability token');
+  console.log('Access link: public metadata-only preview, private app/assets/files/APIs, invalid key, clean redirect, cookie session and capture-token boundary passed.');
+} finally {
+  child.kill('SIGTERM'); await once(child, 'exit');
+  fs.rmSync(temp, { recursive: true, force: true });
+}

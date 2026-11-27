@@ -1,0 +1,16 @@
+[Unit]
+Description=Refresh owner-only Pi Web salon feed
+After=network-online.target
+[Service]
+Type=oneshot
+User=pi-nikita
+WorkingDirectory=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONPATH=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent
+ExecStart=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/venv/bin/python /usr/local/lib/nikita-salon-piwep.py
+ExecStart=/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/venv/bin/python /usr/local/lib/nikita-salon-piwep.py lightcone
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/nikita-salon-piwep
+PrivateTmp=yes
+TimeoutStartSec=180

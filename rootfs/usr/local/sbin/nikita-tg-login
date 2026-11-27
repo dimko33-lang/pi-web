@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+[[ -t 0 ]] || { echo 'Open this command in an interactive SSH terminal.'; exit 1; }
+exec 9>/run/nikita-tg-login.lock; flock -n 9 || { echo 'Another login is already running.'; exit 1; }
+cd /srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent
+[[ /opt/tg-agent/account.session -ef account.session ]] || { echo 'Unexpected session path.'; exit 1; }
+if [[ -f /root/.nikita-tg-login-restored-20261121 ]]; then echo 'This recovery has already completed.'; exit; fi
+systemctl stop tg-agent
+scratch=$(mktemp -d /run/nikita-login.XXXXXX); chown pi-nikita:pi-nikita "$scratch"; trap 'rm -rf "$scratch"' EXIT
+echo 'Sign in to the same Telegram account that Nikita used before. Not the panel login.'
+runuser -u pi-nikita -- ./venv/bin/python -c '
+import sys
+from config import API_ID, API_HASH
+from telethon.sync import TelegramClient
+c=TelegramClient(sys.argv[1], API_ID, API_HASH)
+try:
+ c.start()
+ if c.get_me().id != @@ACCOUNT_ID@@:
+  c.log_out(); raise SystemExit("Wrong Telegram account. Existing session not replaced.")
+finally:
+ if c.is_connected(): c.disconnect()
+' "$scratch/new.session"
+backup=$(mktemp -d /root/nikita-revoked-session.XXXXXX); cp -p account.session "$backup/"
+for suffix in -wal -shm -journal; do if [[ -e account.session$suffix ]]; then mv "account.session$suffix" "$backup/"; fi; done
+stage=$(mktemp ./account.session.new.XXXXXX); install -o pi-nikita -g pi-nikita -m 0600 "$scratch/new.session" "$stage"; mv -f "$stage" account.session
+since=$(date -u '+%Y-%m-%d %H:%M:%S UTC'); systemctl start tg-agent
+for ((i=0;i<20;i++)); do if journalctl -u tg-agent --since "$since" --no-pager -o cat 2>/dev/null | grep -F 'Started account=@@ACCOUNT_ID@@' >/dev/null; then touch /root/.nikita-tg-login-restored-20261121; echo 'Nikita is connected to Telegram.'; exit 0; fi; sleep 1; done
+echo 'Session replaced; Telegram startup not yet confirmed. Ask to check the service log before retrying.'; exit 1

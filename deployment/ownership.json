@@ -1,0 +1,2361 @@
+{
+  "dirs": {
+    "etc": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/curvelab-route": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/nginx": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/nginx/conf.d": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/nginx/sites-available": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/nginx/snippets": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/nikita-home-save": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/pi-web-speech": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/pi-web-speech/@@INSTANCE@@": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/polkit-1": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/polkit-1/rules.d": {
+      "group": "polkitd",
+      "mode": "0750",
+      "user": "root"
+    },
+    "etc/sudoers.d": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/systemd": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/systemd/system": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-reader-door.service.d": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita-entry.service.d": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita.service.d": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/curvelab-editor": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/curvelab-editor/project": {
+      "group": "curvelab-editor",
+      "mode": "0755",
+      "user": "curvelab-editor"
+    },
+    "opt/curvelab-editor/public": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/curvelab-editor/public/editor": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/curvelab-editor/server": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/nikita-circle-reserve": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/nikita-image": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/nikita-science": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/nikita-web": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/pi-web-heygen-@@INSTANCE@@": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/pi-web-runtime": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects/debri-reader": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects/debri-reader/releases": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects/debri-reader/releases/20261112T205217Z": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects/debri-reader/releases/20261112T205217Z/public": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects/lightcone-reader": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects/lightcone-reader/releases": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects/lightcone-reader/releases/20261112T214655Z": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/projects/lightcone-reader/releases/20261112T214655Z/public": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "opt/workspace-branding": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/nikita-projects": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/nikita-projects/curvelab": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/nikita-projects/curvelab/release-a": {
+      "group": "1000",
+      "mode": "0700",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/project": {
+      "group": "1000",
+      "mode": "0755",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public": {
+      "group": "1000",
+      "mode": "0755",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/editor": {
+      "group": "1000",
+      "mode": "0755",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/server": {
+      "group": "1000",
+      "mode": "0755",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/work/public": {
+      "group": "",
+      "mode": "0755",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/public/editor": {
+      "group": "",
+      "mode": "0755",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/server": {
+      "group": "",
+      "mode": "0755",
+      "user": ""
+    },
+    "srv/pi-workspaces": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser": {
+      "group": "pi-browser",
+      "mode": "0750",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/inter": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/site-entry": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita": {
+      "group": "pi-nikita",
+      "mode": "0710",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent": {
+      "group": "pi-nikita",
+      "mode": "0710",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/mathrender": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "usr": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "usr/local": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "usr/local/bin": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "usr/local/lib": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "usr/local/sbin": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var/lib": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var/lib/nikita-live-archive": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "var/www": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var/www/nikita-site": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var/www/pi-web-card": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    }
+  },
+  "files": {
+    "etc/curvelab-route/upstream.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/conf.d/00-map-size.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/conf.d/instance-site-access.conf": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "etc/nginx/conf.d/nikita-legacy-articles.conf": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "etc/nginx/conf.d/nikita-salon-access.conf": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "etc/nginx/nginx.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/sites-available/arri-film": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/sites-available/curvelab-editor": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/sites-available/instance-site-reader": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/sites-available/panel-instance-site-acme": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/sites-available/pi-web-public": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/sites-available/restore-acme": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled/arri-film": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled/curvelab-editor": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled/instance-site-reader": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled/panel-instance-site-acme": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled/pi-web-public": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled/restore-acme": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "etc/nginx/snippets/nikita-home-save.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/snippets/nikita-public-site.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nginx/snippets/pi-nikita-site-entry.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nikita-home-save/RESTORE.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/nikita-home-save/projects.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/pi-web-speech/@@INSTANCE@@/worker.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/polkit-1/rules.d/49-nikita-maintenance.rules": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/sudoers.d/pi-browser-launch": {
+      "group": "root",
+      "mode": "0440",
+      "user": "root"
+    },
+    "etc/systemd/system/curvelab-deps.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/curvelab-deps@.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/curvelab-editor.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/curvelab-runner.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/curvelab-runner@.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-home-save.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-home-save@.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-image.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-reader-door.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-reader-door.service.d/salon.conf": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-reader-door.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-restart.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-salon-history.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-salon-history.timer": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-salon-piwep.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-salon-piwep.timer": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-science.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-web.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita-entry.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita-entry.service.d/90-preview.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita-entry.service.d/95-browser-entry.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita.service.d/40-shared-prompt.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita.service.d/50-conversation-profiles.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita.service.d/90-preview.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita.service.d/95-browser-admin.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-nikita.slice": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-web-circle-@@INSTANCE@@.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-web-circle-@@INSTANCE@@@.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-web-gacrux-@@INSTANCE@@.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-web-gacrux-@@INSTANCE@@@.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-web-heygen-@@INSTANCE@@.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/pi-web-heygen-@@INSTANCE@@@.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/srv-nikita\\x2dprojects-curvelab.mount": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d/20-lightcone-archive.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d/22-debri-archive.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d/25-live-archive.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d/30-science.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d/40-image.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d/45-public-site.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d/46-arri-site.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/tg-agent.service.d/47-pi-web-site.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/var-lib-nikita\\x2dscience-work.mount": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/package-lock.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/package.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/project/curvelab.html": {
+      "group": "curvelab-editor",
+      "mode": "0644",
+      "user": "curvelab-editor"
+    },
+    "opt/curvelab-editor/public/editor/camera.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/public/editor/chrome.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/public/editor/selection-hover.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/public/favicon.svg": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/public/loopform.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/public/presence.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/public/shell.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/server/code-backups.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/server/editor-auth.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/server/main.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/server/presence.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/curvelab-editor/server/snapshots.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-circle-reserve/circle_match.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-circle-reserve/circle_media.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-circle-reserve/circle_render.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-circle-reserve/circle_worker.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-image/image_worker.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-image/requirements.lock": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-science/Dockerfile": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-science/requirements.lock": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-science/worker.py": {
+      "group": "root",
+      "mode": "0700",
+      "user": "root"
+    },
+    "opt/nikita-web/reader-door.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-web/requirements.lock": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-web/web_service.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-web/web_worker.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/pi-web-heygen-@@INSTANCE@@/circle_match.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/pi-web-heygen-@@INSTANCE@@/circle_media.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/pi-web-heygen-@@INSTANCE@@/heygen_render.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/pi-web-runtime/package-lock.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/pi-web-runtime/package.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/projects/debri-reader/public": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "opt/projects/debri-reader/releases/20261112T205217Z/public/app.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/projects/debri-reader/releases/20261112T205217Z/public/index.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/projects/debri-reader/releases/20261112T205217Z/public/style.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/projects/lightcone-reader/public": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/app.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/index.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/style.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/tg-agent": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "opt/workspace-branding/nikita.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/nikita-projects/arri/public/booth-still.js": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/nikita-projects/arri/public/index.html": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/nikita-projects/arri/public/nochnoy-seans.svg": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/nikita-projects/arri/public/site.css": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/nikita-projects/curvelab/release-a/package-lock.json": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/package.json": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/project/curvelab.html": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/editor/camera.js": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/editor/chrome.css": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/editor/selection-hover.js": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/favicon.svg": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/loopform.html": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/presence.js": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/public/shell.html": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/code-backups.ts": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/editor-auth.ts": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/main.ts": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/presence.ts": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/release-a/server/snapshots.ts": {
+      "group": "1000",
+      "mode": "0644",
+      "user": "1000"
+    },
+    "srv/nikita-projects/curvelab/runner-build/Dockerfile": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "srv/nikita-projects/curvelab/runner-build/package-lock.json": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "srv/nikita-projects/curvelab/runner-build/package.json": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "srv/nikita-projects/curvelab/work/package-lock.json": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/package.json": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/project/curvelab.html": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/public/editor/camera.js": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/public/editor/chrome.css": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/public/editor/selection-hover.js": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/public/favicon.svg": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/public/loopform.html": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/public/presence.js": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/public/shell.html": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/server/code-backups.ts": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/server/editor-auth.ts": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/server/main.ts": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/server/presence.ts": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/nikita-projects/curvelab/work/server/snapshots.ts": {
+      "group": "",
+      "mode": "0644",
+      "user": ""
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/ENVIRONMENT.md": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/INTERACTIVE-CARDS.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/README.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/RESTORE.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/deploy/pi-web.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/models.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/package-lock.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/package.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/projects/lab/index.html": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-images.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-last-message-time.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-message-actions.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-popover-anchor.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-popovers.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-thinking.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.css": {
+      "group": "pi-browser",
+      "mode": "0640",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.html": {
+      "group": "pi-browser",
+      "mode": "0640",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.js": {
+      "group": "pi-browser",
+      "mode": "0640",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/favicon.svg": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/file-browser.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/file-browser.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/files.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/fullscreen-control.js": {
+      "group": "pi-browser",
+      "mode": "0640",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/interactive-cards.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/interactive-cards.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/legacy-storage.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/notice.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/notice.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/profile-picker.js": {
+      "group": "pi-browser",
+      "mode": "0640",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/profile-thinking.js": {
+      "group": "pi-browser",
+      "mode": "0640",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/scientific-content.css": {
+      "group": "pi-browser",
+      "mode": "0640",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/source-save.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/source-save.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/surface-colors.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/inter/InterVariable-Italic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/inter/InterVariable.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_AMS-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Fraktur-Bold.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Fraktur-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Main-Bold.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Main-BoldItalic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Main-Italic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Main-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Math-BoldItalic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Math-Italic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_SansSerif-Bold.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_SansSerif-Italic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_SansSerif-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Script-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Size1-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Size2-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Size3-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Size4-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/fonts/KaTeX_Typewriter-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/katex.min.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/vendor/katex/katex.min.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/agent.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/auth.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/chat-images.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/chat-live.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/chat-thinking.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/conversation-profiles.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/execution.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/files.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/START-HERE.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/changes.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/telegram.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/voice-input.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/handbook/voice-output.md": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/history.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/legacy-compat.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/main.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/message-deletion.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/models.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/owner-request-inspection.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-context-extension.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-context-reader.mjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-context.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-response-neutral.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/pi-vision.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/reasoning-accumulator.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/source-archive.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/stream-delivery.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/tool-environment.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/transcript-deletion.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/usage.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/vision-browser.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/server/vision.ts": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/start.sh": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/tests/access-link.mjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/tests/conversation-profiles.mjs": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/tests/profile-tools.mjs": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/pi-web/tests/scientific-content.mjs": {
+      "group": "root",
+      "mode": "0600",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/site-entry/main.mjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/site-entry/navigation.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/browser/rootfs/opt/site-entry/test.mjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_runtime.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_server.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_tools.ts": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/approval_state.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/archive_sync.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/circle_command.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/circle_media.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/circle_reply.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/circle_transcripts.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/config.py": {
+      "group": "pi-nikita",
+      "mode": "0640",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/conversation_profiles.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/debri_archive.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/group_photos.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/image_delivery.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/lc_recovery.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/lightcone_archive.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/lightcone_context.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/live_archive.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/mathrender/package-lock.json": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/mathrender/package.json": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/mathrender/render.js": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/frames.cjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/package-lock.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/package.json": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/voice-pack.cjs": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/media-decoder/voice-pcm.cjs": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/model_settings.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/motion_frames.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/participant_memory.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/piweb_recall.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/public_site.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/qwen_tts.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/read_chat.py": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/recent_context.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/reply_delivery.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/requirements.lock": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/restart_checked.py": {
+      "group": "pi-nikita",
+      "mode": "0700",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/rich_replies.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/send_art.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/send_chat.py": {
+      "group": "pi-nikita",
+      "mode": "0755",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/send_formula.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/showcase_reply.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/speech_assets.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/spoken_reply.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/telegram_blocks.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/telegram_search.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/telegraph_publish.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/tool-policy.json": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/tool_policy.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/turn_wait.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/typing_client.py": {
+      "group": "pi-nikita",
+      "mode": "0600",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/voice_assets.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/voice_notes.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/voice_recognize.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/web_client.py": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "usr/local/bin/node": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "usr/local/lib/curvelab-deps.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/curvelab-http-relay.cjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/curvelab-relay.cjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/curvelab-release.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/curvelab-runner.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/nikita-home-save.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/nikita-salon-history.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/nikita-salon-piwep.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/sbin/nikita-tg-login": {
+      "group": "root",
+      "mode": "0700",
+      "user": "root"
+    },
+    "usr/local/sbin/nikita-tg-qr": {
+      "group": "root",
+      "mode": "0700",
+      "user": "root"
+    },
+    "usr/local/sbin/pi-web-launch": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "var/lib/nikita-live-archive/app.js": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_AMS-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Caligraphic-Bold.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Caligraphic-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Fraktur-Bold.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Fraktur-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Main-Bold.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Main-BoldItalic.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Main-Italic.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Main-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Math-BoldItalic.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Math-Italic.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_SansSerif-Bold.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_SansSerif-Italic.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_SansSerif-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Script-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Size1-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Size2-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Size3-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Size4-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_Typewriter-Regular.woff2": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/katex.min.css": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/assets/katex/katex.min.js": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/index.html": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/lc-app.js": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/lc-guest.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/lib/nikita-live-archive/lc-index.html": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/lib/nikita-live-archive/render.js": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    },
+    "var/www/nikita-site/app.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/index.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/style.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_AMS-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Fraktur-Bold.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Fraktur-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Main-Bold.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Main-BoldItalic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Main-Italic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Main-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Math-BoldItalic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Math-Italic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_SansSerif-Bold.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_SansSerif-Italic.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_SansSerif-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Script-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Size1-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Size2-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Size3-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Size4-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/fonts/KaTeX_Typewriter-Regular.woff2": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/katex.min.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/katex/katex.min.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/marked.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/plotly.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/nikita-site/vendor/purify.js": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/pi-web-card/home.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/pi-web-card/pi-web-card-c83fed50.png": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/pi-web-card/pi-web-card-v2.png": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/pi-web-card/pi-web-curl-graphite-v4.png": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/pi-web-card/pi-web-install-graphite.png": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/pi-web-card/robots.txt": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/pi-web-card/share.html": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "var/www/pi-web-public/exchange/index.html": {
+      "group": "pi-nikita",
+      "mode": "0644",
+      "user": "pi-nikita"
+    }
+  }
+}

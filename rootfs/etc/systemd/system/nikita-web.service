@@ -1,0 +1,31 @@
+[Unit]
+Description=Isolated public web tools for Nikita
+After=network.target
+[Service]
+Type=simple
+User=nikita-web
+Group=pi-nikita
+WorkingDirectory=/opt/nikita-web
+ExecStart=/opt/nikita-web-venv/bin/python /opt/nikita-web/web_service.py
+Restart=on-failure
+RestartSec=3
+RuntimeDirectory=nikita-web
+RuntimeDirectoryMode=0750
+StateDirectory=nikita-web
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+CapabilityBoundingSet=
+InaccessiblePaths=-/srv/pi-workspaces -/root -/etc/pi-web.env -/etc/curvelab-editor.env -/etc/site-entry.json -/opt/pi-web -/opt/curvelab-editor -/opt/projects
+MemoryMax=1G
+TasksMax=256
+CPUQuota=100%
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,153 @@
+:root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; background: #000; color: #e8e8ea; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+header { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; padding: 18px 28px; border-bottom: 1px solid #29292c; position: sticky; top: 0; z-index: 10; background: #000; }
+header h1 { margin: 0; font-size: 16px; font-weight: 500; }
+/* Cover the title with a generous invisible target, without overlapping the tabs below. */
+#profile-fullscreen { position: fixed; top: 0; left: 0; z-index: 9998; width: 112px; height: 48px; padding: 0; margin: 0; background: transparent; border: 0; border-radius: 0 0 8px 0; opacity: .55; -webkit-appearance: none; appearance: none; transition: background .15s, opacity .15s; }
+#profile-fullscreen:hover, #profile-fullscreen:active, #profile-fullscreen:focus-visible { opacity: 1; background: rgba(70,110,160,.18); box-shadow: inset 0 0 0 1px rgba(110,160,220,.35); outline: none; }
+body.is-fullscreen #profile-fullscreen { opacity: 1; }
+@media (pointer: coarse) { #profile-fullscreen { width: 120px; } }
+#profile-tabs { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.nav-button { display: inline-block; color: rgba(255,255,255,.6); border: 1px solid transparent; border-radius: 5px; padding: 7px 13px; white-space: nowrap; }
+.nav-button:hover { text-decoration: none; color: rgba(255,255,255,.88); }
+.nav-button[aria-current="page"] { color: rgba(255,255,255,.94); border-color: #444448; background: #202023; }
+.notice { margin: 0 0 16px; }
+[hidden] { display: none !important; }
+.request-inspector { margin-top:1em; }
+.request-inspector summary { cursor:pointer; }
+.request-inspector pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:0.9em; }
+.field-heading .instruction-show { background:none; border:0; padding:5px 0 5px 12px; color:var(--inactive-ink); cursor:pointer; }
+.field-heading .instruction-show[aria-expanded=true] { color:#eee; }
+[data-pi-reference] pre { white-space:pre-wrap; overflow-wrap:anywhere; font:inherit; }
+[data-pi-reference] small { color:var(--inactive-ink); }
+a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: underline; }
+main { max-width: 1060px; margin: auto; padding: 8px 28px 64px; }
+.intro, .hint, .identity, .scope { color: #a6a6ad; line-height: 1.5; }
+.intro { margin: 0 0 14px; }
+#status { min-height: 20px; margin: 0 0 12px; }
+section { border-top: 1px solid #29292c; padding: 24px 0 32px; }
+.section-heading, .field-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+h2 { font-size: 20px; font-weight: 500; margin: 0; }
+h3 { font-size: 14px; font-weight: 500; margin: 24px 0 8px; }
+.identity { font-size: 12px; margin: 5px 0 20px; }
+.scope { font-size: 12px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 16px; }
+label { display: flex; flex-direction: column; gap: 8px; }
+input, select, textarea, button { font: inherit; color: inherit; accent-color: #d0d0d0; }
+select, textarea { width: 100%; background: #141416; border: 1px solid #343438; border-radius: 5px; padding: 10px; }
+/* Unselected editors let wheel/touch gestures scroll the settings page. */
+textarea { display: block; resize: vertical; min-height: 80px; line-height: 1.5; overflow: hidden; touch-action: pan-y pinch-zoom; }
+textarea:focus { overflow: auto; outline: none; border-color: #606068; box-shadow: none; }
+button { background: #141416; border: 1px solid rgba(255,255,255,.14); border-radius: 5px; padding: 7px 13px; cursor: pointer; }
+button:hover { border-color: rgba(255,255,255,.28); }
+button:disabled { opacity: .45; cursor: wait; }
+:focus-visible { outline: 2px solid #c2c2c5; outline-offset: 2px; }
+textarea:focus-visible { outline: none; border-color: #606068; box-shadow: none; }
+.toggle { flex-direction: row; align-items: center; gap: 8px; margin-top: 18px; font-size: 12px; }
+.toggle input { width: 15px; height: 15px; }
+.hint { font-size: 12px; margin: 0 0 10px; }
+.reply-hint { font-size: 11px; line-height: 1.45; color: #929299; margin: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 24px 0 12px; }
+.feedback { font-size: inherit; }
+.error { color: #ffb6b0; }
+:root, body, body header {background:var(--surface);color:#d5d1ca}
+main {max-width:850px}
+.intro,.section-heading,form .hint,.reply-hint,.profile-picker-field>span,#status:empty {display:none}
+main section {border:0;padding-top:0}
+.field-heading {border-top:1px solid var(--divider-ink);margin-top:10px;padding-top:4px}
+.format-status,.format-switches {display:inline-flex;align-items:center;gap:var(--tool-gap)}
+.format-status {flex:1 1 min-content}
+.format-switches,.format-status>.profile-picker {flex:none}
+/* Let the notice wrap independently of the controls if space runs out. */
+.format-status:has(>.profile-picker) {display:contents}
+.format-status:has(>.profile-picker)>.draft-status {flex:1 1 min-content}
+.draft-status {font-size:.9em;line-height:1.15;font-weight:600;color:#ff6b6b}
+html:is([data-theme=light],[data-reader-theme=light]) .draft-status {color:#b4232b}
+/* Reserve the label's footprint without announcing it before an edit. */
+.draft-status:empty::before {content:attr(data-label);visibility:hidden}
+:is(.field-heading,.format-switches,.number-slot) .toggle {position:relative;display:inline-flex;align-items:center;min-height:36px;margin:0;font:inherit;cursor:pointer;user-select:none;-webkit-user-select:none}
+.toggle input {position:absolute;opacity:0;width:1px;height:1px}
+.toggle:has(:focus-visible) {outline:1px solid currentColor}
+form textarea,form textarea:focus {field-sizing:content;min-height:1.6em;height:auto;resize:none;padding:0;margin:6px 0 0;overflow:hidden;background:none;border:0;font:inherit;line-height:1.6;color:inherit}
+.toggle:has(:not(:checked)),form:has([name=baseOn]:not(:checked)) [name=basePrompt],form:has([name=systemPrompt]:not(:checked)) [name=character],form:has([name=customOn]:not(:checked)) [name=customPrompt],form:has([name=tailOn]:not(:checked)) [name=tail] {color:#535250}
+#profile-tabs a,form .profile-picker .profile-picker-trigger,.actions>button {background:none;border:0}
+body header {border-bottom:0;display:flex;align-items:center;gap:.75em;padding:0 12px;min-height:32px}
+:root {--surface:#000;--inactive-ink:#515050;--divider-ink:#383838}
+form textarea::placeholder {color:var(--inactive-ink);opacity:1}
+header #title {display:none}
+header #profile-tabs {flex:1;min-width:0;flex-wrap:wrap;gap:0 .75em;align-items:center;padding:0;min-height:32px}
+header #profile-tabs::-webkit-scrollbar {display:none}
+header #profile-tabs a {position:relative;flex:none;padding:0;line-height:32px}
+header #profile-tabs a + a::before {content:"";position:absolute;inset-inline-start:-.375em;top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
+.profile-toolbar {display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-start;--tool-gap:clamp(6px,1.8vw,.75em);--picker-grid-width:calc(12.85em + 2 * var(--tool-gap));gap:0 var(--tool-gap)}
+.profile-toolbar>.grid:first-child {display:grid;align-items:center;gap:var(--tool-gap);flex:0 1 var(--picker-grid-width);min-width:0;grid-template-columns:minmax(0,1fr) 2.5em}
+.profile-toolbar .profile-picker-trigger {width:100%;max-width:100%}
+.profile-toolbar .profile-picker .profile-picker-trigger {padding:4px 0;height:auto;min-height:32px;background:none;box-shadow:none;text-align:center}
+.profile-toolbar .profile-picker-list {right:auto;min-width:max-content;max-width:85vw}
+.profile-toolbar .field-heading {margin:0;border:0;padding:0}
+/* Hairlines sit in the existing gaps, without shifting the controls. */
+.profile-toolbar :is(.profile-picker-field:not(:first-child),.field-heading,.memory-grid,.number-slot) {position:relative}
+.profile-toolbar :is(.profile-picker-field:not(:first-child),.field-heading,.number-slot)::before,.profile-toolbar .actions>button + button::before,.format-switches .toggle::before,.format-status>.profile-picker::before {content:"";position:absolute;inset-inline-start:calc(var(--tool-gap) / -2);top:50%;transform:translateY(-50%);height:1.12em;width:1px;background:var(--divider-ink);pointer-events:none}
+.model-pair {display:grid;grid-template-columns:minmax(0,1fr) 2.5em;gap:var(--tool-gap);align-items:center;min-width:0}
+.profile-toolbar .profile-picker-list {top:100%;left:0;background:var(--surface);border:0;border-radius:0;padding:0;box-shadow:none}
+.profile-toolbar .profile-picker-option {background:none;border:0;border-radius:0;padding:5px 10px 5px 0;color:#94928f}
+.profile-toolbar .profile-picker-option[aria-selected=true],.profile-toolbar .profile-picker-option:hover,.profile-toolbar .profile-picker-option.is-focused {color:#eee;background:none;outline:none}
+.profile-toolbar .profile-picker .profile-picker-trigger:is([data-field=model],[data-field=voicePreset]) {text-align:left}
+.profile-toolbar .profile-picker-option.is-focused {text-decoration:none}
+.profile-toolbar .profile-picker-option[aria-selected=true] {color:#fff;font-weight:550}
+.profile-toolbar .memory-grid {display:inline-flex;align-items:center;gap:var(--tool-gap);max-width:100%}
+.memory-grid .number-slot {display:inline-flex;align-items:center;gap:.25em;white-space:nowrap}
+.memory-grid .number-slot input[type=number] {text-align:center}
+/* Keep the whole paused pair muted, including its saved, still-editable count. */
+form .number-slot:has(input[type=checkbox]:not(:checked)) :is(.toggle,input[type=number]) {color:var(--switch-off);-webkit-text-fill-color:currentColor}
+form .number-slot:has(input:checked) input[type=number] {color:var(--ink,#eee)}
+.memory-grid input[type=number]{width:3.5ch;min-height:32px;padding:0;border:0;background:transparent;color:inherit;font:inherit;font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
+.memory-grid input::-webkit-inner-spin-button,.memory-grid input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.memory-grid input[type=number]:focus {outline:none;box-shadow:none;color:#eee}
+.memory-grid input:disabled,.profile-toolbar button:disabled {opacity:1;color:var(--inactive-ink);-webkit-text-fill-color:var(--inactive-ink)}
+.profile-toolbar .actions {grid-column:1 / -1;flex-basis:100%;min-width:0;flex-wrap:wrap;margin:0;gap:0 var(--tool-gap)}
+/* Keep Tools and Dialogue beside the model; give the action row the full width. */
+.profile-toolbar:has(.format-status>.profile-picker) {display:grid;grid-template-columns:minmax(0,var(--picker-grid-width)) max-content max-content minmax(0,1fr)}
+@media(max-width:390px) {.profile-toolbar .actions:has(.profile-picker) {--tool-gap:.22em}}
+@media(max-width:360px) {.profile-toolbar:has(.format-status>.profile-picker) {margin-inline:-.75rem;font-size:clamp(.9rem,4vw,1rem)}}
+@media(max-width:340px) {.profile-toolbar .actions {--tool-gap:.25em}}
+.profile-toolbar .feedback:empty {display:none}
+.profile-toolbar .actions>button {white-space:nowrap;flex:none}
+.profile-toolbar .feedback {flex-basis:100%;min-width:0;overflow-wrap:anywhere}
+body {--switch-off:#55534f}
+html:is([data-theme=light],[data-reader-theme=light]) body {--switch-off:#a4a19b}
+/* Emphasize the current label without changing its measured width. */
+html body header #profile-tabs a {text-decoration:none}
+html body header #profile-tabs a:not([aria-current=page]) {color:var(--switch-off)}
+html body header #profile-tabs a[aria-current=page] {color:var(--ink,#eee);-webkit-text-stroke:.35px currentColor}
+html body header #profile-tabs a:focus-visible {outline:1px solid var(--ink,#eee);outline-offset:2px}
+form :is(.field-heading,.format-switches) .toggle:has(input:not(:checked)),form .field-heading .instruction-show[aria-expanded=false] {color:var(--switch-off)}
+form .toggle:has(input:checked) {color:var(--ink,#eee);font-weight:600}
+form .number-slot .toggle:has(input:checked) {font-weight:inherit;-webkit-text-stroke:.35px currentColor}
+form .toggle:has(input:focus-visible) {outline-color:var(--ink,#eee)}
+@media(max-width:480px){.profile-toolbar{font-size:inherit}.profile-toolbar>.grid:first-child{width:100%;grid-template-columns:minmax(0,1fr) 2.5em}.profile-toolbar .memory-grid input[type=number]{width:3.5ch}}
+.profile-toolbar .actions>button {padding-inline:0}
+.profile-toolbar .actions>button + button {position:relative}
+#profile-tabs a,.field-heading .toggle:has(input:not(:checked)),.profile-toolbar .profile-picker-option:not([aria-selected=true]):not(:hover):not(.is-focused) {color:var(--inactive-ink)} #profile-tabs a[aria-current=page],#profile-tabs a:hover,#profile-tabs a:focus-visible {color:#eee}
+form .profile-picker .profile-picker-trigger {padding-left:0}
+
+.profile-picker-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.profile-picker { position: relative; min-width: 0; }
+.profile-picker-trigger { width: 100%; text-align: left; display: block; background-color: #141416; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Keep picker triggers identical, independent of native OS menu geometry. */
+select, .profile-picker-trigger { -webkit-appearance: none; appearance: none; height: 39px; min-height: 39px; line-height: 17px; padding: 10px 32px 10px 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%23b5b5b8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 12px 12px; }
+/* Focus stays inside the existing border, without a bright outer ring. */
+select:hover, select:focus, .profile-picker-trigger:hover, .profile-picker-trigger:focus { border-color: rgba(255,255,255,.28); outline: none; outline-offset: 0; box-shadow: none; }
+.profile-picker-list { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30; max-height: 240px; overflow-y: auto; background: #18181b; border: 1px solid rgba(255,255,255,.14); border-radius: 5px; padding: 4px; }
+.profile-picker-option { display: block; width: 100%; border: 0; text-align: left; padding: 8px; }
+.profile-picker-option[aria-selected="true"] { background: rgba(255,255,255,.08); }
+.profile-picker-option.is-focused { outline: 1px solid rgba(255,255,255,.22); outline-offset: -1px; }
+@media (max-width: 640px) {
+  header { padding: 16px; gap: 16px; }
+  main { padding: 8px 16px 48px; }
+  .grid { grid-template-columns: 1fr; }
+  .section-heading { align-items: flex-start; }
+  .scope { max-width: 130px; text-align: right; }
+}

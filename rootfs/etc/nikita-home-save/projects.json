@@ -1,0 +1,74 @@
+{
+  "format": 1,
+  "projects": {
+    "nikita": [
+      "srv/pi-workspaces/nikita",
+      "opt/tg-agent",
+      "opt/workspace-branding/nikita.js",
+      "opt/pi-web-runtime/package.json",
+      "opt/pi-web-runtime/package-lock.json",
+      "usr/local/bin/node"
+    ],
+    "reader-archives": [
+      "opt/projects",
+      "opt/nikita-debri-archive",
+      "opt/nikita-lightcone-archive",
+      "var/lib/nikita-live-archive"
+    ],
+    "salon": [
+      "var/lib/nikita-publications",
+      "var/lib/nikita-salon-history",
+      "var/lib/nikita-salon-piwep",
+      "usr/local/lib/nikita-salon-history.py",
+      "usr/local/lib/nikita-salon-piwep.py"
+    ],
+    "tools": [
+      "opt/nikita-image",
+      "var/lib/nikita-image",
+      "opt/nikita-web",
+      "opt/nikita-science"
+    ],
+    "curvelab": [
+      "opt/curvelab-editor",
+      "etc/curvelab-editor.env",
+      "etc/systemd/system/curvelab-editor.service"
+    ],
+    "website-roots": [
+      "var/www"
+    ],
+    "managed-projects": [
+      "srv/nikita-projects"
+    ],
+    "routing": [
+      "etc/nginx/conf.d",
+      "etc/nginx/sites-available",
+      "etc/nginx/sites-enabled",
+      "etc/nginx/snippets",
+      "etc/nginx/nginx.conf"
+    ],
+    "maintenance": [
+      "etc/polkit-1/rules.d/49-nikita-maintenance.rules",
+      "usr/local/lib/nikita-home-save.py",
+      "etc/nikita-home-save"
+    ],
+    "curvelab-runner": [
+      "etc/curvelab-route/upstream.conf",
+      "etc/systemd/system/curvelab-runner@.service",
+      "etc/systemd/system/curvelab-runner.socket",
+      "etc/systemd/system/curvelab-deps@.service",
+      "etc/systemd/system/curvelab-deps.socket",
+      "etc/systemd/system/srv-nikita\\x2dprojects-curvelab.mount",
+      "usr/local/lib/curvelab-relay.cjs",
+      "usr/local/lib/curvelab-http-relay.cjs",
+      "usr/local/lib/curvelab-deps.py",
+      "usr/local/lib/curvelab-release.py",
+      "usr/local/lib/curvelab-runner.py"
+    ],
+    "browser-admin": [
+      "srv/pi-workspaces/browser",
+      "usr/local/sbin/pi-web-launch",
+      "etc/sudoers.d/pi-browser-launch",
+      "var/lib/pi-browser-admin"
+    ]
+  }
+}

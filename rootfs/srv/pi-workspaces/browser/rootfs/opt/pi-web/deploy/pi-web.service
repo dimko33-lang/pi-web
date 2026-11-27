@@ -1,0 +1,25 @@
+[Unit]
+Description=pi-web browser chat
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pi-web
+Group=pi-web
+WorkingDirectory=/home/pi-web/pi-web
+Environment=HOME=/home/pi-web
+Environment=PORT=5070
+ExecStart=/bin/sh /home/pi-web/pi-web/start.sh
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi-web
+RestrictSUIDSGID=yes
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
