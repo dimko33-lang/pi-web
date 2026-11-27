@@ -392,7 +392,7 @@
     },
     "opt/nikita-web/web_worker.py": {
       "mode": "0644",
-      "sha256": "65d852bdf9889a7079286c85a1e2274a4a1cb075cf95ad27b1667bf614362479",
+      "sha256": "ed747133619b38d3a5bb173fc18ef8f9440c06599f428757efa7a747322ac3b9",
       "source": "exact"
     },
     "opt/pi-web-heygen-@@INSTANCE@@/circle_match.py": {

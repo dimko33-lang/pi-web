@@ -5,7 +5,7 @@ from pathlib import Path
 from prepare import REPO, verify
 
 TOP='pi-web-v0.14.1'
-EXTRA=('LICENSE README.md deployment/source.json deployment/bindings.json deployment/binaries.json deployment/platform.json deployment/dependencies.json deployment/ownership.json tools/prepare.py tools/content_boundary.py tools/test_projects.py tools/check.py tools/panel-smoke.py tools/install_config.py tools/ubuntu_install.py tools/test_installer.py tools/pack_release.py docs/reference-install.md docs/ubuntu-install.md docs/releases/v0.14.1.md docs/licenses/README.md docs/licenses/dompurify.txt docs/licenses/inter-OFL.txt docs/licenses/katex-MIT.txt docs/licenses/katex-fonts-OFL.txt docs/licenses/marked.txt docs/licenses/pi-MIT.txt docs/licenses/plotly-MIT.txt').split()
+EXTRA=('LICENSE README.md deployment/source.json deployment/bindings.json deployment/binaries.json deployment/platform.json deployment/dependencies.json deployment/ownership.json tools/prepare.py tools/content_boundary.py tools/test_projects.py tools/test_web_read.py tools/check.py tools/panel-smoke.py tools/install_config.py tools/ubuntu_install.py tools/test_installer.py tools/pack_release.py docs/reference-install.md docs/ubuntu-install.md docs/releases/v0.14.1.md docs/licenses/README.md docs/licenses/dompurify.txt docs/licenses/inter-OFL.txt docs/licenses/katex-MIT.txt docs/licenses/katex-fonts-OFL.txt docs/licenses/marked.txt docs/licenses/pi-MIT.txt docs/licenses/plotly-MIT.txt').split()
 
 def selected(manifest):return sorted(['rootfs/'+n for n in manifest['files']]+EXTRA)
 

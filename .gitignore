@@ -355,4 +355,5 @@
 !/tools/prepare.py
 !/tools/test_installer.py
 !/tools/test_projects.py
+!/tools/test_web_read.py
 !/tools/ubuntu_install.py
