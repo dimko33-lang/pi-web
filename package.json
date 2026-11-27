@@ -7,7 +7,7 @@
   "scripts": {
     "start": "tsx server/main.ts",
     "check:source": "node --import tsx tests/source-restore.mjs",
-    "pretest": "npm run check:source",
+    "pretest": "node tools/export-list.mjs --check-checkout && npm run check:source",
     "test": "node --import tsx tests/profile-install.mjs && node --import tsx tests/instance-tools.mjs",
     "test:telegram": "node tests/telegram-suite.mjs"
   },

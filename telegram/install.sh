@@ -14,6 +14,11 @@ if ! need_python; then
   need_python || { echo 'Telegram requires Python 3.9+ with venv.' >&2; exit 1; }
 fi
 if [[ ! -x $venv/bin/python ]]; then echo 'Creating the Telegram Python environment…'; python3 -m venv "$venv"; fi
+# A killed venv bootstrap may leave bin/python without pip. Repair in place.
+if ! "$venv/bin/python" -m pip --version >/dev/null 2>&1; then
+  python3 -m venv "$venv"
+  "$venv/bin/python" -m pip --version >/dev/null
+fi
 if ! cmp -s "$src/requirements.lock" "$venv/.installed-lock" || ! "$venv/bin/python" -c 'import telethon,qrcode' 2>/dev/null; then
   echo 'Installing Telegram transport…'; "$venv/bin/python" -m pip --disable-pip-version-check install --no-input -r "$src/requirements.lock"
   "$venv/bin/python" -c 'import telethon,qrcode'; cp "$src/requirements.lock" "$venv/.installed-lock"

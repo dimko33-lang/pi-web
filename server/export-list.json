@@ -245,6 +245,7 @@
     "tests/loopback_provider.py",
     "tests/motion-frames.mjs",
     "tests/participant-memory.py",
+    "tests/pdf-preview.py",
     "tests/personality.mjs",
     "tests/profile-install.mjs",
     "tests/profile-reply-format.mjs",
