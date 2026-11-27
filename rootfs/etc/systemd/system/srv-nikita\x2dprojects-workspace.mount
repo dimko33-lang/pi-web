@@ -1,0 +1,9 @@
+[Unit]
+Description=Bounded application workspace storage
+[Mount]
+What=/var/lib/nikita-project-sandbox/project.ext4
+Where=/srv/nikita-projects/workspace
+Type=ext4
+Options=loop,nosuid,nodev
+[Install]
+WantedBy=multi-user.target

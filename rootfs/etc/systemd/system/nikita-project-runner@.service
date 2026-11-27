@@ -1,0 +1,12 @@
+[Service]
+ExecStart=/usr/bin/python3 -I /usr/local/lib/nikita-project-runner.py
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/run /etc/nikita-project-route /srv/nikita-projects/workspace /var/log/nginx /var/lib/nginx
+UMask=0077
+RuntimeMaxSec=65s

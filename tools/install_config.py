@@ -10,8 +10,9 @@ B='/srv/pi-workspaces/browser/rootfs'
 APP=B+'/opt/pi-web'
 DATA='/srv/pi-workspaces/nikita/rootfs/opt/pi-web/data'
 STATE='/var/lib/pi-web-installer'
-RELEASE='/opt/pi-web-release-0.14.0'
-GROUPS=[('piwep','Pi Web','PROJECT_PEER','tailPiwep'),('curvelab','CurveLab','LAB_PEER',''),('arri','ARRI','ARRI_PEER',''),('lightcone','LightCone','LC_PEER','tailLightcone'),('lake','Lake','LAKE_PEER',''),('moisimeiz','Simeiz','SIMEIZ_PEER',''),('salon_nikita','Salon','SALON_PEER','')]
+RELEASE='/opt/pi-web-release-0.14.1'
+# IDs are the storage keys understood by the reference workers; labels are not project seeds.
+GROUPS=[('piwep','Public workspace','PROJECT_PEER','tailPiwep'),('curvelab','App project','LAB_PEER',''),('arri','Static site','ARRI_PEER',''),('lightcone','Archive B','LC_PEER','tailLightcone'),('lake','Discussion','LAKE_PEER',''),('moisimeiz','Community','SIMEIZ_PEER',''),('salon_nikita','Salon','SALON_PEER','')]
 
 def domain_name(domain,ip):
     if not domain:
@@ -23,7 +24,7 @@ def domain_name(domain,ip):
     return domain
 
 def new_instance(domain,override=None):
-    schema=load(META/'bindings.json');raw={}; hosts={'SITE_HOST':domain,'SITE_WWW':'www.'+domain,'PANEL_HOST':'panel.'+domain,'EDITOR_HOST':'editor.'+domain,'EDITOR_WWW':'www.editor.'+domain,'ARRI_HOST':'arri.'+domain,'PUBLIC_HOST':'pi.'+domain,'FORMER_PANEL_HOST':'panel.'+domain}
+    schema=load(META/'bindings.json');raw={}; hosts={'SITE_HOST':domain,'SITE_WWW':'www.'+domain,'PANEL_HOST':'panel.'+domain,'EDITOR_HOST':'editor.'+domain,'EDITOR_WWW':'www.editor.'+domain,'ARRI_HOST':'static.'+domain,'PUBLIC_HOST':'pi.'+domain,'FORMER_PANEL_HOST':'panel.'+domain}
     for i,(k,t) in enumerate(schema.items()):
         if t in ('derived','venv-instance'):continue
         if t=='host':v=hosts[k]
@@ -41,10 +42,11 @@ def new_instance(domain,override=None):
     values=bindings(schema,raw)
     names=[values[k] for k in hosts if k!='FORMER_PANEL_HOST']
     if len(names)!=len(set(names)):raise ValueError('TLS virtual hosts must be distinct')
-    return {'bindings':raw,'panelPassword':secrets.token_urlsafe(32),'entryKey':secrets.token_urlsafe(32),'editorPassword':secrets.token_urlsafe(32)}
+    return {'bindings':raw,'boundGroups':[key for _,_,key,_ in GROUPS if key in (override or {})],'panelPassword':secrets.token_urlsafe(32),'entryKey':secrets.token_urlsafe(32)}
 
-def catalog(v):
-    return [{'id':slug,'label':label,'kind':'group','chatId':-int(v[key]),'tailKey':tail,'backgroundLimit':100} for slug,label,key,tail in GROUPS]+[{'id':'owner_dm','label':'My DM','kind':'private','chatId':int(v['OWNER_ID']),'tailKey':'tailDirect'},{'id':'guest_dm','label':'Guest DM','kind':'private_default','tailKey':'tailDirect'}]
+def catalog(cfg):
+    v=cfg['bindings']
+    return [{'id':slug,'label':label,'kind':'group','chatId':-int(v[key]),'tailKey':tail,'backgroundLimit':100} for slug,label,key,tail in GROUPS if key in cfg['boundGroups']]+[{'id':'owner_dm','label':'My DM','kind':'private','chatId':int(v['OWNER_ID']),'tailKey':'tailDirect'},{'id':'guest_dm','label':'Guest DM','kind':'private_default','tailKey':'tailDirect'}]
 
 def seeds(cfg):
     """(path, bytes, mode, user, group) for a NEW instance; never migrations."""
@@ -53,10 +55,9 @@ def seeds(cfg):
         out[p]=((s if isinstance(s,str) else json.dumps(s,ensure_ascii=False))+'\n',mode,u,g)
     put(B+'/etc/pi-web.env','PI_WEB_PASSWORD='+cfg['panelPassword'])
     put(B+'/etc/site-entry.json',{'key':cfg['entryKey'],'apps':[{'path':'/','url':'http://127.0.0.1:5670/','key':cfg['panelPassword'],'cookie':'cl_sid','check':'/api/settings'}]},0o640,'root','pi-browser')
-    put('/etc/curvelab-editor.env','EDITOR_BASE_PATH=/\nPORT=5080\nEDITOR_PUBLIC_VIEW=1\nEDITOR_PASSWORD='+cfg['editorPassword'])
     # 95-browser-admin resets EnvironmentFile=; load the private catalog AFTER that reset.
     put('/etc/systemd/system/pi-nikita.service.d/99-instance-catalog.conf','[Service]\nEnvironmentFile=/etc/pi-web-instance/profile-catalog.env',0o644)
-    put('/etc/pi-web-instance/profile-catalog.env',"PI_WEB_CONVERSATION_TITLE=Conversations\nPI_WEB_CONVERSATION_PROFILES='"+json.dumps(catalog(v),separators=(',',':'))+"'")
+    put('/etc/pi-web-instance/profile-catalog.env',"PI_WEB_CONVERSATION_TITLE=Conversations\nPI_WEB_CONVERSATION_PROFILES='"+json.dumps(catalog(cfg),separators=(',',':'))+"'")
     put(B+'/etc/browser-system.txt','',0o640,'root','pi-browser');put(APP+'/data/sessions.json',{},0o600,'pi-browser','pi-browser');put('/var/lib/pi-browser-admin/state.json',{'root':False})
     for n in ['working-rules.md','character.md','assistant-system.txt','channel-agent.md','owner-agent.md','guest-agent.md','lightcone-agent.md','AGENTS.md']:
         put(TG+'/'+n,'',0o640,'pi-nikita','pi-nikita')
@@ -68,7 +69,7 @@ def seeds(cfg):
     for n in ['piwep','lightcone','curvelab','arri','lake','owner_dm','guest_dm']:put(history+'/'+n+'/messages.json',[],0o644,'pi-nikita','pi-nikita')
     for p in ['/var/lib/nikita-salon-piwep/messages.json','/var/lib/nikita-salon-piwep/lightcone/messages.json','/var/lib/nikita-live-archive/messages/'+author+'.json']:put(p,feed,0o644,'pi-nikita','pi-nikita')
     put('/var/lib/nikita-live-archive/authors.json',[{'id':author,'display_name':'Nikita','type':'user','message_count':0,'file':'messages/'+author+'.json'}],0o644,'pi-nikita','pi-nikita')
-    for name,release in [('debri-reader','20261112T205217Z'),('lightcone-reader','20261112T214655Z')]:put('/opt/projects/'+name+'/releases/'+release+'/public/authors.json',[],0o644)
+    for name in ('archive-a','archive-b'):put('/opt/projects/'+name+'/authors.json',[],0o644)
     # Do not start a copied Telegram identity. The operator enrolls an independent
     # account or makes an exclusive handoff, then explicitly enables these units.
     for name in ('tg-agent.service','nikita-restart.service','nikita-salon-history.service','nikita-salon-piwep.service'):

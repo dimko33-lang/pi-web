@@ -38,10 +38,10 @@ def actual(tree,cfg,seed,tmp):
             s,_,h=http(q,'/?key='+cfg['entryKey']);assert s==303 and h['location']=='/';cookie=h['set-cookie'];assert all(i in cookie for i in ('cl_sid=','Secure','HttpOnly'));cookie=cookie.split(';')[0]
             s,data,_=http(p,'/api/conversation-profiles',cookie)
             assert s==200,(s,data[:160]);profiles=json.loads(data)['profiles']
-            assert [e['id'] for e in profiles]==[e['id'] for e in catalog(cfg['bindings'])]
+            assert [e['id'] for e in profiles]==[e['id'] for e in catalog(cfg)]
             assert all(not e['settings']['basePrompt'].strip() for e in profiles)
             assert http(p,'/profiles',cookie)[0]==200;assert http(p,'/api/conversation-profiles')[0]==401
-            print('Real panel + site-entry: fresh link, native secure cookie, protected UI and nine unpopulated group/DM slots verified. No Telegram or provider contact.')
+            print('Real panel + site-entry: fresh link, native secure cookie, protected UI and only the default DM slots verified. No Telegram or provider contact.')
         finally:
             for s in procs:s.terminate()
             for s in procs:s.wait(timeout=10)
@@ -49,12 +49,15 @@ def actual(tree,cfg,seed,tmp):
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--http',action='store_true');a=ap.parse_args();mf,sc=verify();cfg=new_instance('install.example');v=bindings(sc,cfg['bindings']);other=new_instance('install.example');seed=seeds(cfg)
     assert domain_name('','8.8.4.4')=='8-8-4-4.sslip.io';rejected(lambda:domain_name('','127.0.0.1'));rejected(lambda:domain_name('a/b.example',''));rejected(lambda:new_instance('a.example',{'PANEL_HOST':'a.example'}));rejected(lambda:new_instance('a.example',{'OWNER_ID':'0'}))
-    for key in ('entryKey','editorPassword','panelPassword'):assert cfg[key]!=other[key] and len(cfg[key])>=32
+    for key in ('entryKey','panelPassword'):assert cfg[key]!=other[key] and len(cfg[key])>=32
     assert len({cfg['bindings'][k] for k,t in sc.items() if t in ('secret64','access-token')})==4
     for kind,names in load(META/'ownership.json').items():
         if kind in ('dirs','files'):
             for n,i in names.items():assert all(principal(n,i)[k] for k in ('user','group'))
-    assert all(seed[n][1] in (0o600,0o640) for n in [B+'/etc/site-entry.json',B+'/etc/pi-web.env','/etc/curvelab-editor.env']);assert not any(p.endswith(('.session','/telegram-client.json','/telegram-enrolled','/auth.json','/google-key','/anam-key','/heygen-key')) for p in seed)
+    assert all(seed[n][1] in (0o600,0o640) for n in [B+'/etc/site-entry.json',B+'/etc/pi-web.env']);assert not any(p.endswith(('.session','/telegram-client.json','/telegram-enrolled','/auth.json','/google-key','/anam-key','/heygen-key')) for p in seed)
+    assert [p['id'] for p in catalog(cfg)]==['owner_dm','guest_dm']
+    bound=new_instance('install.example',{'LAB_PEER':'1002000009876'})
+    assert [(p['label'],p['chatId']) for p in catalog(bound) if p['kind']=='group']==[('App project',-1002000009876)]
     for name in DEFER:
         gate=name.replace('.timer','.service');assert 'ConditionPathExists' in seed['/etc/systemd/system/'+gate+'.d/99-enrollment.conf'][0]
     for name in ('tools/ubuntu_install.py','tools/install_config.py','tools/pack_release.py','tools/test_installer.py'):ast.parse((REPO/name).read_text())

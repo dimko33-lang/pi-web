@@ -309,11 +309,11 @@ class Runtime:
         role = role_for(uid, ctx.get('channel'), ctx.get('actor_id'), self.bot.OWNER_ID,
                         PUBLIC_CHAT_ID, LIGHTCONE_CHAT_ID, (DEBRI_CHANNEL_ID, DEBRI_CHAT_ID), CURVELAB_CHAT_ID)
         project_chat = bool(ctx.get('channel') and -uid == CURVELAB_CHAT_ID)
-        if action == 'curvelab_command' and project_chat:
+        if action == 'project_command' and project_chat:
             command = params.get('command')
             if not isinstance(command,str) or not 0 < len(command.encode()) <= 30000:
                 raise ValueError('Invalid project command')
-            reader, writer = await asyncio.open_unix_connection('/run/curvelab-runner.sock',limit=200000)
+            reader, writer = await asyncio.open_unix_connection('/run/nikita-project-runner.sock',limit=200000)
             try:
                 writer.write(json.dumps({'command':command},ensure_ascii=False).encode()+b'\n'); await writer.drain()
                 result=json.loads(await asyncio.wait_for(reader.readline(),58))
@@ -603,7 +603,7 @@ class Runtime:
             tail_manner = '\n\n[Приписка владельца, не сообщение и не просьба ответить на неё: ' + note + ']'
             log.info('Tail manner applied chat=%s chars=%s', uid, len(note))
         tool_names = list(tools_for(role))
-        if channel and -uid == CURVELAB_CHAT_ID: tool_names.append('curvelab_command')
+        if channel and -uid == CURVELAB_CHAT_ID: tool_names.append('project_command')
         if role != 'owner':
             args += ['--no-builtin-tools']
         if tail_manner:
@@ -636,8 +636,8 @@ class Runtime:
         env['NIKITA_TOOLS_ENABLED'] = '1' if tools_enabled else '0'
         env['NIKITA_SALON_SHOWCASE'] = '1' if channel and -uid == SALON_CHAT_ID else '0'
         env['NIKITA_PI_SITE'] = '1' if channel and -uid == PUBLIC_CHAT_ID else '0'
-        env['NIKITA_ARRI_SITE'] = '1' if channel and -uid == ARRI_CHAT_ID else '0'
-        env['NIKITA_CURVELAB_PROJECT'] = '1' if channel and -uid == CURVELAB_CHAT_ID else '0'
+        env['NIKITA_STATIC_SITE'] = '1' if channel and -uid == ARRI_CHAT_ID else '0'
+        env['NIKITA_APP_PROJECT'] = '1' if channel and -uid == CURVELAB_CHAT_ID else '0'
         system_file = None
         if profile and (native_pi or 'basePrompt' in profile or profile.get('baseOn') is False):
             base = profile.get('basePrompt')

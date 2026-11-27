@@ -81,7 +81,7 @@ try {
     const denied = await get('/lab/', { 'x-site-editor-session': '1', cookie });
     assert.equal(denied.status, 401); assert.equal(denied.headers.getSetCookie().length, 0);
   }
-  for (const target of ['/lab/api/scene', '/lab/?key=wrong', '/', '//untrusted.example/']) {
+  for (const target of ['/lab/api/private', '/lab/unregistered/', '/lab/?key=wrong', '/', '//untrusted.example/']) {
     const denied = await get(target, bridgeHeaders);
     assert.equal(denied.status, 401); assert.equal(denied.headers.getSetCookie().length, 0);
   }
@@ -92,7 +92,7 @@ try {
   }
   chat.setCheckStatus(null);
   assert.equal(editor.logins(), afterBridge);
-  for (const target of ['/lab/skeleton/', '/lab/loopform/', '/lab/?next=https://untrusted.example']) {
+  for (const target of ['/lab/', '/lab/?next=https://untrusted.example']) {
     const response = await get(target, bridgeHeaders);
     assert.equal(response.status, 303); assert.equal(response.headers.get('location'), target);
   }

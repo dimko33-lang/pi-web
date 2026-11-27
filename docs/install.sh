@@ -2,16 +2,16 @@
 # Pages bootstrap for the fresh Ubuntu reference deployment. No rolling branch downloads.
 set -euo pipefail
 main() {
-  local version=v0.14.0 sha=877761ac91ecc3b5dbef3a1162d259f636d6de64bc5444bb91d87fcee17011f1 mode=${1:-install} tmp asset url
+  local version=v0.14.1 sha=fb157097e4514024374c7244be5416ffd3f3b76f2a134380399ce74e2ce84379 mode=${1:-install} tmp asset url
   case "$mode" in install|--verify-only) ;; *) printf 'Usage: bash install.sh [--verify-only]\n' >&2; return 2;; esac
   if [[ $mode == install ]]; then
-    [[ $(uname -s) == Linux && $(uname -m) == x86_64 && -r /etc/os-release ]] || { echo 'v0.14.0 requires fresh Ubuntu 24.04 x86-64. For the previous macOS installer use the pinned v0.13.0 instructions.' >&2; return 1; }
+    [[ $(uname -s) == Linux && $(uname -m) == x86_64 && -r /etc/os-release ]] || { echo 'A fresh Ubuntu 24.04 x86-64 host is required. Nothing installed.' >&2; return 1; }
     ( . /etc/os-release; [[ $ID == ubuntu && $VERSION_ID == 24.04 ]] ) || { echo 'Ubuntu 24.04 required; nothing installed.' >&2; return 1; }
     [[ $EUID == 0 ]] || { echo 'Run on a fresh host as root, or use: curl -fsSL https://dimko33-lang.github.io/pi-web/install.sh | sudo bash' >&2; return 1; }
   fi
   umask 077; tmp=$(mktemp -d /tmp/pi-web-release.XXXXXXXX); trap "rm -rf -- '$tmp'" EXIT
   asset="pi-web-$version.tar.gz"; url="https://github.com/dimko33-lang/pi-web/releases/download/$version/$asset"
-  echo "Fetching Pi Web $version. Clean Ubuntu installation has not yet been tested."
+  echo "Fetching Pi Web $version. The distribution contains the environment, not private projects."
   curl --proto '=https' --proto-redir '=https' -fsSL --retry 3 "$url" -o "$tmp/asset"
   python3 -E -B - "$tmp" "$sha" "pi-web-$version" <<'PY'
 import hashlib, pathlib, sys, tarfile

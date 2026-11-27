@@ -91,11 +91,9 @@ server {
     }
     location @lc_release {
         rewrite ^/lc/(.*)$ /$1 break;
-        root /opt/projects/lightcone-reader/releases/20261112T214655Z/public;
+        root /opt/projects/archive-b;
     }
-    location ~ ^/lc/(index\.html|style\.css|app\.js|authors\.json|messages/[A-Za-z0-9_-]+\.json)$ {
-        alias /opt/projects/lightcone-reader/public/$1;
-    }
+    location = /lc/style.css { alias /opt/nikita-reader-ui/lightcone.css; }
     location /lc/ { return 404; }
     location = /install { return 302 https://dimko33-lang.github.io/pi-web/install.sh; }
 
@@ -114,8 +112,9 @@ server {
     location ~ ^/debri/(index\.html|app\.js|render\.js)$ { alias /var/lib/nikita-live-archive/$1; }
     location /debri/assets/ { alias /var/lib/nikita-live-archive/assets/; }
     # Keep Debri's existing immutable archive, not LightCone's live author index.
-    location ~ ^/debri/(style\.css|authors\.json|messages/[A-Za-z0-9_-]+\.json)$ {
-        alias /opt/projects/debri-reader/public/$1;
+    location = /debri/style.css { alias /opt/nikita-reader-ui/debri.css; }
+    location ~ ^/debri/(authors\.json|messages/[A-Za-z0-9_-]+\.json)$ {
+        alias /opt/projects/archive-a/$1;
     }
     location / { return 404; }
 }

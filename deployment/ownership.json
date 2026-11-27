@@ -5,11 +5,6 @@
       "mode": "0755",
       "user": "root"
     },
-    "etc/curvelab-route": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
     "etc/nginx": {
       "group": "root",
       "mode": "0755",
@@ -36,6 +31,11 @@
       "user": "root"
     },
     "etc/nikita-home-save": {
+      "group": "root",
+      "mode": "0755",
+      "user": "root"
+    },
+    "etc/nikita-project-route": {
       "group": "root",
       "mode": "0755",
       "user": "root"
@@ -100,31 +100,6 @@
       "mode": "0755",
       "user": "root"
     },
-    "opt/curvelab-editor": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/curvelab-editor/project": {
-      "group": "curvelab-editor",
-      "mode": "0755",
-      "user": "curvelab-editor"
-    },
-    "opt/curvelab-editor/public": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/curvelab-editor/public/editor": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/curvelab-editor/server": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
     "opt/nikita-circle-reserve": {
       "group": "root",
       "mode": "0755",
@@ -134,6 +109,16 @@
       "group": "root",
       "mode": "0755",
       "user": "root"
+    },
+    "opt/nikita-project-runtime": {
+      "user": "root",
+      "group": "root",
+      "mode": "0755"
+    },
+    "opt/nikita-reader-ui": {
+      "user": "root",
+      "group": "root",
+      "mode": "0755"
     },
     "opt/nikita-science": {
       "group": "root",
@@ -155,51 +140,6 @@
       "mode": "0755",
       "user": "root"
     },
-    "opt/projects": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/projects/debri-reader": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/projects/debri-reader/releases": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/projects/debri-reader/releases/20261112T205217Z": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/projects/debri-reader/releases/20261112T205217Z/public": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/projects/lightcone-reader": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/projects/lightcone-reader/releases": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/projects/lightcone-reader/releases/20261112T214655Z": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "opt/projects/lightcone-reader/releases/20261112T214655Z/public": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
     "opt/workspace-branding": {
       "group": "root",
       "mode": "0755",
@@ -209,56 +149,6 @@
       "group": "root",
       "mode": "0755",
       "user": "root"
-    },
-    "srv/nikita-projects": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "srv/nikita-projects/curvelab": {
-      "group": "root",
-      "mode": "0755",
-      "user": "root"
-    },
-    "srv/nikita-projects/curvelab/release-a": {
-      "group": "1000",
-      "mode": "0700",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/project": {
-      "group": "1000",
-      "mode": "0755",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public": {
-      "group": "1000",
-      "mode": "0755",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/editor": {
-      "group": "1000",
-      "mode": "0755",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/server": {
-      "group": "1000",
-      "mode": "0755",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/work/public": {
-      "group": "",
-      "mode": "0755",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/public/editor": {
-      "group": "",
-      "mode": "0755",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/server": {
-      "group": "",
-      "mode": "0755",
-      "user": ""
     },
     "srv/pi-workspaces": {
       "group": "root",
@@ -447,11 +337,6 @@
     }
   },
   "files": {
-    "etc/curvelab-route/upstream.conf": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
     "etc/nginx/conf.d/00-map-size.conf": {
       "group": "root",
       "mode": "0644",
@@ -477,16 +362,6 @@
       "mode": "0644",
       "user": "root"
     },
-    "etc/nginx/sites-available/arri-film": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "etc/nginx/sites-available/curvelab-editor": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
     "etc/nginx/sites-available/instance-site-reader": {
       "group": "root",
       "mode": "0644",
@@ -502,19 +377,19 @@
       "mode": "0644",
       "user": "root"
     },
-    "etc/nginx/sites-available/restore-acme": {
+    "etc/nginx/sites-available/project-app": {
       "group": "root",
       "mode": "0644",
       "user": "root"
     },
-    "etc/nginx/sites-enabled/arri-film": {
+    "etc/nginx/sites-available/project-static": {
       "group": "root",
-      "mode": "0777",
+      "mode": "0644",
       "user": "root"
     },
-    "etc/nginx/sites-enabled/curvelab-editor": {
+    "etc/nginx/sites-available/restore-acme": {
       "group": "root",
-      "mode": "0777",
+      "mode": "0644",
       "user": "root"
     },
     "etc/nginx/sites-enabled/instance-site-reader": {
@@ -528,6 +403,16 @@
       "user": "root"
     },
     "etc/nginx/sites-enabled/pi-web-public": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled/project-app": {
+      "group": "root",
+      "mode": "0777",
+      "user": "root"
+    },
+    "etc/nginx/sites-enabled/project-static": {
       "group": "root",
       "mode": "0777",
       "user": "root"
@@ -562,6 +447,11 @@
       "mode": "0644",
       "user": "root"
     },
+    "etc/nikita-project-route/upstream.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
     "etc/pi-web-speech/@@INSTANCE@@/worker.py": {
       "group": "root",
       "mode": "0644",
@@ -577,31 +467,6 @@
       "mode": "0440",
       "user": "root"
     },
-    "etc/systemd/system/curvelab-deps.socket": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "etc/systemd/system/curvelab-deps@.service": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "etc/systemd/system/curvelab-editor.service": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "etc/systemd/system/curvelab-runner.socket": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "etc/systemd/system/curvelab-runner@.service": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
     "etc/systemd/system/nikita-home-save.socket": {
       "group": "root",
       "mode": "0644",
@@ -613,6 +478,26 @@
       "user": "root"
     },
     "etc/systemd/system/nikita-image.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-project-deps.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-project-deps@.service": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-project-runner.socket": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "etc/systemd/system/nikita-project-runner@.service": {
       "group": "root",
       "mode": "0644",
       "user": "root"
@@ -742,7 +627,7 @@
       "mode": "0644",
       "user": "root"
     },
-    "etc/systemd/system/srv-nikita\\x2dprojects-curvelab.mount": {
+    "etc/systemd/system/srv-nikita\\x2dprojects-workspace.mount": {
       "group": "root",
       "mode": "0644",
       "user": "root"
@@ -782,7 +667,7 @@
       "mode": "0644",
       "user": "root"
     },
-    "etc/systemd/system/tg-agent.service.d/46-arri-site.conf": {
+    "etc/systemd/system/tg-agent.service.d/46-static-site.conf": {
       "group": "root",
       "mode": "0644",
       "user": "root"
@@ -793,81 +678,6 @@
       "user": "root"
     },
     "etc/systemd/system/var-lib-nikita\\x2dscience-work.mount": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/package-lock.json": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/package.json": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/project/curvelab.html": {
-      "group": "curvelab-editor",
-      "mode": "0644",
-      "user": "curvelab-editor"
-    },
-    "opt/curvelab-editor/public/editor/camera.js": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/public/editor/chrome.css": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/public/editor/selection-hover.js": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/public/favicon.svg": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/public/loopform.html": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/public/presence.js": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/public/shell.html": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/server/code-backups.ts": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/server/editor-auth.ts": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/server/main.ts": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/server/presence.ts": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/curvelab-editor/server/snapshots.ts": {
       "group": "root",
       "mode": "0644",
       "user": "root"
@@ -898,6 +708,21 @@
       "user": "root"
     },
     "opt/nikita-image/requirements.lock": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-project-runtime/Dockerfile": {
+      "user": "root",
+      "group": "root",
+      "mode": "0644"
+    },
+    "opt/nikita-reader-ui/debri.css": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "opt/nikita-reader-ui/lightcone.css": {
       "group": "root",
       "mode": "0644",
       "user": "root"
@@ -962,46 +787,6 @@
       "mode": "0644",
       "user": "root"
     },
-    "opt/projects/debri-reader/public": {
-      "group": "root",
-      "mode": "0777",
-      "user": "root"
-    },
-    "opt/projects/debri-reader/releases/20261112T205217Z/public/app.js": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/projects/debri-reader/releases/20261112T205217Z/public/index.html": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/projects/debri-reader/releases/20261112T205217Z/public/style.css": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/projects/lightcone-reader/public": {
-      "group": "root",
-      "mode": "0777",
-      "user": "root"
-    },
-    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/app.js": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/index.html": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/style.css": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
     "opt/tg-agent": {
       "group": "root",
       "mode": "0777",
@@ -1011,191 +796,6 @@
       "group": "root",
       "mode": "0644",
       "user": "root"
-    },
-    "srv/nikita-projects/arri/public/booth-still.js": {
-      "group": "pi-nikita",
-      "mode": "0644",
-      "user": "pi-nikita"
-    },
-    "srv/nikita-projects/arri/public/index.html": {
-      "group": "pi-nikita",
-      "mode": "0644",
-      "user": "pi-nikita"
-    },
-    "srv/nikita-projects/arri/public/nochnoy-seans.svg": {
-      "group": "pi-nikita",
-      "mode": "0644",
-      "user": "pi-nikita"
-    },
-    "srv/nikita-projects/arri/public/site.css": {
-      "group": "pi-nikita",
-      "mode": "0644",
-      "user": "pi-nikita"
-    },
-    "srv/nikita-projects/curvelab/release-a/package-lock.json": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/package.json": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/project/curvelab.html": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/editor/camera.js": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/editor/chrome.css": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/editor/selection-hover.js": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/favicon.svg": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/loopform.html": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/presence.js": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/shell.html": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/code-backups.ts": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/editor-auth.ts": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/main.ts": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/presence.ts": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/snapshots.ts": {
-      "group": "1000",
-      "mode": "0644",
-      "user": "1000"
-    },
-    "srv/nikita-projects/curvelab/runner-build/Dockerfile": {
-      "group": "root",
-      "mode": "0600",
-      "user": "root"
-    },
-    "srv/nikita-projects/curvelab/runner-build/package-lock.json": {
-      "group": "root",
-      "mode": "0600",
-      "user": "root"
-    },
-    "srv/nikita-projects/curvelab/runner-build/package.json": {
-      "group": "root",
-      "mode": "0600",
-      "user": "root"
-    },
-    "srv/nikita-projects/curvelab/work/package-lock.json": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/package.json": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/project/curvelab.html": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/public/editor/camera.js": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/public/editor/chrome.css": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/public/editor/selection-hover.js": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/public/favicon.svg": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/public/loopform.html": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/public/presence.js": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/public/shell.html": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/server/code-backups.ts": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/server/editor-auth.ts": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/server/main.ts": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/server/presence.ts": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
-    },
-    "srv/nikita-projects/curvelab/work/server/snapshots.ts": {
-      "group": "",
-      "mode": "0644",
-      "user": ""
     },
     "srv/pi-workspaces/browser/rootfs/opt/ENVIRONMENT.md": {
       "group": "pi-nikita",
@@ -1235,11 +835,6 @@
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/package.json": {
       "group": "root",
       "mode": "0644",
-      "user": "root"
-    },
-    "srv/pi-workspaces/browser/rootfs/opt/pi-web/projects/lab/index.html": {
-      "group": "root",
-      "mode": "0600",
       "user": "root"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-images.js": {
@@ -1977,37 +1572,42 @@
       "mode": "0644",
       "user": "pi-nikita"
     },
+    "usr/local/bin/nikita-project": {
+      "user": "root",
+      "group": "root",
+      "mode": "0755"
+    },
     "usr/local/bin/node": {
       "group": "root",
       "mode": "0777",
       "user": "root"
     },
-    "usr/local/lib/curvelab-deps.py": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "usr/local/lib/curvelab-http-relay.cjs": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "usr/local/lib/curvelab-relay.cjs": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "usr/local/lib/curvelab-release.py": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
-    "usr/local/lib/curvelab-runner.py": {
-      "group": "root",
-      "mode": "0644",
-      "user": "root"
-    },
     "usr/local/lib/nikita-home-save.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/nikita-project-deps.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/nikita-project-http-relay.cjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/nikita-project-relay.cjs": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/nikita-project-release.py": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
+    "usr/local/lib/nikita-project-runner.py": {
       "group": "root",
       "mode": "0644",
       "user": "root"
@@ -2351,11 +1951,6 @@
       "group": "root",
       "mode": "0644",
       "user": "root"
-    },
-    "var/www/pi-web-public/exchange/index.html": {
-      "group": "pi-nikita",
-      "mode": "0644",
-      "user": "pi-nikita"
     }
   }
 }

@@ -1,5 +1,9 @@
 {
   "format": 1,
+  "optionalRoots": [
+    "opt/curvelab-editor", "etc/curvelab-editor.env", "etc/systemd/system/curvelab-editor.service",
+    "etc/curvelab-route", "etc/pi-web-speech"
+  ],
   "projects": {
     "nikita": [
       "srv/pi-workspaces/nikita",
@@ -28,10 +32,8 @@
       "opt/nikita-web",
       "opt/nikita-science"
     ],
-    "curvelab": [
-      "opt/curvelab-editor",
-      "etc/curvelab-editor.env",
-      "etc/systemd/system/curvelab-editor.service"
+    "app-platform": [
+      "opt/nikita-project-runtime", "opt/nikita-reader-ui", "usr/local/bin/nikita-project", "etc/pi-web-instance"
     ],
     "website-roots": [
       "var/www"
@@ -51,18 +53,18 @@
       "usr/local/lib/nikita-home-save.py",
       "etc/nikita-home-save"
     ],
-    "curvelab-runner": [
-      "etc/curvelab-route/upstream.conf",
-      "etc/systemd/system/curvelab-runner@.service",
-      "etc/systemd/system/curvelab-runner.socket",
-      "etc/systemd/system/curvelab-deps@.service",
-      "etc/systemd/system/curvelab-deps.socket",
-      "etc/systemd/system/srv-nikita\\x2dprojects-curvelab.mount",
-      "usr/local/lib/curvelab-relay.cjs",
-      "usr/local/lib/curvelab-http-relay.cjs",
-      "usr/local/lib/curvelab-deps.py",
-      "usr/local/lib/curvelab-release.py",
-      "usr/local/lib/curvelab-runner.py"
+    "nikita-project-runner": [
+      "etc/nikita-project-route/upstream.conf",
+      "etc/systemd/system/nikita-project-runner@.service",
+      "etc/systemd/system/nikita-project-runner.socket",
+      "etc/systemd/system/nikita-project-deps@.service",
+      "etc/systemd/system/nikita-project-deps.socket",
+      "etc/systemd/system/srv-nikita\\x2dprojects-workspace.mount",
+      "usr/local/lib/nikita-project-relay.cjs",
+      "usr/local/lib/nikita-project-http-relay.cjs",
+      "usr/local/lib/nikita-project-deps.py",
+      "usr/local/lib/nikita-project-release.py",
+      "usr/local/lib/nikita-project-runner.py"
     ],
     "browser-admin": [
       "srv/pi-workspaces/browser",

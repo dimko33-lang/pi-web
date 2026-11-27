@@ -45,7 +45,7 @@ def check(d,schema,manifest):
     assert (d/'opt/tg-agent').resolve()==tg and (d/'opt/tg-agent/agent_server.py').is_file()
     units=d/'etc/systemd/system'; ng=d/'etc/nginx';entry=(ng/'snippets/nikita-home-save.conf').read_text();assert 'auth_request' in entry and '/run/nikita-home-save.sock:/export' in entry
     assert 'agent_server.py' in (units/'tg-agent.service').read_text() and 'User=pi-browser' in (units/'pi-nikita.service.d/95-browser-admin.conf').read_text()
-    for unit in ('nikita-home-save.socket','nikita-reader-door.socket','nikita-salon-history.timer','nikita-salon-piwep.timer','curvelab-runner.socket','curvelab-deps.socket','nikita-web.service','nikita-science.service','nikita-image.service'):
+    for unit in ('nikita-home-save.socket','nikita-reader-door.socket','nikita-salon-history.timer','nikita-salon-piwep.timer','nikita-project-runner.socket','nikita-project-deps.socket','nikita-web.service','nikita-science.service','nikita-image.service'):
         assert (units/unit).is_file(),unit
     # Resolve first-party service entrypoints (including effective drop-ins); distro
     # executables and installed venv interpreters are separately inventoried dependencies.
@@ -68,7 +68,8 @@ def check(d,schema,manifest):
                         assert name.is_file(),(unit.name,word)
     for broker in ('gacrux','circle','heygen'):
         assert (units/('pi-web-'+broker+'-'+v['INSTANCE']+'.socket')).is_file()
-    for reader in ('debri-reader','lightcone-reader'):assert (d/'opt/projects'/reader/'public/app.js').is_file()
+    for reader in ('debri','lightcone'):assert (d/'opt/nikita-reader-ui'/(reader+'.css')).is_file()
+    for shell in ('index.html','app.js','lc-index.html','lc-app.js'):assert (d/'var/lib/nikita-live-archive'/shell).is_file()
     policy=json.loads((tg/'tool-policy.json').read_bytes()); assert {'web_search','web_read','lightcone_archive','debri_archive','science','edit_image','send_article'}<=set(policy['common']) and 'manage_access' in policy['owner'] and 'manage_access' not in policy['guest']
     import runpy,sys
     sys.dont_write_bytecode=True

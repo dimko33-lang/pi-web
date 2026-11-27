@@ -1,7 +1,7 @@
 #!/bin/bash
 # Remove only the server install made in this user's default PiWebRuntime directory.
 set -euo pipefail
-if [[ -d /var/lib/pi-web-installer || -d /opt/pi-web-release-0.14.0 ]]; then
+if [[ -d /var/lib/pi-web-installer || -d /opt/pi-web-release-0.14.0 || -d /opt/pi-web-release-0.14.1 ]]; then
   echo 'The legacy uninstaller cannot remove the system-wide reference deployment. No files changed. Back up private state and use the pre-install machine snapshot to roll back.' >&2
   exit 1
 fi

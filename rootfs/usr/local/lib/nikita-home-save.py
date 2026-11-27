@@ -11,10 +11,10 @@ def main():
  lock=open('/var/lib/nikita-home-save/lock','a');
  try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
  except BlockingIOError:response('409 Conflict');return
- os.chdir('/');config=P('/etc/nikita-home-save');registry=json.loads((config/'projects.json').read_text());roots=[p for paths in registry['projects'].values() for p in paths];roots+=sorted(glob.glob('etc/systemd/system/*nikita*')+glob.glob('etc/systemd/system/tg-agent*'))
+ os.chdir('/');config=P('/etc/nikita-home-save');registry=json.loads((config/'projects.json').read_text());roots=[p for paths in registry['projects'].values() for p in paths];roots += [p for p in registry.get('optionalRoots',[]) if os.path.lexists(p)];roots+=sorted(glob.glob('etc/systemd/system/*nikita*')+glob.glob('etc/systemd/system/tg-agent*'))
  if any(P(p).is_absolute() or '..' in P(p).parts or not os.path.lexists(p) for p in roots):raise ValueError('Missing or invalid registered path')
  with tempfile.TemporaryDirectory() as d:
-  root=P(d)/'rootfs';root.mkdir();cmd=['rsync','-aHR','--no-devices','--no-specials']+['--exclude='+x for x in ['node_modules/','venv/','.venv/','__pycache__/','.npm/_cacache/','*.pyc','/var/lib/nikita-salon-history/*/*.part','/opt/curvelab-editor/data/code-backups/']]+roots+[str(root)+'/'];subprocess.run(cmd,check=True,stdout=sys.stderr);subprocess.run(cmd,check=True,stdout=sys.stderr)
+  root=P(d)/'rootfs';root.mkdir();cmd=['rsync','-aHR','--no-devices','--no-specials']+['--exclude='+x for x in ['node_modules/','venv/','.venv/','__pycache__/','.npm/_cacache/','*.pyc','/var/lib/nikita-salon-history/*/*.part']]+roots+[str(root)+'/'];subprocess.run(cmd,check=True,stdout=sys.stderr);subprocess.run(cmd,check=True,stdout=sys.stderr)
   # Normalize copied SQLite databases inside private staging, never modify the live originals.
   for p in root.rglob('*'):
    if not stat.S_ISREG(p.lstat().st_mode):continue
@@ -25,7 +25,7 @@ def main():
    fd,tmp=tempfile.mkstemp(dir=p.parent);os.close(fd);a=sqlite3.connect(p);b=sqlite3.connect(tmp);a.backup(b);assert b.execute('pragma quick_check').fetchone()==('ok',);b.close();a.close();s=p.stat();os.chown(tmp,s.st_uid,s.st_gid);os.chmod(tmp,stat.S_IMODE(s.st_mode));os.replace(tmp,p)
    for ext in ['-wal','-shm','-journal']:P(str(p)+ext).unlink(missing_ok=True)
   for k in ['var/www/nikita-site/index.html','var/lib/nikita-publications/index.json','var/lib/nikita-live-archive/authors.json','srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_server.py']:assert (root/k).is_file()
-  for k in ['opt/curvelab-editor/project/curvelab.html','etc/curvelab-editor.env','var/lib/nikita-salon-history/index.sqlite','var/lib/nikita-salon-history/guest_dm/messages.json','etc/nginx/conf.d/nikita-salon-access.conf']:assert (root/k).is_file()
+  for k in ['etc/nikita-project-route/upstream.conf','opt/nikita-project-runtime/Dockerfile','var/lib/nikita-salon-history/index.sqlite','var/lib/nikita-salon-history/guest_dm/messages.json','etc/nginx/conf.d/nikita-salon-access.conf']:assert (root/k).is_file()
   shutil.copyfile(config/'projects.json',P(d)/'PROJECTS.json');shutil.copyfile(config/'RESTORE.md',P(d)/'RESTORE.md')
   accounts=[]
   for a in pwd.getpwall():

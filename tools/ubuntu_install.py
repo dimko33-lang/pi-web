@@ -6,7 +6,7 @@ from install_config import APP,B,DATA,META,RELEASE,STATE,TG,catalog,domain_name,
 from prepare import REPO,bindings,load,stage,verify
 from pack_release import selected
 
-VERSION='0.14.0'; S=P(STATE); CL='/srv/nikita-projects/curvelab'; MOUNT='srv-nikita\\x2dprojects-curvelab.mount'; NODE='v22.23.4'; ENV={**os.environ,'PATH':'/opt/node22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin','DEBIAN_FRONTEND':'noninteractive','PIP_DISABLE_PIP_VERSION_CHECK':'1','npm_config_update_notifier':'false'}
+VERSION='0.14.1'; S=P(STATE); CL='/srv/nikita-projects/workspace'; MOUNT='srv-nikita\\x2dprojects-workspace.mount'; NODE='v22.23.4'; ENV={**os.environ,'PATH':'/opt/node22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin','DEBIAN_FRONTEND':'noninteractive','PIP_DISABLE_PIP_VERSION_CHECK':'1','npm_config_update_notifier':'false'}
 DEFER={'tg-agent.service','nikita-salon-history.timer','nikita-salon-piwep.timer'}
 
 def run(*argv,env=None,cwd=None,out=False):
@@ -37,11 +37,11 @@ def preflight():
     if S.exists():
         if S.is_symlink() or S.stat().st_uid or S.stat().st_mode & 0o077 or not (S/'version').is_file() or (S/'version').read_text().strip()!=VERSION:raise ValueError('Unrecognized installer state; stopping')
         return
-    if len(os.sched_getaffinity(0))<2:raise ValueError('At least two CPUs required for the reference CurveLab sandbox')
+    if len(os.sched_getaffinity(0))<2:raise ValueError('At least two CPUs required for the application sandbox')
     if shutil.disk_usage('/').free<18*1024**3:raise ValueError('At least 18 GiB free on the root volume required')
     reserved=[RELEASE,CL,'/srv/pi-workspaces','/srv/nikita-projects','/root/PiWebRuntime','/etc/nginx','/etc/letsencrypt','/etc/pi-web-instance','/usr/local/bin/node','/usr/local/bin/pi','/var/lib/docker','/etc/curvelab-editor.env']
     manifest=load(META/'source.json');reserved += ['/'+k.split('/')[0]+'/'+k.split('/')[1] for k in manifest['files'] if k.startswith('opt/') and '@@' not in k];reserved+=['/opt/node22','/opt/nikita-web-venv','/opt/nikita-web-browsers','/opt/pi-browsers'];reserved+=['/'+k for k in (*manifest['files'],*manifest['links']) if '@@' not in k]
-    reserved += ['/var/lib/curvelab-sandbox','/var/lib/pi-browser-admin','/var/lib/nikita-home-save','/etc/pi-web-speech','/opt/nikita-circle-reserve','/etc/curvelab-route','/var/lib/nikita-publications','/var/lib/nikita-salon-history','/var/lib/nikita-salon-piwep','/var/lib/nikita-science','/var/lib/nikita-image']
+    reserved += ['/var/lib/nikita-project-sandbox','/var/lib/pi-browser-admin','/var/lib/nikita-home-save','/etc/pi-web-speech','/opt/nikita-circle-reserve','/etc/nikita-project-route','/var/lib/nikita-publications','/var/lib/nikita-salon-history','/var/lib/nikita-salon-piwep','/var/lib/nikita-science','/var/lib/nikita-image']
     reserved += [str(p) for pattern in ('/opt/pi-web-*','/var/lib/nikita-*','/var/www/pi-web-*','/home/*/PiWebRuntime','/etc/systemd/system/*nikita*','/etc/systemd/system/pi-web-*') for p in P('/').glob(pattern[1:])]
     collisions=sorted(set(p for p in reserved if os.path.lexists(p)))
     if collisions:raise ValueError('Not a clean host. Existing path preserved: '+collisions[0])
@@ -65,13 +65,13 @@ def accounts():
     run('usermod','-a','-G','pi-tools','pi-nikita')
 
 def volume():
-    image=directory('/var/lib/curvelab-sandbox',0o700)/'project.ext4';directory(CL,0o700)
+    image=directory('/var/lib/nikita-project-sandbox',0o700)/'project.ext4';directory(CL,0o700)
     if not image.exists():
         temp=image.with_suffix('.new');temp.unlink(missing_ok=True)
         with temp.open('xb') as f:f.truncate(3*1024**3)
         run('mkfs.ext4','-q','-F',temp);temp.replace(image)
     write('/etc/systemd/system/'+MOUNT,(REPO/'rootfs/etc/systemd/system'/MOUNT).read_bytes(),0o644);run('systemctl','daemon-reload');run('systemctl','enable','--now',MOUNT)
-    if not os.path.ismount(CL):raise ValueError('CurveLab image mount failed')
+    if not os.path.ismount(CL):raise ValueError('Project workspace mount failed')
 
 def principal(name,info):
     if info['user'] and info['group']:return info
@@ -103,7 +103,7 @@ def copy_payload(v):
     if default.is_symlink() and default.resolve()==P('/etc/nginx/sites-available/default'):default.unlink()
     write('/etc/nginx/conf.d/01-instance-hostnames.conf','server_names_hash_bucket_size 256;\n',0o644)
     P(CL).chmod(0o700)  # Container UID 1000 is not an authority on the host.
-    run('chown','-Rh','1000:1000',CL+'/work');directory('/etc/curvelab-route',0o750,'root','www-data')
+    directory(CL+'/work',0o700,'1000','1000');directory('/etc/nikita-project-route',0o750,'root','www-data')
 
 def init_state(cfg):
     directory('/etc/pi-web-instance',0o750,'root','pi-nikita');directory('/etc/pi-web-instance/legacy-articles',0o700)
@@ -114,10 +114,10 @@ def init_state(cfg):
         write(P(DATA).parent/name,(P(APP)/name).read_bytes(),0o644)
     for suffix in ('root','root/.pi','root/.pi/agent'):directory('/srv/pi-workspaces/nikita/rootfs/'+suffix,0o700,'pi-nikita','pi-nikita')
     for n in ('users','workspaces','home','home/.pi/agent','backups','last-good','testing','pi-sessions'):directory(TG+'/'+n,0o700,'pi-nikita','pi-nikita')
-    for n in ('var/lib/nikita-publications','var/lib/nikita-salon-history','var/lib/nikita-salon-piwep','var/lib/nikita-live-archive/messages','var/www/pi-web-public','srv/nikita-projects/arri/public'):directory('/'+n,0o755,'pi-nikita','pi-nikita')
+    for n in ('var/lib/nikita-publications','var/lib/nikita-salon-history','var/lib/nikita-salon-piwep','var/lib/nikita-live-archive/messages','var/www/pi-web-public','srv/nikita-projects/static/public'):directory('/'+n,0o755,'pi-nikita','pi-nikita')
     for k in ('ARRI_PEER','PROJECT_PEER'):directory(TG+'/workspaces/'+cfg['bindings'][k]+'/site',0o700,'pi-nikita','pi-nikita')
     for p in ('/opt/nikita-lightcone-archive','/opt/nikita-debri-archive','/var/www/instance-site-acme','/var/lib/nikita-science/work','/var/lib/pi-browser-admin','/var/lib/pi-browser-admin/jobs','/var/lib/nikita-home-save'):directory(p,0o700 if 'admin' in p or 'save' in p else 0o755)
-    for n in ('data','.snapshots'):directory('/opt/curvelab-editor/'+n,0o700,'curvelab-editor','curvelab-editor');directory(CL+'/live-data/'+n,0o700,'1000','1000')
+    for n in ('data','.snapshots'):directory(CL+'/live-data/'+n,0o700,'1000','1000')
     for p,(text,mode,u,g) in seeds(cfg).items():
         if 'salon-history/' in p or 'salon-piwep/' in p:directory(P(p).parent,0o755,'pi-nikita','pi-nikita')
         if not P(p).exists():write(p,text,mode,u,g)
@@ -130,9 +130,8 @@ def runtimes(v):
     archive=S/'node.tar.gz';run('curl','-fsSL','--retry','3','https://nodejs.org/dist/'+NODE+'/node-'+NODE+'-linux-x64.tar.gz','-o',archive)
     if hashlib.sha256(archive.read_bytes()).hexdigest()!='b8492284c76a54baf58d61668dd0e41ee0fc98adabf9503d30f05d08f55b4406':raise ValueError('Node checksum mismatch')
     directory('/opt/node22');run('tar','xzf',archive,'--no-same-owner','--strip-components=1','-C','/opt/node22')
-    for p in ['/opt/pi-web-runtime',APP,'/opt/curvelab-editor',CL+'/work',CL+'/release-a',TG+'/mathrender',TG+'/media-decoder']:
+    for p in ['/opt/pi-web-runtime',APP,TG+'/mathrender',TG+'/media-decoder']:
         run('npm','ci','--no-audit','--no-fund','--ignore-scripts',cwd=p)
-    for project in (CL+'/work',CL+'/release-a'):run('chown','-Rh','1000:1000',project+'/node_modules')
     cli='/opt/pi-web-runtime/node_modules/.bin/pi';run(cli,'--version');p=P('/usr/local/bin/pi');
     if not p.exists():p.symlink_to(cli)
     run('node','node_modules/playwright-core/cli.js','install','--with-deps','chromium',cwd=APP,env={**ENV,'PLAYWRIGHT_BROWSERS_PATH':'/opt/pi-browsers'})
@@ -143,15 +142,15 @@ def runtimes(v):
     for name,dest in venvs.items():
         run('/usr/bin/python3','-m','venv',dest);req=S/(name+'.lock');write(req,''.join(k+'=='+val+'\n' for k,val in deps['packages.'+name].items() if k!='pip'));run(dest+'/bin/python','-m','pip','install','--no-input','-r',req)
     run('/opt/nikita-web-venv/bin/python','-m','playwright','install','--with-deps','chromium',env={**ENV,'PLAYWRIGHT_BROWSERS_PATH':'/opt/nikita-web-browsers'})
-    for n in ('voice_assets.py','speech_assets.py'):run(TG+'/venv/bin/python',str(REPO/'rootfs'/TG[1:]/n))
+    for n in ('voice_assets.py','speech_assets.py'):run(TG+'/venv/bin/python','-I','-B',str(REPO/'rootfs'/TG[1:]/n))
     ff=S/'ffmpeg.lock';write(ff,'imageio-ffmpeg==0.6.0 --hash=sha256:c7e46fcec401dd990405049d2e2f475e2b397779df2519b544b8aab515195282\n');run(hey+'/venv/bin/python','-m','pip','install','--no-deps','--require-hashes','-r',ff);binary=run(hey+'/venv/bin/python','-c','import imageio_ffmpeg as f;print(f.get_ffmpeg_exe())',out=True).strip();shutil.copy2(binary,hey+'/ffmpeg')
     for p,meta in load(META/'binaries.json').items():
         path=P(sub(p,v));h=hashlib.sha256()
         with path.open('rb') as f:
             while chunk:=f.read(1024*1024):h.update(chunk)
         if h.hexdigest()!=meta['sha256']:raise ValueError('Installed binary mismatch: '+str(path))
-    run('docker','build','-t','pi-web-science:0.14.0','/opt/nikita-science');write('/opt/nikita-science/image-id',run('docker','image','inspect','--format','{{.Id}}','pi-web-science:0.14.0',out=True),0o644)
-    run('docker','build','-t','curvelab-project-runtime:stage',CL+'/runner-build');run('systemctl','daemon-reload')
+    science='pi-web-science:'+VERSION;run('docker','build','-t',science,'/opt/nikita-science');write('/opt/nikita-science/image-id',run('docker','image','inspect','--format','{{.Id}}',science,out=True),0o644)
+    run('docker','build','-t','nikita-project-runtime:stage','/opt/nikita-project-runtime');run('systemctl','daemon-reload')
 
 def certificates(v):
     names=sorted({v[k] for k in ('PANEL_HOST','SITE_HOST','SITE_WWW','PUBLIC_HOST','EDITOR_HOST','EDITOR_WWW','ARRI_HOST')});cert=P('/etc/letsencrypt/live/pi-web-instance');tls=os.environ.get('PI_WEB_TLS','acme')
@@ -186,15 +185,15 @@ def health(cfg,https):
         time.sleep(1)
     else:raise RuntimeError('Panel did not present its expected authentication boundary: '+status)
     entry=http.client.HTTPConnection('127.0.0.1',5690,timeout=10);entry.request('GET','/?key='+cfg['entryKey']);r=entry.getresponse();cookies=r.headers.get_all('set-cookie') or [];assert r.status==303 and any(c.startswith('cl_sid=') for c in cookies),'Entry login failed';entry.close()
-    conn=http.client.HTTPConnection('127.0.0.1',5670,timeout=5);conn.request('GET','/api/conversation-profiles',headers={'Cookie':cookies[0].split(';')[0]});r=conn.getresponse();assert r.status==200 and len(json.load(r)['profiles'])==len(catalog(v)),'Profile catalog unavailable';conn.close()
+    conn=http.client.HTTPConnection('127.0.0.1',5670,timeout=5);conn.request('GET','/api/conversation-profiles',headers={'Cookie':cookies[0].split(';')[0]});r=conn.getresponse();assert r.status==200 and len(json.load(r)['profiles'])==len(catalog(cfg)),'Profile catalog unavailable';conn.close()
 
 def activate(cfg,v):
     enabled=[sub(n,v) for n,state in load(META/'platform.json')['unitStates'].items() if state=='enabled' and n not in DEFER]
     run('systemctl','daemon-reload');run('systemctl','enable','--now',*enabled);health(cfg,False);run('systemctl','enable','--now','nginx');health(cfg,True)
     for n in enabled:run('systemctl','is-active','--quiet',n)
-    for host,path in [(v['EDITOR_HOST'],'/api/snapshots'),(v['SITE_HOST'],'/nikita/data/index.json'),(v['PANEL_HOST'],'/api/project/download/source')]:
+    for host,path,allowed in [(v['EDITOR_HOST'],'/',('404',)),(v['SITE_HOST'],'/nikita/data/index.json',('401','403')),(v['PANEL_HOST'],'/api/project/download/source',('401','403'))]:
         status=run('curl','-sS','--noproxy','*','--max-time','8','--cacert','/etc/letsencrypt/live/pi-web-instance/fullchain.pem','--resolve',host+':443:127.0.0.1','-o','/dev/null','-w','%{http_code}','https://'+host+path,out=True)
-        if status not in ('401','403'):raise RuntimeError('Anonymous protected route check failed: '+path+' ('+status+')')
+        if status not in allowed:raise RuntimeError('Unexpected fresh-host route status: '+path+' ('+status+')')
     write(S/'access.txt','https://'+v['PANEL_HOST']+'/?key='+cfg['entryKey']+'\n');directory('/root/PiWebRuntime/bin',0o700);write('/root/PiWebRuntime/bin/nikita-telegram','#!/bin/sh\nexec systemctl status tg-agent --no-pager\n',0o700)
 
 def main():

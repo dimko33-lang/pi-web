@@ -27,27 +27,26 @@
     "nikita-salon-piwep.timer": "enabled",
     "nikita-home-save@.service": "static",
     "nikita-reader-door.service": "static",
-    "curvelab-editor.service": "enabled",
     "pi-web-gacrux-@@INSTANCE@@@.service": "static",
     "pi-web-heygen-@@INSTANCE@@@.service": "static",
     "nikita-home-save.socket": "enabled",
     "nikita-salon-history.service": "static",
     "tg-agent.service": "enabled",
-    "curvelab-deps.socket": "enabled",
+    "nikita-project-deps.socket": "enabled",
     "pi-nikita.service": "enabled",
     "pi-nikita-entry.service": "enabled",
     "nikita-science.service": "enabled",
     "var-lib-nikita\\x2dscience-work.mount": "static",
-    "srv-nikita\\x2dprojects-curvelab.mount": "enabled",
-    "curvelab-runner.socket": "enabled",
-    "curvelab-deps@.service": "static",
+    "srv-nikita\\x2dprojects-workspace.mount": "enabled",
+    "nikita-project-runner.socket": "enabled",
+    "nikita-project-deps@.service": "static",
     "pi-nikita.slice": "static",
     "nikita-image.service": "enabled",
     "pi-web-gacrux-@@INSTANCE@@.socket": "enabled",
     "pi-web-heygen-@@INSTANCE@@.socket": "enabled",
     "pi-web-circle-@@INSTANCE@@.socket": "enabled",
     "nikita-salon-piwep.service": "static",
-    "curvelab-runner@.service": "static",
+    "nikita-project-runner@.service": "static",
     "nikita-restart.service": "static",
     "pi-web-circle-@@INSTANCE@@@.service": "static"
   },
@@ -78,15 +77,6 @@
         "nikita-web"
       ],
       "home": "/home/nikita-web",
-      "shell": "/usr/sbin/nologin"
-    },
-    "curvelab-editor": {
-      "uid": 993,
-      "primaryGroup": "curvelab-editor",
-      "supplementaryGroups": [
-        "curvelab-editor"
-      ],
-      "home": "/var/lib/curvelab-editor",
       "shell": "/usr/sbin/nologin"
     },
     "nikita-reader-door": {

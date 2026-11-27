@@ -1,0 +1,26 @@
+#!/usr/bin/python3 -I
+"""Operate the fixed, isolated application workspace, using its existing authorized socket."""
+import argparse
+import json
+import socket
+import sys
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('action', choices=('exec', 'check', 'publish', 'withdraw', 'rollback'))
+args = parser.parse_args()
+command = sys.stdin.read(30001) if args.action == 'exec' else '@' + args.action
+if not command.strip() or len(command) > 30000:
+    parser.error('exec reads a nonempty project shell script of at most 30000 characters from stdin')
+with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+    client.settimeout(70)
+    client.connect('/run/nikita-project-runner.sock')
+    client.sendall(json.dumps({'command': command}).encode() + b'\n')
+    client.shutdown(socket.SHUT_WR)
+    with client.makefile('rb') as response:
+        result = json.loads(response.readline(200000))
+if 'error' in result:
+    sys.exit(result['error'])
+if 'exit' in result:
+    sys.stdout.write(result['output'])
+    sys.exit(result['exit'] if 0 <= result['exit'] < 256 else 1)
+print(json.dumps(result, ensure_ascii=False))

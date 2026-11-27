@@ -1,0 +1,10 @@
+[Service]
+DynamicUser=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ExecStart=/usr/bin/python3 -I /usr/local/lib/nikita-project-deps.py
+StandardInput=socket
+StandardOutput=socket
+RuntimeMaxSec=90s

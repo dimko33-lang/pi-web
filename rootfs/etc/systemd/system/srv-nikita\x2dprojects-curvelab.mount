@@ -1,9 +1,0 @@
-[Unit]
-Description=Bounded CurveLab project storage
-[Mount]
-What=/var/lib/curvelab-sandbox/project.ext4
-Where=/srv/nikita-projects/curvelab
-Type=ext4
-Options=loop,nosuid,nodev
-[Install]
-WantedBy=multi-user.target

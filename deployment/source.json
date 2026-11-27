@@ -1,10 +1,5 @@
 {
   "files": {
-    "etc/curvelab-route/upstream.conf": {
-      "mode": "0644",
-      "sha256": "5f0e95e62d169d176b10f88d06554a1e28a05ba91c8985678aba200da61149dd",
-      "source": "exact"
-    },
     "etc/nginx/conf.d/00-map-size.conf": {
       "mode": "0644",
       "sha256": "a2bf2afbb45ee3232113e2bed1cae533628136f72937302102ec2da936d15a87",
@@ -30,20 +25,10 @@
       "sha256": "48c6a4ec1e1fd28ccf968490f07e34a1d7f755793b2108a3ed8670b1ee2a0aa2",
       "source": "exact"
     },
-    "etc/nginx/sites-available/arri-film": {
-      "mode": "0644",
-      "sha256": "86ba316e6a731610d7470b21eedb44cb3de0149f4479fbddfe4ae6846ae878a2",
-      "source": "adapted"
-    },
-    "etc/nginx/sites-available/curvelab-editor": {
-      "mode": "0644",
-      "sha256": "eb5fa2eecf5398261f9dbdde70fbb224e952118a22daa61f211d603e639f4f85",
-      "source": "adapted"
-    },
     "etc/nginx/sites-available/instance-site-reader": {
       "mode": "0644",
-      "sha256": "fcd2273ee232f45fc66a3ca5c6c09739a6d7964c04a094155cd97d0a96b4bd19",
-      "source": "adapted"
+      "sha256": "b8e797000bd5cc372eb5c4660753c3e98053960d75f40422cb6afea9027e146e",
+      "source": "public-platform"
     },
     "etc/nginx/sites-available/panel-instance-site-acme": {
       "mode": "0644",
@@ -54,6 +39,16 @@
       "mode": "0644",
       "sha256": "a6846001b965bdd0ddf874a49913a99c00f4855b6eab899c515a35f747bb11b0",
       "source": "adapted"
+    },
+    "etc/nginx/sites-available/project-app": {
+      "mode": "0644",
+      "sha256": "1f45ff13292ba92b1d2623e4632390822c4bab6e3a898a71cbc499e6155c88f5",
+      "source": "public-platform"
+    },
+    "etc/nginx/sites-available/project-static": {
+      "mode": "0644",
+      "sha256": "bf0a7cbad3c67bedfba587974df8243e7a2aa82dc0389d8ccb56f9cb1ddd12af",
+      "source": "public-platform"
     },
     "etc/nginx/sites-available/restore-acme": {
       "mode": "0644",
@@ -77,13 +72,18 @@
     },
     "etc/nikita-home-save/RESTORE.md": {
       "mode": "0644",
-      "sha256": "a727fcd0546db8823743c51d6ef99b939c6af6a05906106d6b752726261399f7",
-      "source": "adapted"
+      "sha256": "15d12a026b4e236455f1152d0fac7749dda04edcb7e001a99be02c15212c7193",
+      "source": "public-platform"
     },
     "etc/nikita-home-save/projects.json": {
       "mode": "0644",
-      "sha256": "7d4c9dcd6e786ce7cd43ad5c3fe1a93a8411cef63edec4523e733e99236011a9",
-      "source": "exact"
+      "sha256": "ba5930bd6d0732bf5529cbf690c57bae50bebfb5a99770c9288558896dfe641d",
+      "source": "public-platform"
+    },
+    "etc/nikita-project-route/upstream.conf": {
+      "mode": "0644",
+      "sha256": "106c7d8a372e06fa8774e929a9ceb97f3200bf0c08f37ed2cfc1761f6371cdff",
+      "source": "public-platform"
     },
     "etc/pi-web-speech/@@INSTANCE@@/worker.py": {
       "mode": "0644",
@@ -100,31 +100,6 @@
       "sha256": "43f9308f46ee91f2f0b63a95f099ad577f026d61649c2e2c41f5946fb8cc6b9d",
       "source": "exact"
     },
-    "etc/systemd/system/curvelab-deps.socket": {
-      "mode": "0644",
-      "sha256": "158da4fb6ddd89a029e8b18f569e3b13a92a4709e47f92f3d2810c418c0a059d",
-      "source": "exact"
-    },
-    "etc/systemd/system/curvelab-deps@.service": {
-      "mode": "0644",
-      "sha256": "915751a84f6741df0c31354661ca6ca2f90444f6459e5dee5cc10ff999435cf9",
-      "source": "exact"
-    },
-    "etc/systemd/system/curvelab-editor.service": {
-      "mode": "0644",
-      "sha256": "8898d5ee18adfca13b5dfe916f654db64328f3bb2b7a55a78859c631252f8fad",
-      "source": "exact"
-    },
-    "etc/systemd/system/curvelab-runner.socket": {
-      "mode": "0644",
-      "sha256": "a11df7ff0c0d5675c8d80e755500aa6bfe6d5215099655edea63fc92f044191e",
-      "source": "exact"
-    },
-    "etc/systemd/system/curvelab-runner@.service": {
-      "mode": "0644",
-      "sha256": "7b4477fe9a357fe3cf6cdf15285a3b882209427817d4171c0d18fe5f0caf71f2",
-      "source": "exact"
-    },
     "etc/systemd/system/nikita-home-save.socket": {
       "mode": "0644",
       "sha256": "de07cb4e2bbf4a61f925eb34d424e3034359bd9b30447c0419ae3a75e267c63a",
@@ -139,6 +114,26 @@
       "mode": "0644",
       "sha256": "89bf5b5079c5fe819128cff9a2f9351f3ae6a11147cf9fe462984834488c6ca3",
       "source": "exact"
+    },
+    "etc/systemd/system/nikita-project-deps.socket": {
+      "mode": "0644",
+      "sha256": "81de135e4b8ddac448faa0ba7264930d2b9ea00098b19a7d60c422848b3683fe",
+      "source": "public-platform"
+    },
+    "etc/systemd/system/nikita-project-deps@.service": {
+      "mode": "0644",
+      "sha256": "f0096cf4347c49ee53a620a2a3d5847d1fb2b084a95b7543b8e6fafb92a663a4",
+      "source": "public-platform"
+    },
+    "etc/systemd/system/nikita-project-runner.socket": {
+      "mode": "0644",
+      "sha256": "9a12032d9e9740111a1a0ce1b35ff57a61074b74fdc408fe0569db8a60f02f2f",
+      "source": "public-platform"
+    },
+    "etc/systemd/system/nikita-project-runner@.service": {
+      "mode": "0644",
+      "sha256": "554b24afe79e60c4caeb0355a366a92ae34f5cf82d49248af7f6d66e3a06bb44",
+      "source": "public-platform"
     },
     "etc/systemd/system/nikita-reader-door.service": {
       "mode": "0644",
@@ -265,10 +260,10 @@
       "sha256": "17c480874ae7dea106085063bb04b487b7fa5a35691d57fc1465aacb27f2809c",
       "source": "adapted"
     },
-    "etc/systemd/system/srv-nikita\\x2dprojects-curvelab.mount": {
+    "etc/systemd/system/srv-nikita\\x2dprojects-workspace.mount": {
       "mode": "0644",
-      "sha256": "7713c1f8e4ce4152482c89269fb855bc0f42ea3f11426b807cf97f1da1306713",
-      "source": "exact"
+      "sha256": "b5b7c0a6401b9c57eb1e8f9a3534847dddbe0278b97b2b1d5be2dd48d4840ee4",
+      "source": "public-platform"
     },
     "etc/systemd/system/tg-agent.service": {
       "mode": "0644",
@@ -277,13 +272,13 @@
     },
     "etc/systemd/system/tg-agent.service.d/20-lightcone-archive.conf": {
       "mode": "0644",
-      "sha256": "705d1ff936b002a6d339ced38a4d778e0ec1546bbc2c35af58bf92293d715d94",
-      "source": "exact"
+      "sha256": "037ac773cdff4ccd625137e2ecddeadb1489f931e348daa09c298cdcd19990dc",
+      "source": "public-platform"
     },
     "etc/systemd/system/tg-agent.service.d/22-debri-archive.conf": {
       "mode": "0644",
-      "sha256": "4056f846558a3d5d1dd31dd677d4ccec9dd02aa81c1178d17f115675e641e6ce",
-      "source": "exact"
+      "sha256": "6a8c9e39b11103ebadfb313b97f44f545f3b7348d937c34d08b19f4b02d848d9",
+      "source": "public-platform"
     },
     "etc/systemd/system/tg-agent.service.d/25-live-archive.conf": {
       "mode": "0644",
@@ -305,10 +300,10 @@
       "sha256": "1cadf7e8dcf1f42ab557fbdc7f7f10b368c2c688189e46efd9d60004bdd3e926",
       "source": "exact"
     },
-    "etc/systemd/system/tg-agent.service.d/46-arri-site.conf": {
+    "etc/systemd/system/tg-agent.service.d/46-static-site.conf": {
       "mode": "0644",
-      "sha256": "1762ce0270d4454f9341d35780d9798bd0591ec5a3f93a4501c067d5912430dc",
-      "source": "adapted"
+      "sha256": "b23f39d460149e0e771744ca6aa13de2574157ba509ebd4d6cb32cde4a4d0137",
+      "source": "public-platform"
     },
     "etc/systemd/system/tg-agent.service.d/47-pi-web-site.conf": {
       "mode": "0644",
@@ -318,81 +313,6 @@
     "etc/systemd/system/var-lib-nikita\\x2dscience-work.mount": {
       "mode": "0644",
       "sha256": "122e16b00fcfaacc961842c7ba9d38aeda79aca2d0fae299d950838e414f64b4",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/package-lock.json": {
-      "mode": "0644",
-      "sha256": "cf1281e9235db95d3751212fc40a8889aada9aa9d6720394ad4ec8a8ae780d06",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/package.json": {
-      "mode": "0644",
-      "sha256": "8935191f5834c01b61d7ac238191acc97d7e5859e4918789ee840554ad24c859",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/project/curvelab.html": {
-      "mode": "0644",
-      "sha256": "3839a49b74705def35c54f3932c0cf3a2857542c15039f8cdd9617d9c5eee363",
-      "source": "adapted"
-    },
-    "opt/curvelab-editor/public/editor/camera.js": {
-      "mode": "0644",
-      "sha256": "ae6fbeaa3419e93acfe1da737a7e03950d96923defdfc2467a578050fb0154c1",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/public/editor/chrome.css": {
-      "mode": "0644",
-      "sha256": "88eafc313f3c79193c6743a0f1880ebd1db537c9c8f7e6688371dbdc0b4d002e",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/public/editor/selection-hover.js": {
-      "mode": "0644",
-      "sha256": "454f91f87576c364e86c6ff7dd38aa8ec1d5b056704dda17d76b67e7aa048ea7",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/public/favicon.svg": {
-      "mode": "0644",
-      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/public/loopform.html": {
-      "mode": "0644",
-      "sha256": "9a0054cee9c35386b411d8bde8918ac8d3e54562b955019b063a2611e53849d4",
-      "source": "adapted"
-    },
-    "opt/curvelab-editor/public/presence.js": {
-      "mode": "0644",
-      "sha256": "8e2481c38dd0adfc0bde0540f49ab768d6e0fb1e1bf9e4ae0f0a6f4416bc8998",
-      "source": "adapted"
-    },
-    "opt/curvelab-editor/public/shell.html": {
-      "mode": "0644",
-      "sha256": "f3e0a1a8a9dd0e6246e1fffcc33aa7dc704ac197321f654cc2ea508e64859984",
-      "source": "adapted"
-    },
-    "opt/curvelab-editor/server/code-backups.ts": {
-      "mode": "0644",
-      "sha256": "049ff5106d06f65cfc641d4368ed37a67c5b43b2e2ddac5889acf016fe258637",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/server/editor-auth.ts": {
-      "mode": "0644",
-      "sha256": "a5498a99c5c74023ebba9a00056411d4e7cc33fbd086879c2572a397762990ec",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/server/main.ts": {
-      "mode": "0644",
-      "sha256": "d1cbf77b5ab51086f79ba6dc70db11fad88a454a4e7da61b04e6b950edbff94e",
-      "source": "exact"
-    },
-    "opt/curvelab-editor/server/presence.ts": {
-      "mode": "0644",
-      "sha256": "65ecdeceb4325bfc96daf74067813a4911fb2db9204f8a2df09cb2d3df6148e4",
-      "source": "adapted"
-    },
-    "opt/curvelab-editor/server/snapshots.ts": {
-      "mode": "0644",
-      "sha256": "b0fb7b0f54814d68dbdf7ffc8fef6acde057908b4c3695ddadd8690f4894b3f1",
       "source": "exact"
     },
     "opt/nikita-circle-reserve/circle_match.py": {
@@ -424,6 +344,21 @@
       "mode": "0644",
       "sha256": "99a6ee43ad476e21ed615dfc2300e6ac481593cb8c3565716c404d9c4f89482c",
       "source": "exact"
+    },
+    "opt/nikita-project-runtime/Dockerfile": {
+      "mode": "0644",
+      "sha256": "ccda0017584e17f2e7cfdb78961fd2a4434dc3a8f8352e65eb5fd1b36123f166",
+      "source": "public-platform"
+    },
+    "opt/nikita-reader-ui/debri.css": {
+      "mode": "0644",
+      "sha256": "aff5f3433464cf31e4eaf9aed5588942d075c21dc11030b161991d3a450baa77",
+      "source": "public-platform"
+    },
+    "opt/nikita-reader-ui/lightcone.css": {
+      "mode": "0644",
+      "sha256": "aff5f3433464cf31e4eaf9aed5588942d075c21dc11030b161991d3a450baa77",
+      "source": "public-platform"
     },
     "opt/nikita-science/Dockerfile": {
       "mode": "0644",
@@ -485,230 +420,15 @@
       "sha256": "c93fb19affbe235a1132a3b51de40e10d81193d62943b29e9ea2cb6f4f3ddef7",
       "source": "exact"
     },
-    "opt/projects/debri-reader/releases/20261112T205217Z/public/app.js": {
-      "mode": "0644",
-      "sha256": "9fb93cfbb2dcb9a4232b8b49c4b990c8e78f12ba67a824710f33968c7fd47383",
-      "source": "exact"
-    },
-    "opt/projects/debri-reader/releases/20261112T205217Z/public/index.html": {
-      "mode": "0644",
-      "sha256": "d30b97ebc6c8bae382b1c9a6a461a200bb35a6348a455516a5ac43620f2d3f36",
-      "source": "adapted"
-    },
-    "opt/projects/debri-reader/releases/20261112T205217Z/public/style.css": {
-      "mode": "0644",
-      "sha256": "aff5f3433464cf31e4eaf9aed5588942d075c21dc11030b161991d3a450baa77",
-      "source": "exact"
-    },
-    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/app.js": {
-      "mode": "0644",
-      "sha256": "cd963277b34f70067371bb320895e2e1d3d9075b186b175c467170c35bd460da",
-      "source": "exact"
-    },
-    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/index.html": {
-      "mode": "0644",
-      "sha256": "413b21ebe2fd277eb5551b4a03c0ad910c6fd0c13dda9c52417c067fd5d34a39",
-      "source": "exact"
-    },
-    "opt/projects/lightcone-reader/releases/20261112T214655Z/public/style.css": {
-      "mode": "0644",
-      "sha256": "aff5f3433464cf31e4eaf9aed5588942d075c21dc11030b161991d3a450baa77",
-      "source": "exact"
-    },
     "opt/workspace-branding/nikita.js": {
       "mode": "0644",
       "sha256": "4df95e0ce7247a4ada9fef67e89996817ebb63982afb456c87e5901ec64a60f6",
       "source": "adapted"
     },
-    "srv/nikita-projects/arri/public/booth-still.js": {
-      "mode": "0644",
-      "sha256": "a8f739d1eea9c85bef8561cb0f708ba36641069ba50d9ed33ee8df900913f07b",
-      "source": "exact"
-    },
-    "srv/nikita-projects/arri/public/index.html": {
-      "mode": "0644",
-      "sha256": "b5f353ddd0cf4169d0cf7b655781e1e0349ef8db4bf194bd1b86919742b75c71",
-      "source": "exact"
-    },
-    "srv/nikita-projects/arri/public/nochnoy-seans.svg": {
-      "mode": "0644",
-      "sha256": "f798db475e266892597c146983cbb083d42886172b3cac2fef046208f2c12c70",
-      "source": "exact"
-    },
-    "srv/nikita-projects/arri/public/site.css": {
-      "mode": "0644",
-      "sha256": "a4a24c30306442dfb6ba844bdc4913da9af4d952c9203333b704f464224a0dc9",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/package-lock.json": {
-      "mode": "0644",
-      "sha256": "cf1281e9235db95d3751212fc40a8889aada9aa9d6720394ad4ec8a8ae780d06",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/package.json": {
-      "mode": "0644",
-      "sha256": "8935191f5834c01b61d7ac238191acc97d7e5859e4918789ee840554ad24c859",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/project/curvelab.html": {
-      "mode": "0644",
-      "sha256": "3839a49b74705def35c54f3932c0cf3a2857542c15039f8cdd9617d9c5eee363",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/editor/camera.js": {
-      "mode": "0644",
-      "sha256": "ae6fbeaa3419e93acfe1da737a7e03950d96923defdfc2467a578050fb0154c1",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/editor/chrome.css": {
-      "mode": "0644",
-      "sha256": "88eafc313f3c79193c6743a0f1880ebd1db537c9c8f7e6688371dbdc0b4d002e",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/editor/selection-hover.js": {
-      "mode": "0644",
-      "sha256": "454f91f87576c364e86c6ff7dd38aa8ec1d5b056704dda17d76b67e7aa048ea7",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/favicon.svg": {
-      "mode": "0644",
-      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/loopform.html": {
-      "mode": "0644",
-      "sha256": "9a0054cee9c35386b411d8bde8918ac8d3e54562b955019b063a2611e53849d4",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/presence.js": {
-      "mode": "0644",
-      "sha256": "8e2481c38dd0adfc0bde0540f49ab768d6e0fb1e1bf9e4ae0f0a6f4416bc8998",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/release-a/public/shell.html": {
-      "mode": "0644",
-      "sha256": "f3e0a1a8a9dd0e6246e1fffcc33aa7dc704ac197321f654cc2ea508e64859984",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/code-backups.ts": {
-      "mode": "0644",
-      "sha256": "049ff5106d06f65cfc641d4368ed37a67c5b43b2e2ddac5889acf016fe258637",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/editor-auth.ts": {
-      "mode": "0644",
-      "sha256": "a5498a99c5c74023ebba9a00056411d4e7cc33fbd086879c2572a397762990ec",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/main.ts": {
-      "mode": "0644",
-      "sha256": "d1cbf77b5ab51086f79ba6dc70db11fad88a454a4e7da61b04e6b950edbff94e",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/presence.ts": {
-      "mode": "0644",
-      "sha256": "65ecdeceb4325bfc96daf74067813a4911fb2db9204f8a2df09cb2d3df6148e4",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/release-a/server/snapshots.ts": {
-      "mode": "0644",
-      "sha256": "b0fb7b0f54814d68dbdf7ffc8fef6acde057908b4c3695ddadd8690f4894b3f1",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/runner-build/Dockerfile": {
-      "mode": "0600",
-      "sha256": "6c819abb9eeb92a9739bd970064cf302cb483dda2ae69570fb122d99ebc064a3",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/runner-build/package-lock.json": {
-      "mode": "0600",
-      "sha256": "cf1281e9235db95d3751212fc40a8889aada9aa9d6720394ad4ec8a8ae780d06",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/runner-build/package.json": {
-      "mode": "0600",
-      "sha256": "8935191f5834c01b61d7ac238191acc97d7e5859e4918789ee840554ad24c859",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/package-lock.json": {
-      "mode": "0644",
-      "sha256": "cf1281e9235db95d3751212fc40a8889aada9aa9d6720394ad4ec8a8ae780d06",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/package.json": {
-      "mode": "0644",
-      "sha256": "8935191f5834c01b61d7ac238191acc97d7e5859e4918789ee840554ad24c859",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/project/curvelab.html": {
-      "mode": "0644",
-      "sha256": "3839a49b74705def35c54f3932c0cf3a2857542c15039f8cdd9617d9c5eee363",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/work/public/editor/camera.js": {
-      "mode": "0644",
-      "sha256": "ae6fbeaa3419e93acfe1da737a7e03950d96923defdfc2467a578050fb0154c1",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/public/editor/chrome.css": {
-      "mode": "0644",
-      "sha256": "88eafc313f3c79193c6743a0f1880ebd1db537c9c8f7e6688371dbdc0b4d002e",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/public/editor/selection-hover.js": {
-      "mode": "0644",
-      "sha256": "454f91f87576c364e86c6ff7dd38aa8ec1d5b056704dda17d76b67e7aa048ea7",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/public/favicon.svg": {
-      "mode": "0644",
-      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/public/loopform.html": {
-      "mode": "0644",
-      "sha256": "9a0054cee9c35386b411d8bde8918ac8d3e54562b955019b063a2611e53849d4",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/work/public/presence.js": {
-      "mode": "0644",
-      "sha256": "8e2481c38dd0adfc0bde0540f49ab768d6e0fb1e1bf9e4ae0f0a6f4416bc8998",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/work/public/shell.html": {
-      "mode": "0644",
-      "sha256": "f3e0a1a8a9dd0e6246e1fffcc33aa7dc704ac197321f654cc2ea508e64859984",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/work/server/code-backups.ts": {
-      "mode": "0644",
-      "sha256": "049ff5106d06f65cfc641d4368ed37a67c5b43b2e2ddac5889acf016fe258637",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/server/editor-auth.ts": {
-      "mode": "0644",
-      "sha256": "a5498a99c5c74023ebba9a00056411d4e7cc33fbd086879c2572a397762990ec",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/server/main.ts": {
-      "mode": "0644",
-      "sha256": "d1cbf77b5ab51086f79ba6dc70db11fad88a454a4e7da61b04e6b950edbff94e",
-      "source": "exact"
-    },
-    "srv/nikita-projects/curvelab/work/server/presence.ts": {
-      "mode": "0644",
-      "sha256": "65ecdeceb4325bfc96daf74067813a4911fb2db9204f8a2df09cb2d3df6148e4",
-      "source": "adapted"
-    },
-    "srv/nikita-projects/curvelab/work/server/snapshots.ts": {
-      "mode": "0644",
-      "sha256": "b0fb7b0f54814d68dbdf7ffc8fef6acde057908b4c3695ddadd8690f4894b3f1",
-      "source": "exact"
-    },
     "srv/pi-workspaces/browser/rootfs/opt/ENVIRONMENT.md": {
       "mode": "0644",
-      "sha256": "c6e8f6470dbb6d332f2de9bd0b229956fb0b88bd9dc0d2f7bd755bb59798ad31",
-      "source": "exact"
+      "sha256": "2ec127ccb12b2d1293cd7634d784d65766fb4e5f1b5d6427f772892cbb54d84f",
+      "source": "public-platform"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/INTERACTIVE-CARDS.md": {
       "mode": "0644",
@@ -743,11 +463,6 @@
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/package.json": {
       "mode": "0644",
       "sha256": "d09c77501060b1b29b87658380e86473b9fd643079fb86b78dde313e42ef2a63",
-      "source": "exact"
-    },
-    "srv/pi-workspaces/browser/rootfs/opt/pi-web/projects/lab/index.html": {
-      "mode": "0600",
-      "sha256": "06045d0a9e2dd7af20f2ac8e3974e7b56bae2b5435813f18e482e74bd13f2012",
       "source": "exact"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-images.js": {
@@ -787,8 +502,8 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.html": {
       "mode": "0644",
-      "sha256": "96423241c0efa48fa7a0e22b02925b8ea9985bd8e47b2168a3d402cca2c32515",
-      "source": "adapted"
+      "sha256": "f84856227482c783faba61c9b04ac1af0d4d347431a07c274baf82f52ba24928",
+      "source": "public-platform"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.js": {
       "mode": "0644",
@@ -802,8 +517,8 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.html": {
       "mode": "0640",
-      "sha256": "3cc5bd8d9d2e0931cb7e18111a5c8ce3b10357eaf0c3fd6fb6215ae0a7033cdf",
-      "source": "exact"
+      "sha256": "e1aa0e7f1c24daa029d7422307ca402552480bacb97e8a0713c4b8566fd67460",
+      "source": "public-platform"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.js": {
       "mode": "0640",
@@ -812,8 +527,8 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/favicon.svg": {
       "mode": "0644",
-      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
-      "source": "exact"
+      "sha256": "a5d2a728faa382a2882308938946abd285203c44971138d4214c108bfc2f0c9c",
+      "source": "public-platform"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/file-browser.css": {
       "mode": "0644",
@@ -1197,8 +912,8 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/site-entry/main.mjs": {
       "mode": "0644",
-      "sha256": "11f92e15866ca00754d391e36cab094a0d19818c07dea3a7b41ba0b4c8dc3655",
-      "source": "exact"
+      "sha256": "0d6e57c887f3e9f1bfa04563198ea812b362d3b72697ae8c27519b623c09c690",
+      "source": "public-platform"
     },
     "srv/pi-workspaces/browser/rootfs/opt/site-entry/navigation.js": {
       "mode": "0644",
@@ -1207,13 +922,13 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/site-entry/test.mjs": {
       "mode": "0644",
-      "sha256": "6a8400611179dd5a64a98106f0c7e39528a889234cdb401426d8fbfa5e46f290",
-      "source": "exact"
+      "sha256": "b2c09344dd08454b6334635855f58abe071a0c7c1382e6d09212a1d5c77184b7",
+      "source": "public-platform"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_runtime.py": {
       "mode": "0600",
-      "sha256": "05e7a845cd0f1bcc72317d7b1dad933f39e0706f699a83e77cfbd4bcbf90d67f",
-      "source": "adapted"
+      "sha256": "d09a45b72992c7806183e00cb8a5e60346746deae06efe568835bd8dbf87d287",
+      "source": "public-platform"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_server.py": {
       "mode": "0600",
@@ -1222,8 +937,8 @@
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_tools.ts": {
       "mode": "0600",
-      "sha256": "7f2db68255972d60399045cbc926eb3c2cb7bec40107cf189e3ffd6b6ec63328",
-      "source": "adapted"
+      "sha256": "af55da614982911e5abd62c44adf7b08980b80b6ba127bedfdc64741ae58eaf7",
+      "source": "public-platform"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/approval_state.py": {
       "mode": "0600",
@@ -1485,35 +1200,40 @@
       "sha256": "7c108db68b9be8011dc5604bdeed27f482297761ea61ec3660dc016365547eb9",
       "source": "exact"
     },
-    "usr/local/lib/curvelab-deps.py": {
-      "mode": "0644",
-      "sha256": "0738f64a7b8c6369a505f988544309abbbef98dc6ed8b097c6f7226bb68a4641",
-      "source": "exact"
-    },
-    "usr/local/lib/curvelab-http-relay.cjs": {
-      "mode": "0644",
-      "sha256": "df7da399bdbed4fa132a221540f23fbba3fcc648bc29f6c1e5b41df54b6f1f79",
-      "source": "exact"
-    },
-    "usr/local/lib/curvelab-relay.cjs": {
-      "mode": "0644",
-      "sha256": "15fb210204f57108c2b3af283273b5b0d9a3e0c8fe28a93bd01d962a1f6ea39a",
-      "source": "exact"
-    },
-    "usr/local/lib/curvelab-release.py": {
-      "mode": "0644",
-      "sha256": "6d47eada05d9bdd8d85d2136565d2de072734414728dbbc8da3f70c5125abf18",
-      "source": "adapted"
-    },
-    "usr/local/lib/curvelab-runner.py": {
-      "mode": "0644",
-      "sha256": "c64fc116b819ece053c1290425f16e4f07c9bf4302d4b91c5f5f15c1f0e6c7f3",
-      "source": "exact"
+    "usr/local/bin/nikita-project": {
+      "mode": "0755",
+      "sha256": "7926b5eef904411b60822f8fc9ae688c37b915f655ea0cd6c9f97b1b9aed15cc",
+      "source": "public-platform"
     },
     "usr/local/lib/nikita-home-save.py": {
       "mode": "0644",
-      "sha256": "5d3598d2382fc80292044104ed3def3f57ef1e7729c1597534e26aef3f133500",
-      "source": "exact"
+      "sha256": "f49877fd8f7da1911a3c1e06b29cc042500407b31b783841d9e188f31016d961",
+      "source": "public-platform"
+    },
+    "usr/local/lib/nikita-project-deps.py": {
+      "mode": "0644",
+      "sha256": "0738f64a7b8c6369a505f988544309abbbef98dc6ed8b097c6f7226bb68a4641",
+      "source": "public-platform"
+    },
+    "usr/local/lib/nikita-project-http-relay.cjs": {
+      "mode": "0644",
+      "sha256": "df7da399bdbed4fa132a221540f23fbba3fcc648bc29f6c1e5b41df54b6f1f79",
+      "source": "public-platform"
+    },
+    "usr/local/lib/nikita-project-relay.cjs": {
+      "mode": "0644",
+      "sha256": "15fb210204f57108c2b3af283273b5b0d9a3e0c8fe28a93bd01d962a1f6ea39a",
+      "source": "public-platform"
+    },
+    "usr/local/lib/nikita-project-release.py": {
+      "mode": "0644",
+      "sha256": "f6cb9fcb7abf630ac7ba54672e215beafc17911e482708f7d841860fd3ae5a84",
+      "source": "public-platform"
+    },
+    "usr/local/lib/nikita-project-runner.py": {
+      "mode": "0644",
+      "sha256": "b690d3f68fb585b51e39537d0724b89b3802f1b093068aa31274c45ec04c7069",
+      "source": "public-platform"
     },
     "usr/local/lib/nikita-salon-history.py": {
       "mode": "0644",
@@ -1657,8 +1377,8 @@
     },
     "var/lib/nikita-live-archive/index.html": {
       "mode": "0644",
-      "sha256": "8e3fd22caf2e800670b0d2d089dcb2fd11634dd9d9e73c83cf12fe30762d7abf",
-      "source": "adapted"
+      "sha256": "ab833b240cfde20685c1a6e39ff3ff103f40a471862f5c132ed0acb8b30ceff6",
+      "source": "public-platform"
     },
     "var/lib/nikita-live-archive/lc-app.js": {
       "mode": "0644",
@@ -1672,8 +1392,8 @@
     },
     "var/lib/nikita-live-archive/lc-index.html": {
       "mode": "0644",
-      "sha256": "63ab23aaedc89f2214d681497cb2b2545f445c96bc36fec9323516f5264daf71",
-      "source": "adapted"
+      "sha256": "fd1ec9e823b4ba0a306ce69e252e22bb78dcc392ae8c33b4c0ba60fcc8038851",
+      "source": "public-platform"
     },
     "var/lib/nikita-live-archive/render.js": {
       "mode": "0644",
@@ -1682,13 +1402,13 @@
     },
     "var/www/nikita-site/app.js": {
       "mode": "0644",
-      "sha256": "48ddbdd88df76c7e48b0d16d0c4d4c7d939f21c831d05e4b731fd5b1ff10221a",
-      "source": "adapted"
+      "sha256": "56f59953d5bfb7e14be9640b5fd588776ee192d9a025c57054d199c8c6c18062",
+      "source": "public-platform"
     },
     "var/www/nikita-site/index.html": {
       "mode": "0644",
-      "sha256": "70b621540e668d5df56a175f4407dedbd0ad9f66e1c17cb3f6fb1a258b434286",
-      "source": "adapted"
+      "sha256": "0e5acb170e12a69aa195ed0d404a84b6251d89c548ebc5b432bba4eb3213625e",
+      "source": "public-platform"
     },
     "var/www/nikita-site/style.css": {
       "mode": "0644",
@@ -1854,22 +1574,15 @@
       "mode": "0644",
       "sha256": "ecd18fb9647448da44f169c977ca482fd51328827158321ec3f037b9a105e8aa",
       "source": "adapted"
-    },
-    "var/www/pi-web-public/exchange/index.html": {
-      "mode": "0644",
-      "sha256": "d4f0385fe7d9d30fb3adf5165a3e468d43ceaf5fcf84f3bf70787fd32a8d06a2",
-      "source": "exact"
     }
   },
   "links": {
-    "etc/nginx/sites-enabled/arri-film": "../sites-available/arri-film",
-    "etc/nginx/sites-enabled/curvelab-editor": "../sites-available/curvelab-editor",
     "etc/nginx/sites-enabled/instance-site-reader": "../sites-available/instance-site-reader",
     "etc/nginx/sites-enabled/panel-instance-site-acme": "../sites-available/panel-instance-site-acme",
     "etc/nginx/sites-enabled/pi-web-public": "../sites-available/pi-web-public",
+    "etc/nginx/sites-enabled/project-app": "../sites-available/project-app",
+    "etc/nginx/sites-enabled/project-static": "../sites-available/project-static",
     "etc/nginx/sites-enabled/restore-acme": "../sites-available/restore-acme",
-    "opt/projects/debri-reader/public": "/opt/projects/debri-reader/releases/20261112T205217Z/public",
-    "opt/projects/lightcone-reader/public": "/opt/projects/lightcone-reader/releases/20261112T214655Z/public",
     "opt/tg-agent": "/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent",
     "usr/local/bin/node": "/opt/node22/bin/node"
   }

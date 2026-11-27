@@ -112,7 +112,7 @@ function localStamp(day,hour,minute){return day.slice(8,10)+'.'+day.slice(5,7)+'
 function stamp(original){const raw=typeof original?.date==='string'?original.date:'';const literal=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(raw);if(literal)return localStamp(literal[1]+'-'+literal[2]+'-'+literal[3],literal[4],literal[5]);const seconds=Number(original?.date_unixtime);if(String(original?.date_unixtime??'').trim()!==''&&Number.isFinite(seconds)&&seconds>=0&&seconds<253402300800)return MOSCOW_STAMP.format(new Date(seconds*1000));return 'Open in LightCone';}
 function createdStamp(value){const date=new Date(value);return Number.isNaN(date.getTime())?'':MOSCOW_STAMP.format(date);}
 async function channelFeed(piweb) {
- const channel=piweb?'Pi Web':'LightCone', folder=piweb?'piwep':'lightcone';
+ const channel=piweb?'Pi Web':'Archive B', folder=piweb?'piwep':'lightcone';
  document.title='nikita · '+channel;$('#lightcone').hidden=false;
  const feed=$('#lightcone-messages'),seen=new Set();let busy=false,first=true;
  async function refresh(){

@@ -8,6 +8,7 @@ from pathlib import Path, PurePosixPath
 import re
 import shutil
 import tempfile
+from content_boundary import check_public_path
 
 REPO = Path(__file__).resolve().parents[1]
 PAYLOAD = REPO / 'rootfs'
@@ -31,8 +32,13 @@ def verify():
         if f.is_symlink(): raise ValueError('Unexpected source symlink: '+str(f))
         if f.is_file(): actual.add(f.relative_to(PAYLOAD).as_posix())
     if actual != set(manifest['files']): raise ValueError('Unexpected/missing payload file')
+    links={'opt/tg-agent':'/srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent','usr/local/bin/node':'/opt/node22/bin/node'}
+    for site in ('instance-site-reader','panel-instance-site-acme','pi-web-public','project-app','project-static','restore-acme'):
+        links['etc/nginx/sites-enabled/'+site]='../sites-available/'+site
+    if manifest['links']!=links:raise ValueError('Unexpected deployment link')
     seen = set()
     for name, item in manifest['files'].items():
+        check_public_path(name)
         data = (PAYLOAD/name).read_bytes()
         if digest(data) != item['sha256']: raise ValueError('Source mismatch: '+name)
         seen.update(TOKEN.findall(name)); seen.update(t.decode() for t in re.findall(rb'@@([A-Z][A-Z_0-9]*)@@',data))

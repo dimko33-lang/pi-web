@@ -73,15 +73,14 @@ const server = http.createServer(async (req, res) => {
     // Verify a live panel session before issuing the editor's native cookie.
     // Never bootstrap API calls, writes, or an explicitly supplied access key.
     if (req.headers['x-site-editor-session'] === '1') {
-      const documents = ['/lab/', '/lab/skeleton', '/lab/skeleton/', '/lab/loopform', '/lab/loopform/'];
-      if (req.method !== 'GET' || !documents.includes(url.pathname) || url.searchParams.has('key')) {
+      if (req.method !== 'GET' || url.pathname !== '/lab/' || url.searchParams.has('key')) {
         res.writeHead(401); return res.end('Authentication required.');
       }
       const panel = config.apps.find(app => app.path === '/');
       const editor = config.apps.find(app => app.path === '/lab/');
       if (!panel || !editor) throw Error('Missing session bridge target');
       if (!await hasNativeSession(panel, req.headers.cookie || '')) {
-        res.writeHead(401); return res.end('Sign in to the chat first, then reopen CurveLab.');
+        res.writeHead(401); return res.end('Sign in to the chat first, then reopen the application.');
       }
       const result = await login(editor, req.headers.cookie || '');
       if (result.cookies.length) res.setHeader('Set-Cookie', result.cookies);

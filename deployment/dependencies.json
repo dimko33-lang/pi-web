@@ -1,10 +1,4 @@
 {
-  "inputs./etc/curvelab-editor.env": [
-    "EDITOR_PASSWORD",
-    "EDITOR_BASE_PATH",
-    "PORT",
-    "EDITOR_PUBLIC_VIEW"
-  ],
   "inputs./srv/pi-workspaces/browser/rootfs/etc/pi-web.env": [
     "PI_WEB_PASSWORD"
   ],
