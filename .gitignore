@@ -10,6 +10,13 @@
 !/deployment/ownership.json
 !/deployment/platform.json
 !/deployment/source.json
+!/tools/ubuntu_install.py
+!/tools/install_config.py
+!/tools/test_installer.py
+!/tools/pack_release.py
+!/docs/releases/v0.14.0.md
+!/docs/ubuntu-install.md
+!/docs/uninstall.sh
 !/docs/features.md
 !/docs/index.html
 !/docs/install.sh
