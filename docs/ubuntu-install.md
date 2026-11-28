@@ -6,6 +6,8 @@ Use a **fresh** Ubuntu Server 24.04 x86-64 system with systemd, at least two vCP
 curl -fsSL https://dimko33-lang.github.io/pi-web/install.sh | sudo bash
 ```
 
+Pi Web v0.14.2 installs Node 22.23.4 and Pi 1.7.0 from the release's runtime lock, not from npm's `latest` tag. The installer's version check must match `deployment/platform.json`.
+
 The launcher's `--verify-only` mode verifies a pinned download without installing. Ubuntu, Node/npm, PyPI, Playwright, speech assets and Docker images require network access. Re-run the **same** release to resume a failed stage. State is private under `/var/lib/pi-web-installer`. The browser and Telegram identities are separate. The new owner link is in `/var/lib/pi-web-installer/access.txt` (root only); browser Pi login runs as `pi-browser`, never as root. Only the owner should have panel access; host administration mode starts off.
 
 By default the IPv4 address is taken from SSH or routing and mapped to a dashed address under `sslip.io`. If necessary pass `PI_WEB_PUBLIC_IP` or set `PI_WEB_DOMAIN` to a base domain you control, with its apex, `www`, `panel`, `pi`, `editor`, `www.editor` and `static` pointing at the server. Put variables in the installer's environment, e.g. on the **right** of the pipe with `sudo env PI_WEB_DOMAIN=lab.example.org bash`. ACME requires working public DNS and port 80. `PI_WEB_TLS=self-signed` explicitly selects private test TLS (trust its certificate separately); there is no silent HTTP fallback.

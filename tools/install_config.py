@@ -10,7 +10,7 @@ B='/srv/pi-workspaces/browser/rootfs'
 APP=B+'/opt/pi-web'
 DATA='/srv/pi-workspaces/nikita/rootfs/opt/pi-web/data'
 STATE='/var/lib/pi-web-installer'
-RELEASE='/opt/pi-web-release-0.14.1'
+RELEASE='/opt/pi-web-release-0.14.2'
 # IDs are the storage keys understood by the reference workers; labels are not project seeds.
 GROUPS=[('piwep','Public workspace','PROJECT_PEER','tailPiwep'),('curvelab','App project','LAB_PEER',''),('arri','Static site','ARRI_PEER',''),('lightcone','Archive B','LC_PEER','tailLightcone'),('lake','Discussion','LAKE_PEER',''),('moisimeiz','Community','SIMEIZ_PEER',''),('salon_nikita','Salon','SALON_PEER','')]
 

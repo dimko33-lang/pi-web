@@ -6,7 +6,7 @@ from install_config import APP,B,DATA,META,RELEASE,STATE,TG,catalog,domain_name,
 from prepare import REPO,bindings,load,stage,verify
 from pack_release import selected
 
-VERSION='0.14.1'; S=P(STATE); CL='/srv/nikita-projects/workspace'; MOUNT='srv-nikita\\x2dprojects-workspace.mount'; NODE='v22.23.4'; ENV={**os.environ,'PATH':'/opt/node22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin','DEBIAN_FRONTEND':'noninteractive','PIP_DISABLE_PIP_VERSION_CHECK':'1','npm_config_update_notifier':'false'}
+VERSION='0.14.2'; S=P(STATE); CL='/srv/nikita-projects/workspace'; MOUNT='srv-nikita\\x2dprojects-workspace.mount'; NODE='v22.23.4'; ENV={**os.environ,'PATH':'/opt/node22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin','DEBIAN_FRONTEND':'noninteractive','PIP_DISABLE_PIP_VERSION_CHECK':'1','npm_config_update_notifier':'false'}
 DEFER={'tg-agent.service','nikita-salon-history.timer','nikita-salon-piwep.timer'}
 
 def run(*argv,env=None,cwd=None,out=False):
@@ -132,7 +132,9 @@ def runtimes(v):
     directory('/opt/node22');run('tar','xzf',archive,'--no-same-owner','--strip-components=1','-C','/opt/node22')
     for p in ['/opt/pi-web-runtime',APP,TG+'/mathrender',TG+'/media-decoder']:
         run('npm','ci','--no-audit','--no-fund','--ignore-scripts',cwd=p)
-    cli='/opt/pi-web-runtime/node_modules/.bin/pi';run(cli,'--version');p=P('/usr/local/bin/pi');
+    cli='/opt/pi-web-runtime/node_modules/.bin/pi'
+    if run(cli,'--version',out=True).strip()!=load(META/'platform.json')['pi']:raise ValueError('Installed Pi version differs from the release pin')
+    p=P('/usr/local/bin/pi')
     if not p.exists():p.symlink_to(cli)
     run('node','node_modules/playwright-core/cli.js','install','--with-deps','chromium',cwd=APP,env={**ENV,'PLAYWRIGHT_BROWSERS_PATH':'/opt/pi-browsers'})
     chromium=run('node','-p',"require('playwright-core').chromium.executablePath()",cwd=APP,env={**ENV,'PLAYWRIGHT_BROWSERS_PATH':'/opt/pi-browsers'},out=True).strip()

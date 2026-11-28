@@ -24,7 +24,7 @@ cd /home/pi-web
 tar xzf pi-web-YYYY-MM-DD*.tar.gz
 cd pi-web
 npm ci --omit=dev
-npm install --prefix "$HOME/pi-runtime" --save-exact @earendil-works/pi-coding-agent@1.5.0 --no-audit --no-fund
+npm install --prefix "$HOME/pi-runtime" --save-exact @earendil-works/pi-coding-agent@1.7.0 --no-audit --no-fund
 node node_modules/playwright-core/cli.js install chromium
 ```
 

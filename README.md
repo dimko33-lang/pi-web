@@ -14,4 +14,15 @@ python3 -B tools/test_installer.py --http
 python3 -B tools/ubuntu_install.py --plan
 ```
 
+To verify the pinned Pi 1.7.0 without touching the payload or using an existing Pi account, run from the repository root with Node 22.23.4:
+
+```sh
+rt=$(mktemp -d)
+cp rootfs/opt/pi-web-runtime/package*.json "$rt/"
+npm ci --prefix "$rt" --ignore-scripts --no-audit --no-fund
+python3 -B tools/test_pi_runtime.py "$rt/node_modules/.bin/pi"
+```
+
+`tools/test_web_read.py` runs with the web worker's Playwright and Chromium installed; it fulfills all pages in memory.
+
 HTTP tests exercise the real panel and site-entry on loopback using synthetic credentials, without Telegram or model calls. The project test covers the package boundary, private registry and release transitions; Docker, systemd and ACME require Linux verification. See the versioned release notes for what was actually tested.

@@ -412,13 +412,13 @@
     },
     "opt/pi-web-runtime/package-lock.json": {
       "mode": "0644",
-      "sha256": "68791d04847c916c466b5e75c12ad70c335ef01ba75bb7648aa6855d3fc0f825",
-      "source": "exact"
+      "sha256": "83cb00239ed7e6413891121425014bfeb93a60a6d08ed9b8bc23990018b3fb24",
+      "source": "adapted"
     },
     "opt/pi-web-runtime/package.json": {
       "mode": "0644",
-      "sha256": "c93fb19affbe235a1132a3b51de40e10d81193d62943b29e9ea2cb6f4f3ddef7",
-      "source": "exact"
+      "sha256": "452ff751718eee28a68bee10e6683b38c9eee674638a430b145a3688bc02f576",
+      "source": "adapted"
     },
     "opt/workspace-branding/nikita.js": {
       "mode": "0644",
@@ -442,8 +442,8 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/RESTORE.md": {
       "mode": "0644",
-      "sha256": "a9d5b1b6ab5932786e67360ae0fe899709b55b21b7b59c944b07cd4b8311c326",
-      "source": "exact"
+      "sha256": "2bbb9861be7cca13271152bd3c7b1e86c3784128ead24f8fbd5ba22706604a9a",
+      "source": "adapted"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/deploy/pi-web.service": {
       "mode": "0644",
@@ -1542,7 +1542,7 @@
     },
     "var/www/pi-web-card/home.html": {
       "mode": "0644",
-      "sha256": "99d6cde1d27e3049b5518160cb492982be8ccca2f7a2385fa72c3371d4a7ced1",
+      "sha256": "00be899ce58fc7eb36a072d8e4a29bec3cdd6feeb895fd3467b20b96006e518e",
       "source": "adapted"
     },
     "var/www/pi-web-card/pi-web-card-c83fed50.png": {

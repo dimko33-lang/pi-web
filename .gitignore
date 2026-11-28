@@ -28,6 +28,7 @@
 !/docs/releases/v0.13.0.md
 !/docs/releases/v0.14.0.md
 !/docs/releases/v0.14.1.md
+!/docs/releases/v0.14.2.md
 !/docs/server-start.sh
 !/docs/social-preview.png
 !/docs/ubuntu-install.md
@@ -354,6 +355,7 @@
 !/tools/panel-smoke.py
 !/tools/prepare.py
 !/tools/test_installer.py
+!/tools/test_pi_runtime.py
 !/tools/test_projects.py
 !/tools/test_web_read.py
 !/tools/ubuntu_install.py

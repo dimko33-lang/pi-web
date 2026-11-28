@@ -4,7 +4,7 @@ The [project MIT license](../../LICENSE) covers original Pi Web code and its tec
 
 ## Pi coding agent
 
-Pi Web is an independent interface for [Pi](https://pi.dev/), created by Mario Zechner. The installer can use an existing Pi installation or install the official `@earendil-works/pi-coding-agent` package. Pi's own license is [MIT, copyright 2025 Mario Zechner](pi-MIT.txt) ([upstream license for v1.6.0](https://github.com/earendil-works/pi/blob/v1.6.0/LICENSE)). That notice belongs to Pi; it is not replaced by the Pi Web copyright notice.
+Pi Web is an independent interface for [Pi](https://pi.dev/), created by Mario Zechner. The fresh-host installer installs the official `@earendil-works/pi-coding-agent` package at 1.7.0. Pi's own license is [MIT, copyright 2026 Earendil Inc.](pi-MIT.txt) ([upstream license for v1.7.0](https://github.com/earendil-works/pi/blob/v1.7.0/LICENSE)). Earlier Pi distributions also carried the notice “Copyright (c) 2025 Mario Zechner”. That notice belongs to Pi; it is not replaced by the Pi Web copyright notice.
 
 ## Browser assets included in this distribution
 
