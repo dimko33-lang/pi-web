@@ -48,7 +48,8 @@
     "nikita-salon-piwep.service": "static",
     "nikita-project-runner@.service": "static",
     "nikita-restart.service": "static",
-    "pi-web-circle-@@INSTANCE@@@.service": "static"
+    "pi-web-circle-@@INSTANCE@@@.service": "static",
+    "nikita-history-view.socket": "enabled"
   },
   "users": {
     "pi-nikita": {

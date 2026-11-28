@@ -1,5 +1,5 @@
 {
-  "defaultsSha256": "d22677d3b7ebe562ac8092912ce66bbdb0a8dc7b0d552355034b4a9a1255b49e",
+  "defaultsSha256": "089965153f9ac58d0b57fef194b5f9c8d12a3eca1e468339421e647980f2afb0",
   "files": {
     "etc/nginx/conf.d/00-map-size.conf": {
       "mode": "0644",
@@ -62,9 +62,9 @@
       "source": "exact"
     },
     "etc/nginx/snippets/nikita-public-site.conf": {
+      "source": "adapted",
       "mode": "0644",
-      "sha256": "2c067b38fc869b51305e4f139863d44e4355dcadc266270fd47a17ec1d694be1",
-      "source": "adapted"
+      "sha256": "16f2974447e49517c28f6868f3885b6a7956fefc5ab518b18f847c05cb70b6cd"
     },
     "etc/nginx/snippets/pi-nikita-site-entry.conf": {
       "mode": "0644",
@@ -382,9 +382,9 @@
       "source": "exact"
     },
     "opt/nikita-web/reader-door.py": {
+      "source": "adapted",
       "mode": "0644",
-      "sha256": "84ef4ce0409650febafccbc5c07c54e5f27ed8ef58abe03124a5fb0a62efd2c3",
-      "source": "adapted"
+      "sha256": "c057a1209a4ef55d8a2b94e1545dc1820cd038331663d9f1720392186f4d8eb6"
     },
     "opt/nikita-web/requirements.lock": {
       "mode": "0644",
@@ -427,9 +427,9 @@
       "source": "adapted"
     },
     "opt/workspace-branding/nikita.js": {
+      "source": "adapted",
       "mode": "0644",
-      "sha256": "4df95e0ce7247a4ada9fef67e89996817ebb63982afb456c87e5901ec64a60f6",
-      "source": "adapted"
+      "sha256": "71639a27662453359dbe6d39f8b6d0c492f81a5b5234eedcca03be198f973d6c"
     },
     "srv/pi-workspaces/browser/rootfs/opt/ENVIRONMENT.md": {
       "mode": "0644",
@@ -527,9 +527,9 @@
       "source": "exact"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.js": {
-      "mode": "0640",
-      "sha256": "2f5194240c04c9f9d27e03168f7d19158bd086a5e7423aa9c868e24aafebcc90",
-      "source": "exact"
+      "source": "reference",
+      "mode": "0644",
+      "sha256": "1316220d45ac68a0fe5f7edbc07f46eeebb85cf30046beb24c0f96bae75b997b"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/favicon.svg": {
       "mode": "0644",
@@ -1267,9 +1267,9 @@
       "source": "exact"
     },
     "var/lib/nikita-live-archive/app.js": {
+      "source": "adapted",
       "mode": "0644",
-      "sha256": "fe54242b493d530d891f67169fa4d7277cc667fd93d30493279c6ad3c69a3ace",
-      "source": "adapted"
+      "sha256": "5fb0fd5300930fd37b4fd146ddc31e6b16f1da3e260cfa47e4bc187b206daee4"
     },
     "var/lib/nikita-live-archive/assets/katex/fonts/KaTeX_AMS-Regular.woff2": {
       "mode": "0644",
@@ -1387,9 +1387,9 @@
       "source": "adapted"
     },
     "var/lib/nikita-live-archive/lc-app.js": {
+      "source": "adapted",
       "mode": "0644",
-      "sha256": "6146421d73f9aae0b530823959f0b4ac47a0abdd0efd67cfeb7b0389d08796b9",
-      "source": "adapted"
+      "sha256": "8cf300229225e3fe34dc85349f0532d07a7e2846ab239e6397215a0ada681c36"
     },
     "var/lib/nikita-live-archive/lc-guest.html": {
       "mode": "0644",
@@ -1407,14 +1407,14 @@
       "source": "exact"
     },
     "var/www/nikita-site/app.js": {
+      "source": "adapted",
       "mode": "0644",
-      "sha256": "48ddbdd88df76c7e48b0d16d0c4d4c7d939f21c831d05e4b731fd5b1ff10221a",
-      "source": "adapted"
+      "sha256": "8108a79ddae7e4b0eda23f7fceab7e030ddcc8c7cc897e225eab94a2dd56e639"
     },
     "var/www/nikita-site/index.html": {
+      "source": "adapted",
       "mode": "0644",
-      "sha256": "70b621540e668d5df56a175f4407dedbd0ad9f66e1c17cb3f6fb1a258b434286",
-      "source": "adapted"
+      "sha256": "bb59f8b779be3abab6878ba478ce8fbe7bc0b5f262fccad61ce23e5bf2d1fd69"
     },
     "var/www/nikita-site/style.css": {
       "mode": "0644",
@@ -1548,7 +1548,7 @@
     },
     "var/www/pi-web-card/home.html": {
       "mode": "0644",
-      "sha256": "00be899ce58fc7eb36a072d8e4a29bec3cdd6feeb895fd3467b20b96006e518e",
+      "sha256": "131cc306fc50d060b4f7213ee4259b984a1e73bd51a02ef653005371abeb7931",
       "source": "adapted"
     },
     "var/www/pi-web-card/pi-web-card-c83fed50.png": {
@@ -1580,6 +1580,21 @@
       "mode": "0644",
       "sha256": "ecd18fb9647448da44f169c977ca482fd51328827158321ec3f037b9a105e8aa",
       "source": "adapted"
+    },
+    "usr/local/lib/nikita-history-view.py": {
+      "source": "reference",
+      "mode": "0644",
+      "sha256": "65771947e93454e262ff2f4b818b4ed31fe55cf588646e515b5a83f2937e6536"
+    },
+    "etc/systemd/system/nikita-history-view.socket": {
+      "source": "reference",
+      "mode": "0644",
+      "sha256": "e2852a9e2afee9251f270463ad122e9a8a7c63ae5082e332a9b1121b9fb6ab4a"
+    },
+    "etc/systemd/system/nikita-history-view.service": {
+      "source": "reference",
+      "mode": "0644",
+      "sha256": "10bf324c4ec0cb4408cf0a8391a414b38e92195e9b8dcfdcad3573e15d8d8ff7"
     }
   },
   "links": {

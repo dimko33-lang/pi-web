@@ -7,7 +7,7 @@ cookie=re.search(r'"(d33=[0-9a-f]{64}; Path=/; HttpOnly; Secure; SameSite=Lax)"'
 owner_cfg=Path(os.environ['CREDENTIALS_DIRECTORY'],'salon').read_text()
 owner_secret=re.search(r'^ "([0-9a-f]{64})" 1;',owner_cfg,re.M)[1]
 owner_cookie=f'n33owner={owner_secret}; Path=/nikita/; HttpOnly; Secure; SameSite=Lax'
-profiles={'piwep','curvelab','arri','lightcone','lake','owner_dm','guest_dm'}
+profiles={'piwep','curvelab','arri','lightcone','lake','owner_dm','guest_dm','individual','salon_nikita','moisimeiz'}
 tickets={}
 class Handler(http.server.BaseHTTPRequestHandler):
  def log_message(self,*args): pass

@@ -71,6 +71,8 @@ def seeds(cfg):
     def raw(p,text,mode,u,g):out[p]=(text,mode,u,g)
     def put(p,s,mode=0o600,u='root',g='root'):
         out[p]=((s if isinstance(s,str) else json.dumps(s,ensure_ascii=False))+'\n',mode,u,g)
+    views={e['id']:p['chatId'] for e,p in zip(source['catalog'],slots) if e['id'] in ('moisimeiz','salon_nikita','individual_dm')}
+    views['individual']=views.pop('individual_dm');put('/etc/nikita-history-views.json',views,0o640,'root','pi-nikita')
     put(B+'/etc/pi-web.env','PI_WEB_PASSWORD='+cfg['panelPassword'])
     put(B+'/etc/site-entry.json',{'key':cfg['entryKey'],'apps':[{'path':'/','url':'http://127.0.0.1:5670/','key':cfg['panelPassword'],'cookie':'cl_sid','check':'/api/settings'}]},0o640,'root','pi-browser')
     # 95-browser-admin resets EnvironmentFile=; load the private catalog AFTER that reset.

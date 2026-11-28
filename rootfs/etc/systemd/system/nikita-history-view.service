@@ -1,0 +1,13 @@
+[Unit]
+Description=Read-only owner Salon history views
+[Service]
+User=pi-nikita
+Group=pi-nikita
+ExecStart=/usr/bin/python3 -I /usr/local/lib/nikita-history-view.py
+ProtectSystem=strict
+ProtectHome=yes
+PrivateNetwork=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX

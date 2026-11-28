@@ -373,7 +373,7 @@
     "memoryResetAt": 0,
     "root": false
   },
-  "browserModel": "openai/gpt-6.2-astra",
+  "browserModel": "deepseek/deepseek-flash",
   "telegramModel": "openai/gpt-6.2-astra",
   "browserThinking": {
     "openai/gpt-6.1-sol": "low",

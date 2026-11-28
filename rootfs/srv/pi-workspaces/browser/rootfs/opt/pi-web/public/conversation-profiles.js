@@ -20,6 +20,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   const profileFields = editor => fields.concat(editor.item.kind === 'group' ? ['personOn', 'groupOn', 'backgroundOn'] : ['memory'], editor.item.kind === 'private' ? ['voicePreset'] : []);
   const status = document.querySelector('#status');
   const editors = new Map();
+  const settingsPicker = document.createElement('select');settingsPicker.setAttribute('aria-label','Profile settings');document.querySelector('#profiles').before(settingsPicker);settingsPicker.onchange=()=>selectProfile(settingsPicker.value,true);
   const metadataCache = new Map();
   let revision = 0, pending = false, syncing = false;
   let catalog = [], addressingNames = null;
@@ -64,6 +65,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
   }));
   const selectProfile = (id, push = false) => {
     if (!editors.has(id)) id = editors.keys().next().value;
+    settingsPicker.value=id;
     if (!id) return;
     const salon=document.querySelector('#salon-link');if(salon)salon.href='/go/hub?chat='+encodeURIComponent(id);
     for (const [key, editor] of editors) {
@@ -220,6 +222,7 @@ import { initFullscreenControl } from './fullscreen-control.js?v=1';
       const label = model.label || model.name || model.id;
       form.elements.model.add(new Option(label, model.id));
     }
+    settingsPicker.add(new Option(item.label,item.id));
     const tab = document.createElement('a'); tab.className = 'nav-button'; tab.textContent = item.label;
     tab.href = '/profiles?chat=' + encodeURIComponent(item.id);
     tab.addEventListener('click', event => {

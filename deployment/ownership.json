@@ -1956,6 +1956,21 @@
       "group": "root",
       "mode": "0644",
       "user": "root"
+    },
+    "usr/local/lib/nikita-history-view.py": {
+      "mode": "0644",
+      "user": "root",
+      "group": "root"
+    },
+    "etc/systemd/system/nikita-history-view.socket": {
+      "mode": "0644",
+      "user": "root",
+      "group": "root"
+    },
+    "etc/systemd/system/nikita-history-view.service": {
+      "mode": "0644",
+      "user": "root",
+      "group": "root"
     }
   }
 }

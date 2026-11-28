@@ -1,0 +1,8 @@
+[Unit]
+Description=Owner Salon history socket
+[Socket]
+ListenStream=/run/nikita-history-view.sock
+SocketUser=www-data
+SocketMode=0600
+[Install]
+WantedBy=sockets.target

@@ -59,6 +59,7 @@ def main():
     cfg=instance('install.example');v=bindings(sc,cfg['bindings']);other=instance('install.example');seed=seeds(cfg)
     assert domain_name('','8.8.4.4')=='8-8-4-4.sslip.io';rejected(lambda:domain_name('','127.0.0.1'));rejected(lambda:domain_name('a/b.example',''));rejected(lambda:instance('a.example',{'PANEL_HOST':'a.example'}));rejected(lambda:instance('a.example',{'OWNER_ID':'0'}))
     for key in ('entryKey','panelPassword'):assert cfg[key]!=other[key] and len(cfg[key])>=32
+    view,mode,user,group=seed['/etc/nikita-history-views.json'];assert json.loads(view)==dict.fromkeys(('individual','salon_nikita','moisimeiz')) and (mode,user,group)==(0o640,'root','pi-nikita')
     assert len({cfg['bindings'][k] for k,t in sc.items() if t in ('secret64','access-token')})==4
     for kind,names in load(META/'ownership.json').items():
         if kind in ('dirs','files'):
