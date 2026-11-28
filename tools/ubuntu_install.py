@@ -6,7 +6,7 @@ from install_config import APP,B,DATA,META,RELEASE,STATE,TG,catalog,domain_name,
 from prepare import REPO,bindings,load,stage,verify
 from pack_release import selected
 
-VERSION='0.14.2'; S=P(STATE); CL='/srv/nikita-projects/workspace'; MOUNT='srv-nikita\\x2dprojects-workspace.mount'; NODE='v22.23.4'; ENV={**os.environ,'PATH':'/opt/node22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin','DEBIAN_FRONTEND':'noninteractive','PIP_DISABLE_PIP_VERSION_CHECK':'1','npm_config_update_notifier':'false'}
+VERSION='0.14.3'; S=P(STATE); CL='/srv/nikita-projects/workspace'; MOUNT='srv-nikita\\x2dprojects-workspace.mount'; NODE='v22.23.4'; ENV={**os.environ,'PATH':'/opt/node22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin','DEBIAN_FRONTEND':'noninteractive','PIP_DISABLE_PIP_VERSION_CHECK':'1','npm_config_update_notifier':'false'}
 DEFER={'tg-agent.service','nikita-salon-history.timer','nikita-salon-piwep.timer'}
 
 def run(*argv,env=None,cwd=None,out=False):
@@ -88,8 +88,12 @@ def copy_payload(v):
         cpus=max(1,min(4,len(os.sched_getaffinity(0)),int(run('docker','info','--format','{{.NCPU}}',out=True))))
         for n,item in mf['files'].items():
             dest=P('/')/sub(n,v);info=principal(n,acl['files'][n]);data=(tree/sub(n,v)).read_bytes()
+            if ((n.endswith('/46-static-site.conf') and v['ARRI_PEER']=='0') or (n.endswith('/47-pi-web-site.conf') and v['PROJECT_PEER']=='0')):data=b'[Service]\n# No publishing mount without an explicitly bound group.\n'
             if n.startswith('etc/nginx/sites-available/'):
                 data=re.sub(rb'/etc/letsencrypt/live/[^/\s]+/',b'/etc/letsencrypt/live/pi-web-instance/',data)
+            if n=='etc/nginx/snippets/nikita-public-site.conf' and v['ACCOUNT_ID']=='0':
+                assert data.count(b'/messages/user0.json;')==1
+                data=data.replace(b'/messages/user0.json;',b'/messages/unbound.json;')
             if n=='opt/nikita-science/worker.py':
                 for arg in (b'--cpus=4',b'OPENBLAS_NUM_THREADS=4',b'OMP_NUM_THREADS=4'):
                     if data.count(arg)!=1:raise ValueError('Unexpected science resource contract')
@@ -115,7 +119,9 @@ def init_state(cfg):
     for suffix in ('root','root/.pi','root/.pi/agent'):directory('/srv/pi-workspaces/nikita/rootfs/'+suffix,0o700,'pi-nikita','pi-nikita')
     for n in ('users','workspaces','home','home/.pi/agent','backups','last-good','testing','pi-sessions'):directory(TG+'/'+n,0o700,'pi-nikita','pi-nikita')
     for n in ('var/lib/nikita-publications','var/lib/nikita-salon-history','var/lib/nikita-salon-piwep','var/lib/nikita-live-archive/messages','var/www/pi-web-public','srv/nikita-projects/static/public'):directory('/'+n,0o755,'pi-nikita','pi-nikita')
-    for k in ('ARRI_PEER','PROJECT_PEER'):directory(TG+'/workspaces/'+cfg['bindings'][k]+'/site',0o700,'pi-nikita','pi-nikita')
+    for k in ('ARRI_PEER','PROJECT_PEER'):
+        if cfg['bindings'][k]:directory(TG+'/workspaces/'+cfg['bindings'][k]+'/site',0o700,'pi-nikita','pi-nikita')
+    run('systemd-tmpfiles','--create','/etc/tmpfiles.d/nikita-owner-json.conf')
     for p in ('/opt/nikita-lightcone-archive','/opt/nikita-debri-archive','/var/www/instance-site-acme','/var/lib/nikita-science/work','/var/lib/pi-browser-admin','/var/lib/pi-browser-admin/jobs','/var/lib/nikita-home-save'):directory(p,0o700 if 'admin' in p or 'save' in p else 0o755)
     for n in ('data','.snapshots'):directory(CL+'/live-data/'+n,0o700,'1000','1000')
     for p,(text,mode,u,g) in seeds(cfg).items():

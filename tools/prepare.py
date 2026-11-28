@@ -27,6 +27,7 @@ def digest(data): return hashlib.sha256(data).hexdigest()
 
 def verify():
     manifest = load(META/'source.json'); schema = load(META/'bindings.json'); acl = load(META/'ownership.json')
+    if digest((META/'reference-defaults.json').read_bytes()) != manifest['defaultsSha256']: raise ValueError('Reference defaults mismatch')
     actual = set()
     for f in PAYLOAD.rglob('*'):
         if f.is_symlink(): raise ValueError('Unexpected source symlink: '+str(f))
@@ -53,6 +54,9 @@ def bindings(schema, values):
     for k,t in schema.items():
         if t in ('derived','venv-instance'):continue
         x = v[k]
+        if t=='integer' and x is None:
+            v[k]='0'  # Internal no-peer sentinel for the reference's numeric constants, never a Telegram binding.
+            continue
         if not isinstance(x,str):raise ValueError(k+' must be a string')
         if t=='host': good=len(x)<=250 and '.' in x and all(re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?',label) for label in x.split('.'))
         elif t=='integer':good=re.fullmatch(r'[1-9][0-9]{0,15}',x) and int(x)<2**53
@@ -64,11 +68,12 @@ def bindings(schema, values):
         else:good=False
         if not good:raise ValueError('Invalid '+k)
     for t in ('integer','secret64'):
-        xs=[v[k] for k in schema if schema[k]==t or (t=='secret64' and schema[k]=='access-token')]
+        xs=[v[k] for k in schema if (schema[k]==t and values[k] is not None) or (t=='secret64' and schema[k]=='access-token')]
         if len(set(xs))!=len(xs):raise ValueError(t+' bindings must be distinct')
     for k,t in schema.items():
         if t=='derived':
             peer=v[k.removesuffix('_SHORT')]
+            if peer=='0':v[k]='0';continue
             if not re.fullmatch('100[1-9][0-9]+',peer):raise ValueError('Expected a channel peer for '+k)
             v[k]=peer[3:]
         if t=='venv-instance':v[k]=digest(VENV.encode())[:12]

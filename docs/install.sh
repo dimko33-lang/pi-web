@@ -2,7 +2,7 @@
 # Pages bootstrap for the fresh Ubuntu reference deployment. No rolling branch downloads.
 set -euo pipefail
 main() {
-  local version=v0.14.2 sha=3197a16d8a692bbec60535652a3a3091fe6710ff2fd5618960817b592a6dc72c mode=${1:-install} tmp asset url
+  local version=v0.14.3 sha=7ff33ef56b018a3918960b44e70595ce108c21f57422db994d3cc90002b6a090 mode=${1:-install} tmp asset url
   case "$mode" in install|--verify-only) ;; *) printf 'Usage: bash install.sh [--verify-only]\n' >&2; return 2;; esac
   if [[ $mode == install ]]; then
     [[ $(uname -s) == Linux && $(uname -m) == x86_64 && -r /etc/os-release ]] || { echo 'A fresh Ubuntu 24.04 x86-64 host is required. Nothing installed.' >&2; return 1; }

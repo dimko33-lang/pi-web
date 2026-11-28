@@ -39,25 +39,38 @@ def actual(tree,cfg,seed,tmp):
             s,data,_=http(p,'/api/conversation-profiles',cookie)
             assert s==200,(s,data[:160]);profiles=json.loads(data)['profiles']
             assert [e['id'] for e in profiles]==[e['id'] for e in catalog(cfg)]
-            assert all(not e['settings']['basePrompt'].strip() for e in profiles)
+            assert json.loads(data)['title']=='Nikita' and all(e['independent'] for e in profiles)
+            assert [e['label'] for e in profiles]==[e['label'] for e in catalog(cfg)]
+            defaults=load(META/'reference-defaults.json'); assert len(profiles)==10
+            for e in profiles:
+                expected=defaults['profiles'][e['id']]
+                assert all(e['settings'][k]==expected[k] for k in expected if '@@' not in str(expected[k]))
+            assert all(e['chatId'] is None for e in profiles) and profiles[-1]['settings']['voicePreset']=='charon-elder'
+            assert (tree/B[1:]/'etc/browser-system.txt').read_text()==(tree/TG[1:]/'working-rules.md').read_text()!=''
             assert http(p,'/profiles',cookie)[0]==200;assert http(p,'/api/conversation-profiles')[0]==401
-            print('Real panel + site-entry: fresh link, native secure cookie, protected UI and only the default DM slots verified. No Telegram or provider contact.')
+            print('Real panel + site-entry: fresh link, native secure cookie, protected UI, ten independent unbound profiles and original values verified. No Telegram or provider contact.')
         finally:
             for s in procs:s.terminate()
             for s in procs:s.wait(timeout=10)
 
 def main():
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--http',action='store_true');a=ap.parse_args();mf,sc=verify();cfg=new_instance('install.example');v=bindings(sc,cfg['bindings']);other=new_instance('install.example');seed=seeds(cfg)
-    assert domain_name('','8.8.4.4')=='8-8-4-4.sslip.io';rejected(lambda:domain_name('','127.0.0.1'));rejected(lambda:domain_name('a/b.example',''));rejected(lambda:new_instance('a.example',{'PANEL_HOST':'a.example'}));rejected(lambda:new_instance('a.example',{'OWNER_ID':'0'}))
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--http',action='store_true');a=ap.parse_args();mf,sc=verify()
+    def instance(domain,override=None):return new_instance(domain,override,test_label='Fixture Person')
+    cfg=instance('install.example');v=bindings(sc,cfg['bindings']);other=instance('install.example');seed=seeds(cfg)
+    assert domain_name('','8.8.4.4')=='8-8-4-4.sslip.io';rejected(lambda:domain_name('','127.0.0.1'));rejected(lambda:domain_name('a/b.example',''));rejected(lambda:instance('a.example',{'PANEL_HOST':'a.example'}));rejected(lambda:instance('a.example',{'OWNER_ID':'0'}))
     for key in ('entryKey','panelPassword'):assert cfg[key]!=other[key] and len(cfg[key])>=32
     assert len({cfg['bindings'][k] for k,t in sc.items() if t in ('secret64','access-token')})==4
     for kind,names in load(META/'ownership.json').items():
         if kind in ('dirs','files'):
             for n,i in names.items():assert all(principal(n,i)[k] for k in ('user','group'))
     assert all(seed[n][1] in (0o600,0o640) for n in [B+'/etc/site-entry.json',B+'/etc/pi-web.env']);assert not any(p.endswith(('.session','/telegram-client.json','/telegram-enrolled','/auth.json','/google-key','/anam-key','/heygen-key')) for p in seed)
-    assert [p['id'] for p in catalog(cfg)]==['owner_dm','guest_dm']
-    bound=new_instance('install.example',{'LAB_PEER':'1002000009876'})
-    assert [(p['label'],p['chatId']) for p in catalog(bound) if p['kind']=='group']==[('App project',-1002000009876)]
+    entries=catalog(cfg)
+    assert [p['label'] for p in entries]==['Pi Web','CurveLab','ARRI','LightCone','Soul Lake','My Simeiz','Salon Niki','My DM','Other DMs',cfg['personalLabel']]
+    assert all(p['chatId'] is None for p in entries) and cfg['bindings']['OWNER_ID'] is None
+    assert not any('identity-bound' in path or 'user0.json' in path for path in seed)
+    bound=instance('install.example',{'LAB_PEER':'1002000009876','PERSONAL_DM_ID':'142'})
+    assert [(p['label'],p['chatId']) for p in catalog(bound) if p['chatId']]==[('CurveLab',-1002000009876),(cfg['personalLabel'],142)]
+    assert 'dm_142' in json.loads(seeds(bound)[DATA+'/conversation-profiles.json'][0])['profiles']
     for name in DEFER:
         gate=name.replace('.timer','.service');assert 'ConditionPathExists' in seed['/etc/systemd/system/'+gate+'.d/99-enrollment.conf'][0]
     for name in ('tools/ubuntu_install.py','tools/install_config.py','tools/pack_release.py','tools/test_installer.py'):ast.parse((REPO/name).read_text())
@@ -65,7 +78,13 @@ def main():
         tmp=Path(d);tree=tmp/'image';stage(mf,v,tree)
         for p,(text,_,_,_) in seed.items():
             dst=tree/p[1:];assert not dst.exists(),p;dst.parent.mkdir(parents=True,exist_ok=True);dst.write_text(text)
-        assert (tree/APP[1:]/'models.json').is_file() and (tree/APP[1:]/'server/pi-context-reader.mjs').is_file();assert json.loads((tree/DATA[1:]/'settings.json').read_bytes())=={}
+        assert (tree/APP[1:]/'models.json').is_file() and (tree/APP[1:]/'server/pi-context-reader.mjs').is_file();assert json.loads((tree/DATA[1:]/'settings.json').read_bytes())['character']
+        # A Telegram handle is not a JavaScript identifier. Check rendered browser code, not just HTML status.
+        public=tree/APP[1:]/'public'
+        for name in ('chat.js','chat-images.js'):
+            script=public/name
+            assert 'PiWebChatImages' in script.read_text()
+            subprocess.run(['node','--check',script],check=True)
         unit=tree/'etc/systemd/system/pi-nikita.service';envfiles=[]
         for part in [unit,*sorted(unit.with_suffix('.service.d').glob('*.conf'))]:
             for line in part.read_text().splitlines():

@@ -1865,7 +1865,7 @@ function makeResizable(el, minW, minH, onDone, anchorBottomLeft = false) {
       if (!call && t.args) call = JSON.stringify(t.args, null, 2);
       revealTranscript(block.lastChild, call + (t.output ? '\n\n' + t.output : ''), false, !!el._liveTranscript);
       block.lastChild.style.cssText = 'display:block;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-height:none;overflow:visible;font:inherit;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.55;color:inherit;background:none;border:0;border-radius:0;box-shadow:none;padding:0;margin:0';
-      window.@@PROJECT_HANDLE@@Images?.render(block, t);
+      window.PiWebChatImages?.render(block, t);
     }
   }
 

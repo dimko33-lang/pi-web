@@ -2,11 +2,9 @@
 
 Use a **fresh** Ubuntu Server 24.04 x86-64 system with systemd, at least two vCPUs, 18 GiB free and inbound TCP 80/443. Take a machine snapshot first. This release is not an in-place upgrade or a project deletion tool. It refuses an installation owned by another release. To roll back, keep new private data separately and restore the machine snapshot; do not install an older kit over this one.
 
-```sh
-curl -fsSL https://dimko33-lang.github.io/pi-web/install.sh | sudo bash
-```
+**Unpublished review.** The public card still serves v0.14.2, not this candidate. For an explicitly approved private test, verify the supplied archive checksum, extract it into a new directory and run `sudo python3 -B tools/ubuntu_install.py` from the extracted top directory. See [scope of this review](reference-review.md).
 
-Pi Web v0.14.2 installs Node 22.23.4 and Pi 1.7.0 from the release's runtime lock, not from npm's `latest` tag. The installer's version check must match `deployment/platform.json`.
+The review candidate installs Node 22.23.4 and Pi 1.7.0 from the release's runtime lock, not from npm's `latest` tag. The installer's version check must match `deployment/platform.json`.
 
 The launcher's `--verify-only` mode verifies a pinned download without installing. Ubuntu, Node/npm, PyPI, Playwright, speech assets and Docker images require network access. Re-run the **same** release to resume a failed stage. State is private under `/var/lib/pi-web-installer`. The browser and Telegram identities are separate. The new owner link is in `/var/lib/pi-web-installer/access.txt` (root only); browser Pi login runs as `pi-browser`, never as root. Only the owner should have panel access; host administration mode starts off.
 
@@ -23,7 +21,7 @@ No user application runs on startup. The application host (`editor.BASE`) initia
 
 ## Enrollment (optional and separate)
 
-The panel starts with owner DM and default guest DM; group slots are shown when their peer is explicitly supplied. Supply your own root-owned 0600 partial binding JSON via `PI_WEB_BINDINGS` **before first install**. See `deployment/bindings.json`. Peer magnitudes are positive strings. `PROJECT_PEER` is the shared publishing group, `LAB_PEER` the sandbox app group and `ARRI_PEER` the secondary static-site group (historical key, not project content). Unbound identifiers give no actual peer a group capability. Individual DM entries belong to the private `/etc/pi-web-instance/profile-catalog.env`, not Git. Existing saved settings are not migrated or erased by this release.
+The panel starts with all ten reference slots in their original order, independent of peer enrollment. A disconnected slot has `chatId: null`. The installer neither creates names nor filters the catalog. The personal slot's reviewed display text is resolved before private packaging, not by a Telegram login. Supply your own root-owned 0600 partial binding JSON via `PI_WEB_BINDINGS` **before first install**. See `deployment/bindings.json`. Peer magnitudes are positive strings. `PROJECT_PEER` is the shared publishing group, `LAB_PEER` the sandbox app group and `ARRI_PEER` the secondary static-site group (historical key, not project content). Absent identifiers create no Telegram binding. `OWNER_ID` and `ACCOUNT_ID` must both be explicitly bound before Telegram enrollment; groups remain optional. A private `PERSONAL_DM_ID` associates the individual slot and its settings with `dm_<id>` on first installation. The rendered catalog is private under `/etc/pi-web-instance/profile-catalog.env`. Existing saved settings are not migrated or erased by this release.
 
 Keep `tg-agent` and both archive timers off until deliberately enrolled. Use a genuinely independent account or fence and stop the old client and collectors first. Provide `/etc/pi-web-instance/telegram-client.json` with integer `api_id`, string `api_hash` and optional Telethon proxy (root-owned, readable only by the required service UID via ACL). Create `account.session` as `pi-nikita` in `/opt/tg-agent` using its venv and private config; verify `get_me().id` against the bound account and disconnect. Telegram Pi uses its own `tg-agent/home`. Once verified, the root operator can create `/etc/pi-web-instance/telegram-enrolled` and explicitly enable/start `tg-agent.service`; check delivery before enabling the optional `nikita-salon-history.timer` and `nikita-salon-piwep.timer`. Removing the marker is not a stop command. Do not run the same account session on two hosts.
 

@@ -26,5 +26,5 @@
       link.append(img); figure.append(link); gallery.append(figure);
     }
   }
-  global.@@PROJECT_HANDLE@@Images = { render };
+  global.PiWebChatImages = { render };
 })(window);

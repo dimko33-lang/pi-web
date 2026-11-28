@@ -1,4 +1,5 @@
 {
+  "defaultsSha256": "d22677d3b7ebe562ac8092912ce66bbdb0a8dc7b0d552355034b4a9a1255b49e",
   "files": {
     "etc/nginx/conf.d/00-map-size.conf": {
       "mode": "0644",
@@ -8,17 +9,17 @@
     "etc/nginx/conf.d/instance-site-access.conf": {
       "mode": "0600",
       "sha256": "830d8abb35c2e6c7a19d78483b4f9ad31102444cf5a7a8757c68ab0fec90dcff",
-      "source": "adapted-private-routing"
+      "source": "adapted"
     },
     "etc/nginx/conf.d/nikita-legacy-articles.conf": {
       "mode": "0600",
       "sha256": "d072e8031965a8f76a29d305af0fa7ca8ed9d13e091912af43c7a4a86154bd17",
-      "source": "adapted-private-routing"
+      "source": "adapted"
     },
     "etc/nginx/conf.d/nikita-salon-access.conf": {
       "mode": "0600",
       "sha256": "b74a49a18f7893e7b2a531cfde9abf2bf22f78768e0433f21aba8753b86db141",
-      "source": "adapted-private-routing"
+      "source": "adapted"
     },
     "etc/nginx/nginx.conf": {
       "mode": "0644",
@@ -28,7 +29,7 @@
     "etc/nginx/sites-available/instance-site-reader": {
       "mode": "0644",
       "sha256": "b8e797000bd5cc372eb5c4660753c3e98053960d75f40422cb6afea9027e146e",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/nginx/sites-available/panel-instance-site-acme": {
       "mode": "0644",
@@ -43,12 +44,12 @@
     "etc/nginx/sites-available/project-app": {
       "mode": "0644",
       "sha256": "1f45ff13292ba92b1d2623e4632390822c4bab6e3a898a71cbc499e6155c88f5",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/nginx/sites-available/project-static": {
       "mode": "0644",
       "sha256": "bf0a7cbad3c67bedfba587974df8243e7a2aa82dc0389d8ccb56f9cb1ddd12af",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/nginx/sites-available/restore-acme": {
       "mode": "0644",
@@ -73,17 +74,17 @@
     "etc/nikita-home-save/RESTORE.md": {
       "mode": "0644",
       "sha256": "15d12a026b4e236455f1152d0fac7749dda04edcb7e001a99be02c15212c7193",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/nikita-home-save/projects.json": {
       "mode": "0644",
       "sha256": "ba5930bd6d0732bf5529cbf690c57bae50bebfb5a99770c9288558896dfe641d",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/nikita-project-route/upstream.conf": {
       "mode": "0644",
       "sha256": "106c7d8a372e06fa8774e929a9ceb97f3200bf0c08f37ed2cfc1761f6371cdff",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/pi-web-speech/@@INSTANCE@@/worker.py": {
       "mode": "0644",
@@ -118,22 +119,22 @@
     "etc/systemd/system/nikita-project-deps.socket": {
       "mode": "0644",
       "sha256": "81de135e4b8ddac448faa0ba7264930d2b9ea00098b19a7d60c422848b3683fe",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/systemd/system/nikita-project-deps@.service": {
       "mode": "0644",
       "sha256": "f0096cf4347c49ee53a620a2a3d5847d1fb2b084a95b7543b8e6fafb92a663a4",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/systemd/system/nikita-project-runner.socket": {
       "mode": "0644",
       "sha256": "9a12032d9e9740111a1a0ce1b35ff57a61074b74fdc408fe0569db8a60f02f2f",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/systemd/system/nikita-project-runner@.service": {
       "mode": "0644",
       "sha256": "554b24afe79e60c4caeb0355a366a92ae34f5cf82d49248af7f6d66e3a06bb44",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/systemd/system/nikita-reader-door.service": {
       "mode": "0644",
@@ -263,7 +264,7 @@
     "etc/systemd/system/srv-nikita\\x2dprojects-workspace.mount": {
       "mode": "0644",
       "sha256": "b5b7c0a6401b9c57eb1e8f9a3534847dddbe0278b97b2b1d5be2dd48d4840ee4",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/systemd/system/tg-agent.service": {
       "mode": "0644",
@@ -273,12 +274,12 @@
     "etc/systemd/system/tg-agent.service.d/20-lightcone-archive.conf": {
       "mode": "0644",
       "sha256": "037ac773cdff4ccd625137e2ecddeadb1489f931e348daa09c298cdcd19990dc",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/systemd/system/tg-agent.service.d/22-debri-archive.conf": {
       "mode": "0644",
       "sha256": "6a8c9e39b11103ebadfb313b97f44f545f3b7348d937c34d08b19f4b02d848d9",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/systemd/system/tg-agent.service.d/25-live-archive.conf": {
       "mode": "0644",
@@ -303,7 +304,7 @@
     "etc/systemd/system/tg-agent.service.d/46-static-site.conf": {
       "mode": "0644",
       "sha256": "b23f39d460149e0e771744ca6aa13de2574157ba509ebd4d6cb32cde4a4d0137",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "etc/systemd/system/tg-agent.service.d/47-pi-web-site.conf": {
       "mode": "0644",
@@ -313,6 +314,11 @@
     "etc/systemd/system/var-lib-nikita\\x2dscience-work.mount": {
       "mode": "0644",
       "sha256": "122e16b00fcfaacc961842c7ba9d38aeda79aca2d0fae299d950838e414f64b4",
+      "source": "exact"
+    },
+    "etc/tmpfiles.d/nikita-owner-json.conf": {
+      "mode": "0644",
+      "sha256": "b33d405dc3bd2ffcba81fd83d997fc9ef4d820276f18ddce4b444be562ae2b1c",
       "source": "exact"
     },
     "opt/nikita-circle-reserve/circle_match.py": {
@@ -348,17 +354,17 @@
     "opt/nikita-project-runtime/Dockerfile": {
       "mode": "0644",
       "sha256": "ccda0017584e17f2e7cfdb78961fd2a4434dc3a8f8352e65eb5fd1b36123f166",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "opt/nikita-reader-ui/debri.css": {
       "mode": "0644",
       "sha256": "aff5f3433464cf31e4eaf9aed5588942d075c21dc11030b161991d3a450baa77",
-      "source": "public-platform"
+      "source": "exact"
     },
     "opt/nikita-reader-ui/lightcone.css": {
       "mode": "0644",
       "sha256": "aff5f3433464cf31e4eaf9aed5588942d075c21dc11030b161991d3a450baa77",
-      "source": "public-platform"
+      "source": "exact"
     },
     "opt/nikita-science/Dockerfile": {
       "mode": "0644",
@@ -428,7 +434,7 @@
     "srv/pi-workspaces/browser/rootfs/opt/ENVIRONMENT.md": {
       "mode": "0644",
       "sha256": "2ec127ccb12b2d1293cd7634d784d65766fb4e5f1b5d6427f772892cbb54d84f",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/INTERACTIVE-CARDS.md": {
       "mode": "0644",
@@ -467,8 +473,8 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-images.js": {
       "mode": "0644",
-      "sha256": "ce35abede35542685df07bfdf40b815210f45d5b5a51e45d87b36bf7caa80502",
-      "source": "adapted"
+      "sha256": "1a52c610e5782d487807cc651bca4fc86606353a7a99eb69a209b9d3f0b9eb70",
+      "source": "exact"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat-last-message-time.js": {
       "mode": "0644",
@@ -502,13 +508,13 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.html": {
       "mode": "0644",
-      "sha256": "f84856227482c783faba61c9b04ac1af0d4d347431a07c274baf82f52ba24928",
-      "source": "public-platform"
+      "sha256": "96423241c0efa48fa7a0e22b02925b8ea9985bd8e47b2168a3d402cca2c32515",
+      "source": "adapted"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/chat.js": {
       "mode": "0644",
-      "sha256": "d5d41752ee54340d0a4d2199a565345df05924bbefd55eca9a4fb871347b1915",
-      "source": "adapted"
+      "sha256": "86e3f58e7da17270f1581124fa9d933a88be8a71d39dffc83e9a0bf7a5a7a0e6",
+      "source": "exact"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.css": {
       "mode": "0640",
@@ -517,8 +523,8 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.html": {
       "mode": "0640",
-      "sha256": "e1aa0e7f1c24daa029d7422307ca402552480bacb97e8a0713c4b8566fd67460",
-      "source": "public-platform"
+      "sha256": "3cc5bd8d9d2e0931cb7e18111a5c8ce3b10357eaf0c3fd6fb6215ae0a7033cdf",
+      "source": "exact"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/conversation-profiles.js": {
       "mode": "0640",
@@ -527,8 +533,8 @@
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/favicon.svg": {
       "mode": "0644",
-      "sha256": "a5d2a728faa382a2882308938946abd285203c44971138d4214c108bfc2f0c9c",
-      "source": "public-platform"
+      "sha256": "7f98e14382f2fa116681cc55ac38a63c467ccfc99c7b67c7a1d78ec2b89b3ea9",
+      "source": "exact"
     },
     "srv/pi-workspaces/browser/rootfs/opt/pi-web/public/file-browser.css": {
       "mode": "0644",
@@ -913,7 +919,7 @@
     "srv/pi-workspaces/browser/rootfs/opt/site-entry/main.mjs": {
       "mode": "0644",
       "sha256": "0d6e57c887f3e9f1bfa04563198ea812b362d3b72697ae8c27519b623c09c690",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "srv/pi-workspaces/browser/rootfs/opt/site-entry/navigation.js": {
       "mode": "0644",
@@ -923,12 +929,12 @@
     "srv/pi-workspaces/browser/rootfs/opt/site-entry/test.mjs": {
       "mode": "0644",
       "sha256": "b2c09344dd08454b6334635855f58abe071a0c7c1382e6d09212a1d5c77184b7",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_runtime.py": {
       "mode": "0600",
       "sha256": "d09a45b72992c7806183e00cb8a5e60346746deae06efe568835bd8dbf87d287",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_server.py": {
       "mode": "0600",
@@ -938,7 +944,7 @@
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/agent_tools.ts": {
       "mode": "0600",
       "sha256": "af55da614982911e5abd62c44adf7b08980b80b6ba127bedfdc64741ae58eaf7",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/approval_state.py": {
       "mode": "0600",
@@ -973,11 +979,11 @@
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/config.py": {
       "mode": "0640",
       "sha256": "9dcf076d64a52e6394f33840bdf3bdb8baa54b25035f47801183af543af8d52a",
-      "source": "private-input-adapter"
+      "source": "adapted"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/conversation_profiles.py": {
       "mode": "0600",
-      "sha256": "7021cb7a03885a4ceeab14f3a0d63996137108cd5902f85b68db3994cf436704",
+      "sha256": "861f16fe1ede134c099f0a9bbc7c6cd6327d3b957f296a7f13cca858b7b27a8b",
       "source": "adapted"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/debri_archive.py": {
@@ -1012,7 +1018,7 @@
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/live_archive.py": {
       "mode": "0600",
-      "sha256": "1efed5a09034298570ae3d152b7df829e0019e8ee5489c0ebef1191f43619d4c",
+      "sha256": "db50cefee89b964d8c9b535a163dde829af74e1b8753b5294adde41200dc071b",
       "source": "adapted"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/mathrender/package-lock.json": {
@@ -1167,7 +1173,7 @@
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/tool_policy.py": {
       "mode": "0644",
-      "sha256": "1e848196f8acd4a64c3595661e07a18573cead990ef5e552c5b9d01c71cce27a",
+      "sha256": "0c2c2978ff78f479c7421208a1fba6f781a0dca5c98c8a6077fc09e3d70d248f",
       "source": "adapted"
     },
     "srv/pi-workspaces/nikita/rootfs/opt/projects/tg-agent/turn_wait.py": {
@@ -1203,37 +1209,37 @@
     "usr/local/bin/nikita-project": {
       "mode": "0755",
       "sha256": "7926b5eef904411b60822f8fc9ae688c37b915f655ea0cd6c9f97b1b9aed15cc",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "usr/local/lib/nikita-home-save.py": {
       "mode": "0644",
       "sha256": "f49877fd8f7da1911a3c1e06b29cc042500407b31b783841d9e188f31016d961",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "usr/local/lib/nikita-project-deps.py": {
       "mode": "0644",
       "sha256": "0738f64a7b8c6369a505f988544309abbbef98dc6ed8b097c6f7226bb68a4641",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "usr/local/lib/nikita-project-http-relay.cjs": {
       "mode": "0644",
       "sha256": "df7da399bdbed4fa132a221540f23fbba3fcc648bc29f6c1e5b41df54b6f1f79",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "usr/local/lib/nikita-project-relay.cjs": {
       "mode": "0644",
       "sha256": "15fb210204f57108c2b3af283273b5b0d9a3e0c8fe28a93bd01d962a1f6ea39a",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "usr/local/lib/nikita-project-release.py": {
       "mode": "0644",
       "sha256": "f6cb9fcb7abf630ac7ba54672e215beafc17911e482708f7d841860fd3ae5a84",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "usr/local/lib/nikita-project-runner.py": {
       "mode": "0644",
       "sha256": "b690d3f68fb585b51e39537d0724b89b3802f1b093068aa31274c45ec04c7069",
-      "source": "public-platform"
+      "source": "adapted"
     },
     "usr/local/lib/nikita-salon-history.py": {
       "mode": "0644",
@@ -1377,8 +1383,8 @@
     },
     "var/lib/nikita-live-archive/index.html": {
       "mode": "0644",
-      "sha256": "ab833b240cfde20685c1a6e39ff3ff103f40a471862f5c132ed0acb8b30ceff6",
-      "source": "public-platform"
+      "sha256": "8e3fd22caf2e800670b0d2d089dcb2fd11634dd9d9e73c83cf12fe30762d7abf",
+      "source": "adapted"
     },
     "var/lib/nikita-live-archive/lc-app.js": {
       "mode": "0644",
@@ -1392,8 +1398,8 @@
     },
     "var/lib/nikita-live-archive/lc-index.html": {
       "mode": "0644",
-      "sha256": "fd1ec9e823b4ba0a306ce69e252e22bb78dcc392ae8c33b4c0ba60fcc8038851",
-      "source": "public-platform"
+      "sha256": "63ab23aaedc89f2214d681497cb2b2545f445c96bc36fec9323516f5264daf71",
+      "source": "adapted"
     },
     "var/lib/nikita-live-archive/render.js": {
       "mode": "0644",
@@ -1402,13 +1408,13 @@
     },
     "var/www/nikita-site/app.js": {
       "mode": "0644",
-      "sha256": "56f59953d5bfb7e14be9640b5fd588776ee192d9a025c57054d199c8c6c18062",
-      "source": "public-platform"
+      "sha256": "48ddbdd88df76c7e48b0d16d0c4d4c7d939f21c831d05e4b731fd5b1ff10221a",
+      "source": "adapted"
     },
     "var/www/nikita-site/index.html": {
       "mode": "0644",
-      "sha256": "0e5acb170e12a69aa195ed0d404a84b6251d89c548ebc5b432bba4eb3213625e",
-      "source": "public-platform"
+      "sha256": "70b621540e668d5df56a175f4407dedbd0ad9f66e1c17cb3f6fb1a258b434286",
+      "source": "adapted"
     },
     "var/www/nikita-site/style.css": {
       "mode": "0644",

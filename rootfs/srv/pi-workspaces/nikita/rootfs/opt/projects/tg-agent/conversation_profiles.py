@@ -35,7 +35,7 @@ ADDRESSING_INSTRUCTIONS = (
 
 def addressing_snapshot(chat_id, panel=PANEL):
     """Deployment policy for unprofiled chats and configurable name markers."""
-    if chat_id not in CHAT_PROFILES:
+    if not chat_id or chat_id not in CHAT_PROFILES:
         return 'mention_reply', ()
     try:
         saved = json.loads((panel / 'data/addressing.json').read_text())
@@ -62,7 +62,7 @@ def name_addressed(text, names):
 
 def profile_for_chat(chat_id, panel=PANEL):
     """Conversation settings are selected by exact Telegram peer ID."""
-    profile_id = CHAT_PROFILES.get(chat_id)
+    profile_id = CHAT_PROFILES.get(chat_id) if chat_id else None
     return read_profile(profile_id, panel) if profile_id else None
 
 

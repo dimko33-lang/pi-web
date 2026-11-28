@@ -111,14 +111,14 @@
       "user": "root"
     },
     "opt/nikita-project-runtime": {
-      "user": "root",
       "group": "root",
-      "mode": "0755"
+      "mode": "0755",
+      "user": "root"
     },
     "opt/nikita-reader-ui": {
-      "user": "root",
       "group": "root",
-      "mode": "0755"
+      "mode": "0755",
+      "user": "root"
     },
     "opt/nikita-science": {
       "group": "root",
@@ -682,6 +682,11 @@
       "mode": "0644",
       "user": "root"
     },
+    "etc/tmpfiles.d/nikita-owner-json.conf": {
+      "group": "root",
+      "mode": "0644",
+      "user": "root"
+    },
     "opt/nikita-circle-reserve/circle_match.py": {
       "group": "root",
       "mode": "0644",
@@ -713,9 +718,9 @@
       "user": "root"
     },
     "opt/nikita-project-runtime/Dockerfile": {
-      "user": "root",
       "group": "root",
-      "mode": "0644"
+      "mode": "0644",
+      "user": "root"
     },
     "opt/nikita-reader-ui/debri.css": {
       "group": "root",
@@ -1573,9 +1578,9 @@
       "user": "pi-nikita"
     },
     "usr/local/bin/nikita-project": {
-      "user": "root",
       "group": "root",
-      "mode": "0755"
+      "mode": "0755",
+      "user": "root"
     },
     "usr/local/bin/node": {
       "group": "root",

@@ -10,6 +10,8 @@
 !/deployment/ownership.json
 !/deployment/platform.json
 !/deployment/source.json
+!/deployment/reference-defaults.json
+!/rootfs/etc/tmpfiles.d/nikita-owner-json.conf
 !/docs/features.md
 !/docs/index.html
 !/docs/install.sh
@@ -22,6 +24,7 @@
 !/docs/licenses/pi-MIT.txt
 !/docs/licenses/plotly-MIT.txt
 !/docs/reference-install.md
+!/docs/reference-review.md
 !/docs/release-history.md
 !/docs/releases/v0.12.0.md
 !/docs/releases/v0.12.1.md

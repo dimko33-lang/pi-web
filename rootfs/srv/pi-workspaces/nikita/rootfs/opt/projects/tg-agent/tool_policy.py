@@ -15,8 +15,9 @@ def tools_for(role):
 
 
 def role_for(uid, channel, actor_id, owner_id, public_chat_id, lightcone_id, debri_ids, curvelab_id):
+    if not uid:return 'guest'  # An unbound numeric slot is never a peer.
     if not channel:
-        return 'owner' if uid == owner_id else 'guest'
+        return 'owner' if owner_id and uid == owner_id else 'guest'
     if uid in (-curvelab_id, @@LAKE_PEER@@, @@ARRI_PEER@@):  # Project groups never inherit owner tools.
         return 'public_research'
     if uid == -lightcone_id:
@@ -24,6 +25,6 @@ def role_for(uid, channel, actor_id, owner_id, public_chat_id, lightcone_id, deb
     if uid in tuple(-value for value in debri_ids):
         return 'debri'
     # Administration is never inherited by a newly authorized group.
-    if uid == -public_chat_id and actor_id == owner_id:
+    if uid == -public_chat_id and owner_id and actor_id == owner_id:
         return 'channel_owner'
     return 'channel' if uid == -public_chat_id else 'guest'

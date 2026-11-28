@@ -4,7 +4,7 @@ The distribution is the Nika environment, not a snapshot of someone's work. The 
 
 | Facility | Distributed implementation | Created on the destination or restored privately |
 |---|---|---|
-| Panel and Telegram | Browser and Telegram workspaces, role and approval checks, native tool registration, profiles, addressing, memory and readers | Accounts, provider keys, people/groups, grants, profile values, private prompts, chats and media |
+| Panel and Telegram | Browser and Telegram workspaces, role and approval checks, native tool registration, profiles, addressing, memory and readers | Accounts, provider keys, peer bindings, grants, personal text held for review, chats and media. Source profiles retain their independent settings and reviewed prompts, even before binding |
 | Publishing and reading | Note and media rendering, protected readers, per-article share checks, two group-scoped static-site mounts | Article bodies, indexes, reader snapshots, magazines, authored pages and attachments |
 | Application development | Bounded workspace volume, Node/Python toolchain image, role-gated command broker, dependency proxy, checked release/withdraw/rollback and isolated HTTP ingress | Entire working tree, lockfiles for the user's app, release slots, mutable data, snapshots and designs |
 | Private Save | Authenticated nginx route to the private exporter, private root registry and SQLite staging | Instance archives, including project content that must never be fed into the public packer |

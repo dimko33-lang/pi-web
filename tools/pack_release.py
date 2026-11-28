@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """Build a deterministic distribution using an explicit allowlist (not the checkout)."""
-import argparse, gzip, hashlib, io, tarfile
+import argparse, gzip, hashlib, io, json, tarfile
 from pathlib import Path
 from prepare import REPO, verify
 
-TOP='pi-web-v0.14.2'
-EXTRA=('LICENSE README.md deployment/source.json deployment/bindings.json deployment/binaries.json deployment/platform.json deployment/dependencies.json deployment/ownership.json tools/prepare.py tools/content_boundary.py tools/test_projects.py tools/test_web_read.py tools/test_pi_runtime.py tools/check.py tools/panel-smoke.py tools/install_config.py tools/ubuntu_install.py tools/test_installer.py tools/pack_release.py docs/reference-install.md docs/ubuntu-install.md docs/releases/v0.14.2.md docs/licenses/README.md docs/licenses/dompurify.txt docs/licenses/inter-OFL.txt docs/licenses/katex-MIT.txt docs/licenses/katex-fonts-OFL.txt docs/licenses/marked.txt docs/licenses/pi-MIT.txt docs/licenses/plotly-MIT.txt').split()
+TOP='pi-web-v0.14.3'
+EXTRA=('LICENSE README.md deployment/source.json deployment/reference-defaults.json deployment/bindings.json deployment/binaries.json deployment/platform.json deployment/dependencies.json deployment/ownership.json tools/prepare.py tools/content_boundary.py tools/test_projects.py tools/test_web_read.py tools/test_pi_runtime.py tools/check.py tools/panel-smoke.py tools/install_config.py tools/ubuntu_install.py tools/test_installer.py tools/pack_release.py docs/reference-install.md docs/ubuntu-install.md docs/reference-review.md docs/licenses/README.md docs/licenses/dompurify.txt docs/licenses/inter-OFL.txt docs/licenses/katex-MIT.txt docs/licenses/katex-fonts-OFL.txt docs/licenses/marked.txt docs/licenses/pi-MIT.txt docs/licenses/plotly-MIT.txt').split()
 
 def selected(manifest):return sorted(['rootfs/'+n for n in manifest['files']]+EXTRA)
 
 def pack(dest):
     manifest,_=verify()
+    if not all(e['label'] for e in json.loads((REPO/'deployment/reference-defaults.json').read_bytes())['catalog']):
+        raise ValueError('Publication hold: unresolved private label in the reference catalog')
     with dest.open('xb') as raw,gzip.GzipFile(filename='',mode='wb',fileobj=raw,mtime=0) as gz,tarfile.open(fileobj=gz,mode='w|',format=tarfile.PAX_FORMAT) as out:
         for name in selected(manifest):
             f=REPO/name

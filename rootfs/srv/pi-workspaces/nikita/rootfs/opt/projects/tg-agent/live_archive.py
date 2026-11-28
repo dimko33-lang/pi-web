@@ -85,7 +85,7 @@ def publish(text, message_id, date=None):
     _write_atomic(path, json.dumps({'author': author, 'messages': messages}, ensure_ascii=False))
     authors_path = LIVE / 'authors.json'
     authors = _read(authors_path, [])
-    if isinstance(authors, list) and authors:
+    if isinstance(authors, list):  # A genuinely empty index acquires its first real author here.
         authors = [a for a in authors if a.get('id') != AUTHOR_ID] + [author]
         authors.sort(key=lambda a: a.get('message_count', 0), reverse=True)
         _write_atomic(authors_path, json.dumps(authors, ensure_ascii=False, separators=(',', ':')))
